@@ -229,7 +229,7 @@ const TABS = [
   ["inicio", "Trilha", "home"], ["praticar", "Praticar", "target"], ["loja", "Loja", "bag"],
   ["ranking", "Ranking", "trophy"], ["perfil", "Perfil", "user"]
 ];
-const SIDE_EXTRA = [["missoes", "Missões", "flag"], ["erros", "Caderno de erros", "book"], ["painel", "Painel", "chart"]];
+const SIDE_EXTRA = [["cronograma", "Cronograma", "calendar"], ["missoes", "Missões", "flag"], ["erros", "Caderno de erros", "book"], ["painel", "Painel", "chart"]];
 
 function topHTML() {
   const s = state.stats, n = nivelDe(s.xp || 0);

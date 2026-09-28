@@ -4,7 +4,7 @@ import { SUBJECTS } from "./app/content.js";
 const host = document.getElementById("demo");
 if (host) {
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-  const pool = SUBJECTS.map(s => s.unidades.flatMap(u => u.licoes.flatMap(l => l.questoes.map(q => ({ q, l })))));
+  const pool = SUBJECTS.map(s => s.unidades.flatMap(u => u.licoes.flatMap(l => (l.questoes || []).map(q => ({ q, l })))));
   const seen = SUBJECTS.map(() => -1);
   let eixo = 0;
 

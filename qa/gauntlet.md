@@ -53,3 +53,9 @@ Tier: **L** (site completo: landing + plataforma). Modo: Redesign com preservaç
 - Técnicas aplicadas dentro da lição (a página separada de Técnicas saiu): exemplo guiado, recordação ativa, intercalação, revisão espaçada, correção guiada com nova chance, confiança (metacognição) e pausa Pomodoro depois de 25 min de foco.
 - Corrigido: a classe `.done` da tela de resultado esticava os nós concluídos da trilha (espaços enormes).
 - Migração 008: conquista "Eixo dominado" passa a exigir as 16 lições do eixo.
+
+## Rodada 4 · ideias do seminário 2026.2 (projeto_deltinha.pdf)
+
+- Plataforma: cronograma personalizável com sugestão automática pelo desempenho, diagnóstico inicial por eixo, cartões "para você hoje" (cronograma, revisão vencida, ponto fraco), Banco ENEM com filtro de dificuldade estimada, feedback dos estudantes (pesquisa-ação) visível na administração e guia de uso.
+- Site: integrantes com líder e vice-líder e Danilo Augusto do Nascimento Fortes; semestre 2026.2; CEMEP Osmar Passarelli Silveira (Paulínia/SP); ODS 4 e ODS 10; proposta de solução; objetivos; caráter qualitativo e exploratório com pesquisa-ação; cronograma do projeto em 6 fases; dados do ENEM; referencial teórico; agradecimentos.
+- Migração 009: profiles.cronograma, tabela feedback com RLS e dificuldade estimada nas 169 questões oficiais.

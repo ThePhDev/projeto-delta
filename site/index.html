@@ -400,6 +400,63 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 .isheet ol{margin:1rem 0 1.2rem 1.2rem;display:grid;gap:.7rem;font-size:1rem;line-height:1.5}
 .isheet ol b{color:#00f0ff}
 .isheet .x{width:100%;min-height:50px;border-radius:14px;border:0;font:700 1rem 'Inter',sans-serif;color:#fff;background:linear-gradient(100deg,#2979ff,#7c3aed 55%,#d912d9);cursor:pointer}
+
+/* ---------- conteúdo do seminário 2026.2 ---------- */
+.proposta{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:3.5rem;border-top:1px solid var(--line);padding-top:2rem}
+.proposta li{font-size:1rem;line-height:1.55;color:#2b2e38}
+.proposta b{display:block;font-family:'Orbitron',sans-serif;font-size:1rem;color:#6d28d9;margin-bottom:.4rem}
+@media(max-width:820px){.proposta{grid-template-columns:1fr 1fr}}@media(max-width:520px){.proposta{grid-template-columns:1fr}}
+#objetivos,#dados,#cronograma,#referencial{border-top:1px solid var(--line)}
+#objetivos .lead,#dados .lead,#cronograma .lead{font-size:1.1rem;line-height:1.65;margin-top:1.2rem;max-width:62ch;color:#1a1c24}
+.obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:3rem}
+@media(max-width:900px){.obj-grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.obj-grid{grid-template-columns:1fr}}
+.obj{background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.4rem;transition:transform .3s var(--ease),box-shadow .3s}
+.obj:hover{transform:translateY(-3px);box-shadow:0 20px 40px -24px rgba(75,0,130,.35)}
+.obj svg{width:40px;height:40px;padding:8px;border-radius:12px;background:linear-gradient(135deg,#2979ff,#8b5cf6 60%,#ff00e5);stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.obj h3{font-family:'Orbitron',sans-serif;font-size:1.02rem;font-weight:700;margin-top:1rem;letter-spacing:.01em}
+.obj p{font-size:.98rem;line-height:1.55;color:#2b2e38;margin-top:.4rem}
+.dados-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:3rem}
+@media(max-width:820px){.dados-grid{grid-template-columns:1fr}}
+.dado{background:#0b0b0f;color:#fff;border-radius:26px;padding:1.8rem;--em:#00f0ff}
+.dado .big{font-size:clamp(2.2rem,5vw,3.4rem);line-height:1}
+.dado p{margin-top:.6rem;line-height:1.5;color:rgba(255,255,255,.88)}
+.dado small{display:block;margin-top:.6rem;color:rgba(255,255,255,.65);font-size:.8rem}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.2rem;max-width:320px}
+.dots i{aspect-ratio:1;border-radius:50%;background:#4b4f5c}
+.dots i.p{background:linear-gradient(135deg,#8b5cf6,#ff00e5)}.dots i.pb{background:#00f0ff}
+.bars2{margin-top:1.4rem;display:grid;gap:.8rem}
+.bars2 div{display:grid;grid-template-columns:5rem 1fr 4rem;align-items:center;gap:.6rem;font-weight:700;font-size:.9rem}
+.bars2 i{display:block;height:14px;border-radius:9px;width:calc((var(--v) - 400) / 250 * 100%);background:linear-gradient(90deg,#8b5cf6,#ff00e5)}
+.bars2 i.pb{background:#00f0ff}
+.tabela{margin-top:1.4rem;overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.2rem}
+.tabela table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
+.tabela caption{text-align:left;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.8rem}
+.tabela th,.tabela td{padding:.55rem .7rem;text-align:left;border-bottom:1px solid var(--line)}
+.tabela thead th{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#4b4f5c}
+.tabela tbody th{font-weight:700;vertical-align:top}
+.tabela td.neg{color:#be123c;font-weight:700}
+.tabela small{display:block;margin-top:.8rem;color:#4b4f5c}
+.carater{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.carater span{border:1px solid var(--line);border-radius:14px;padding:.6rem .9rem;background:#fff;font-size:.95rem}
+.carater b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:#6d28d9}
+.fases{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:.8rem;margin-top:3rem;counter-reset:f}
+@media(max-width:1000px){.fases{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.fases{grid-template-columns:1fr}}
+.fases li{position:relative;background:#fff;border:1px solid var(--line);border-top:4px solid hsl(var(--h) 70% 55%);border-radius:18px;padding:1.2rem 1rem}
+.fases .fn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;background:hsl(var(--h) 70% 50%);font-family:'Orbitron',sans-serif}
+.fases h3{font-family:'Orbitron',sans-serif;font-size:.92rem;font-weight:700;margin-top:.8rem;line-height:1.3}
+.fases p{font-size:.92rem;line-height:1.5;color:#2b2e38;margin-top:.4rem}
+.objetivo{margin-top:1.6rem;padding:1rem 1.2rem;border:1px dashed rgba(13,14,18,.3);border-radius:16px;line-height:1.55;color:#1a1c24;max-width:80ch}
+.objetivo b{color:#6d28d9}
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:3rem}
+@media(max-width:820px){.quotes{grid-template-columns:1fr}}
+.quotes figure{background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.6rem;position:relative}
+.quotes figure::before{content:"“";position:absolute;top:.2rem;left:1rem;font-family:'Orbitron',sans-serif;font-size:3rem;color:#8b5cf6;opacity:.35}
+.quotes blockquote{font-size:1.02rem;line-height:1.6;color:#1a1c24;margin-top:1rem}
+.quotes figcaption{margin-top:.8rem;font-weight:700;font-size:.9rem;color:#6d28d9}
+.refs{margin-top:1.2rem;color:#4b4f5c;font-size:.9rem}
+#equipe .names .lead-role{display:inline-flex;flex-direction:column;align-items:center}
+#equipe .names .lead-role small{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+.agradece{font-style:normal;opacity:.85}
 </style>
 </head>
 <body>
@@ -434,14 +491,15 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <a href="#missao" data-d=".08s"><span class="no">01</span>A missão</a>
     <a href="#app" data-d=".14s"><span class="no">02</span>O app</a>
     <a href="#eixos" data-d=".20s"><span class="no">03</span>Os eixos</a>
-    <a href="#metodologia" data-d=".26s"><span class="no">04</span>Metodologia</a>
-    <a href="#equipe" data-d=".32s"><span class="no">05</span>A tripulação</a>
-    <a href="app/" data-d=".38s"><span class="no">06</span>Entrar na plataforma</a>
-    <a href="#instalar" class="install-link" data-install data-d=".44s"><span class="no">07</span>Instalar no celular</a>
+    <a href="#objetivos" data-d=".23s"><span class="no">04</span>Objetivos</a>
+    <a href="#metodologia" data-d=".26s"><span class="no">05</span>Metodologia</a>
+    <a href="#equipe" data-d=".32s"><span class="no">06</span>A tripulação</a>
+    <a href="app/" data-d=".38s"><span class="no">07</span>Entrar na plataforma</a>
+    <a href="#instalar" class="install-link" data-install data-d=".44s"><span class="no">08</span>Instalar no celular</a>
   </div>
   <div class="foot">
     <span class="serif">Projeto Delta</span>
-    <span>Universidade São Francisco · Campinas · 2026</span>
+    <span>Universidade São Francisco · Campinas · 2026.2</span>
   </div>
 </div>
 
@@ -466,7 +524,7 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <section class="chapter" id="ch-hero" data-in="-0.1" data-hold="-0.05" data-out="0.14">
       <div class="inner">
         <div class="badge liquid-glass">
-          <b>USF · 2026</b>
+          <b>USF · 2026.2</b>
           <span>Extensão em Engenharia da Computação</span>
         </div>
         <h1 class="serif" id="heroTitle">A Matemática do <span class="hchip" aria-hidden="true"><svg viewBox="0 0 100 92" width="40" height="37"><defs><linearGradient id="hcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff00e5"/><stop offset=".5" stop-color="#00f0ff"/><stop offset="1" stop-color="#2979ff"/></linearGradient></defs><path d="M50 8 L94 84 L8 84 Z" fill="none" stroke="url(#hcg)" stroke-width="13"/></svg></span> <span class="sans">ENEM</span> não precisa ser um <em>abismo.</em></h1>
@@ -488,7 +546,7 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
           <h2 class="serif">A lacuna é real. E não é falta de <em>talento.</em></h2>
         </div>
         <div>
-          <p>Muitos formandos da rede pública, como os da escola <strong>CEMEP</strong>, chegam ao 3º ano sem cronograma, sem material organizado e sem ninguém para dizer o que revisar. É exatamente isso que os cursinhos vendem.</p>
+          <p>Muitos formandos da rede pública, como os da escola <strong>CEMEP</strong>, em Paulínia (SP), chegam ao 3º ano sem cronograma, sem material organizado e sem ninguém para dizer o que revisar. É exatamente isso que os cursinhos vendem.</p>
           <div class="datum liquid-glass">
             <div class="n serif">45 <em>questões</em></div>
             <div class="l">Matemática e suas Tecnologias ocupa metade do 2º dia do ENEM. É onde a falta de base mais derruba a nota.</div>
@@ -503,11 +561,12 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         <h2 class="serif">Método de cursinho, <em>custo zero.</em></h2>
         <p>Lições curtas, questões oficiais do INEP e revisão no dia certo. Você estuda dez minutos e o Delta cuida do resto: o que revisar, quando revisar e por onde continuar.</p>
         <div class="tags">
-          <span class="liquid-glass">4 eixos do ENEM</span>
+          <span class="liquid-glass">Banco por tema e dificuldade</span>
+          <span class="liquid-glass">Cronograma personalizável</span>
+          <span class="liquid-glass">Revisão espaçada e adaptativa</span>
           <span class="liquid-glass">Questões oficiais do INEP</span>
           <span class="liquid-glass">Questões inspiradas no ENEM</span>
           <span class="liquid-glass">Simulados cronometrados</span>
-          <span class="liquid-glass">Revisão espaçada</span>
           <span class="liquid-glass">Grátis, no celular e no PC</span>
         </div>
       </div>
@@ -543,18 +602,73 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
           <div>
             <div class="num serif">ODS 4</div>
             <h3>Educação de qualidade</h3>
-            <p>Acesso gratuito a preparação estruturada em Matemática para o ENEM, independentemente da renda.</p>
+            <p>Apoio gratuito para alunos de escolas públicas se prepararem para o ENEM.</p>
           </div>
           <div>
-            <div class="num serif">ODS 9</div>
-            <h3>Indústria, inovação e infraestrutura</h3>
-            <p>Tecnologia aplicada como infraestrutura social: uma plataforma aberta, leve e acessível.</p>
+            <div class="num serif">ODS 10</div>
+            <h3>Redução das desigualdades</h3>
+            <p>Mais oportunidades para quem não pode pagar por um curso preparatório.</p>
           </div>
         </div>
+      </div>
+      <ul class="proposta reveal" aria-label="Proposta de solução">
+        <li><b>01</b>Oferecer materiais gratuitos para o ENEM, ampliando o acesso à educação de qualidade.</li>
+        <li><b>02</b>Apoiar alunos de escolas públicas, ajudando a reduzir as desigualdades na preparação.</li>
+        <li><b>03</b>Apresentar métodos de estudo que ajudem cada aluno a aprender melhor e organizar a rotina.</li>
+        <li><b>04</b>Reunir questões e acompanhar o progresso dos alunos numa plataforma gratuita e fácil de usar.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section id="objetivos" aria-labelledby="objTitle">
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="serif" id="objTitle">O que o projeto se propõe a <em>fazer.</em></h2>
+        <p class="lead">Desenvolver e implementar um site gratuito de apoio aos estudos de Matemática do 2º dia do ENEM, voltado para os alunos do ensino médio da escola pública CEMEP.</p>
+      </div>
+      <div class="obj-grid">
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><h3>Diagnosticar dificuldades</h3><p>Questionários e conversas com os alunos do CEMEP, e um diagnóstico dentro da plataforma.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="13" height="10" rx="2"/><rect x="15" y="9" width="6" height="11" rx="1.5"/><path d="M7 18h6"/></svg><h3>Interface responsiva</h3><p>Funciona no celular e no computador, e pode ser instalada como app.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M8 7h7M8 11h5"/></svg><h3>Banco de questões</h3><p>Questões oficiais do ENEM organizadas por tema, ano e dificuldade.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><h3>Cronograma personalizável</h3><p>O aluno escolhe o que estudar em cada dia, com sugestões pelo desempenho.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 2v5h-5M6 22v-5h5"/></svg><h3>Revisão de questões</h3><p>Revisão espaçada e adaptativa, com caderno de erros.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4 4 0 0 1 7 0"/></svg><h3>Testes e capacitação</h3><p>Testes com os estudantes no CEMEP e guia de uso da plataforma.</p></div>
       </div>
     </div>
   </section>
 
+  <section id="dados" aria-labelledby="dadosTitle">
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="serif" id="dadosTitle">A diferença que o Delta quer <em>diminuir.</em></h2>
+        <p class="lead">Dentre as 500 maiores notas do ENEM, 467 são de alunos de escolas particulares. Apenas 29 vêm de escolas públicas, a maioria federais.</p>
+      </div>
+      <div class="dados-grid">
+        <div class="dado reveal"><div class="big serif">93,4%</div><p>das 500 maiores notas são de alunos de escolas particulares.</p>
+          <div class="dots" aria-hidden="true"><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="pb"></i><i class="pb"></i><i class="pb"></i></div><small>Cada ponto representa 10 das 500 maiores notas.</small></div>
+        <div class="dado reveal"><div class="big serif">92,61 <em>pontos</em></div><p>separam a média das escolas privadas (598,24) da média das públicas (505,63).</p>
+          <div class="bars2"><div><span>Privada</span><i style="--v:598.24"></i><b>598,24</b></div><div><span>Pública</span><i style="--v:505.63" class="pb"></i><b>505,63</b></div></div></div>
+      </div>
+      <div class="tabela reveal">
+        <table>
+          <caption>Comparativo por característica: tipo de escola, sexo e classe socioeconômica</caption>
+          <thead><tr><th scope="col">Característica</th><th scope="col">Nível</th><th scope="col">Alunos</th><th scope="col">Nota média</th><th scope="col">Diferença</th></tr></thead>
+          <tbody>
+            <tr><th rowspan="2" scope="rowgroup">Escola</th><td>Privada</td><td>70.944</td><td>598,24</td><td>Referência</td></tr>
+            <tr><td>Pública</td><td>446.169</td><td>505,63</td><td class="neg">−92,61</td></tr>
+            <tr><th rowspan="2" scope="rowgroup">Sexo</th><td>Feminino</td><td>298.801</td><td>512,18</td><td>Referência</td></tr>
+            <tr><td>Masculino</td><td>218.312</td><td>526,76</td><td>+14,58</td></tr>
+            <tr><th rowspan="4" scope="rowgroup">Classe socioeconômica</th><td>A</td><td>14.736</td><td>631,08</td><td>Referência</td></tr>
+            <tr><td>B</td><td>127.904</td><td>553,61</td><td class="neg">−77,47</td></tr>
+            <tr><td>C</td><td>293.003</td><td>507,09</td><td class="neg">−123,99</td></tr>
+            <tr><td>D</td><td>81.470</td><td>483,01</td><td class="neg">−148,07</td></tr>
+          </tbody>
+        </table>
+        <small>Dados do ENEM apresentados pela equipe no seminário de 2026.2.</small>
+      </div>
+    </div>
+  </section>
 
   <section id="app" aria-labelledby="appTitle">
     <div class="wrap">
@@ -605,12 +719,14 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <div class="wrap">
       <div class="reveal">
         <h2 class="serif blur-text">Ouvir primeiro, construir depois, medir sempre.</h2>
+        <div class="carater"><span><b>Caráter</b>Qualitativo e exploratório</span><span><b>Abordagem</b>Pesquisa-ação</span><span><b>Território</b>CEMEP, Paulínia (SP)</span></div>
+        <p class="lead" style="margin-top:1.4rem;max-width:62ch">Estudantes de escola pública têm dificuldade em exatas e acesso limitado a materiais de qualidade. Como a maioria usa celular ou computador todos os dias, o projeto intervém com um guia de estudos digital: cronograma personalizável e revisão espaçada adaptada a cada aluno, testado diretamente com os estudantes.</p>
       </div>
       <div class="steps">
         <div class="step reveal">
           <span class="n">/01</span>
           <h3>Diagnóstico</h3>
-          <p>Questionários aplicados com os alunos do CEMEP mapeiam as lacunas reais em Matemática. Nada é construído no achismo.</p>
+          <p>Questionários e conversas com os alunos do CEMEP mapeiam as lacunas reais em Matemática e o acesso à tecnologia. Nada é construído no achismo.</p>
         </div>
         <div class="step reveal">
           <span class="n">/02</span>
@@ -619,8 +735,8 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         </div>
         <div class="step reveal">
           <span class="n">/03</span>
-          <h3>Avaliação contínua</h3>
-          <p>Acompanhamos o uso e o desempenho para medir o impacto da ferramenta na rotina de estudos e melhorar a cada ciclo.</p>
+          <h3>Testes e ajustes</h3>
+          <p>O protótipo é aplicado no CEMEP, os alunos avaliam dentro da própria plataforma e cada ciclo de feedback vira melhoria.</p>
         </div>
       </div>
       <div class="stack reveal" aria-label="Tecnologias utilizadas">
@@ -631,14 +747,43 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     </div>
   </section>
 
+  <section id="cronograma" aria-labelledby="cronoTitle">
+    <div class="wrap">
+      <div class="reveal"><h2 class="serif" id="cronoTitle">Cronograma do <em>projeto.</em></h2>
+        <p class="lead">Da primeira conversa no CEMEP até a versão final, em seis etapas.</p></div>
+      <ol class="fases">
+        <li class="reveal" style="--h:215"><span class="fn">1</span><h3>Diagnóstico inicial</h3><p>Levantamento das dificuldades dos alunos, do acesso à tecnologia e do uso de ferramentas digitais, por meio de questionários e conversas.</p></li>
+        <li class="reveal" style="--h:140"><span class="fn">2</span><h3>Planejamento do site</h3><p>Definição da estrutura do site, conteúdos, funcionalidades, recursos e estratégias de participação dos estudantes.</p></li>
+        <li class="reveal" style="--h:30"><span class="fn">3</span><h3>Desenvolvimento do protótipo</h3><p>Criação do protótipo do site com conteúdos de exatas, exercícios, explicações e ferramentas interativas.</p></li>
+        <li class="reveal" style="--h:265"><span class="fn">4</span><h3>Testes com os estudantes</h3><p>Aplicação do protótipo no CEMEP Osmar Passarelli Silveira para testes com os estudantes.</p></li>
+        <li class="reveal" style="--h:335"><span class="fn">5</span><h3>Ajustes com base no feedback</h3><p>Coleta de feedback dos alunos para melhorar conteúdo, layout e funcionalidades.</p></li>
+        <li class="reveal" style="--h:185"><span class="fn">6</span><h3>Versão final do site</h3><p>Implementação da versão final e disponibilização para uso contínuo pelos estudantes.</p></li>
+      </ol>
+      <p class="objetivo reveal"><b>Objetivo:</b> oferecer um site acessível, interativo e de qualidade para apoiar os estudantes de escolas públicas na preparação para o ENEM, com foco na melhoria do desempenho em exatas.</p>
+    </div>
+  </section>
+
+  <section id="referencial" aria-labelledby="refTitle">
+    <div class="wrap">
+      <div class="reveal"><h2 class="serif" id="refTitle">Em que o projeto se <em>apoia.</em></h2></div>
+      <div class="quotes">
+        <figure class="reveal"><blockquote>A tecnologia pode se adaptar e potencializar o ambiente educacional, gerando inovação e transformando espaços tradicionais. As TIC representam novas possibilidades de acesso às informações e podem ser usadas como ferramentas para que os alunos, de forma individual ou cooperativa, construam seus próprios conhecimentos.</blockquote><figcaption>Lucas Goulart Collares, p. 10</figcaption></figure>
+        <figure class="reveal"><blockquote>A falta de interesse pode estar relacionada ao não interesse da matéria, ou simplesmente aos estudantes que não estão conseguindo aprender. Ambos os motivos podem ser combatidos através da utilização de estratégias adequadas de estudo.</blockquote><figcaption>Felipe Omena, 2023, p. 3</figcaption></figure>
+        <figure class="reveal"><blockquote>A qualidade do seu pensamento depende da qualidade dos seus modelos mentais. Aprender a pensar melhor é uma das habilidades mais valiosas que você pode desenvolver.</blockquote><figcaption>Shane Parrish, 2020, p. 1 e 2</figcaption></figure>
+        <figure class="reveal"><blockquote>Deverão estar habilitados a responder de forma ágil e eficaz às demandas crescentes por formação profissional, difusão de conhecimentos científicos e tecnológicos e de suporte aos arranjos produtivos em seus locais.</blockquote><figcaption>Távora, 2008, p. 2</figcaption></figure>
+      </div>
+      <p class="refs reveal">Também citados no seminário: Lorena Simone Nascimento Barros (2016) e Enrique Leff (2012).</p>
+    </div>
+  </section>
+
   <section id="equipe">
     <div class="wrap">
       <div class="reveal">
         <h2 class="serif blur-text">Dez estudantes, uma travessia.</h2>
       </div>
       <div class="names reveal">
-        <span>Matheus Pires Canada</span>
-        <span>Beatriz Bassi</span>
+        <span class="lead-role"><small>Líder</small>Matheus Pires Canada</span>
+        <span class="lead-role"><small>Vice-líder</small>Beatriz Bassi</span>
         <span>Paulo Henrique de Oliveira</span>
         <span>Evelyn Guimarães dos Reis</span>
         <span>Murilo Polycarpo de Abreu dos Santos</span>
@@ -646,9 +791,9 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         <span>Heitor Margosian Bueno de Oliveira</span>
         <span>Felipe Nonato Gomes</span>
         <span>Gabriel Roberto Silva</span>
-        <span>Henrique Monteiro</span>
+        <span>Danilo Augusto do Nascimento Fortes</span>
       </div>
-      <p class="inst reveal">Alunos da graduação em Engenharia da Computação da Universidade São Francisco, Campus Sagrado Coração de Jesus, em Campinas. Projeto extensionista 2026.1, sob orientação do professor coordenador.</p>
+      <p class="inst reveal">Alunos da graduação em Engenharia da Computação da Universidade São Francisco, campus Sagrado Coração de Jesus, em Campinas. Projeto extensionista do semestre 2026.2. Território parceiro: CEMEP, Centro Municipal de Ensino Profissionalizante Osmar Passarelli Silveira, em Paulínia (SP).</p>
     </div>
   </section>
 </div>
@@ -656,6 +801,7 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 <section id="fim">
   <div class="reveal">
     <h2 class="serif blur-text" style="margin-top:1rem">A travessia começa agora.</h2>
+    <p class="agradece">Agradecemos ao CEMEP, aos estudantes e à USF Sagrado Coração de Jesus pela parceria, pelo território e pelo diálogo que tornaram este projeto possível.</p>
     <p>É grátis, funciona no celular e leva um minuto para começar. Crie seu astronauta e faça a primeira lição hoje. Quer levar o Projeto Delta para a sua escola? Fale com a gente.</p>
     <div class="ctas">
       <a class="btn-glass liquid-glass-strong" href="app/">Começar grátis
@@ -670,8 +816,8 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
   </div>
   <div class="meta">
     <span class="serif">Projeto Delta</span>
-    <span>Universidade São Francisco · Campinas · 2026</span>
-    <span>ODS 4: Educação de Qualidade · ODS 9: Inovação e Infraestrutura</span>
+    <span>Universidade São Francisco · Campinas · 2026.2</span>
+    <span>ODS 4: Educação de Qualidade · ODS 10: Redução das Desigualdades</span>
   </div>
 </section>
 

@@ -15,6 +15,7 @@ import { ic, STAR_SOLID, HEART_SOLID, medalSVG } from "./icons.js";
 import { h, esc, shuffle, sleep, toast, mdStatement, modal, sheet, confetti, flyText, coinBurst, countUp, typeText, react, coach, reduceMotion } from "./ui.js";
 import { sfx } from "./sfx.js";
 import { csStreak, csLevelUp, csConquista } from "./cutscene.js";
+import { cartoesHoje, ligarCartoes, somarMinutos, talvezPedirFeedback } from "./plan.js";
 
 const LETRAS = "ABCDE";
 const pick = a => a[Math.random() * a.length | 0];
@@ -51,19 +52,21 @@ function fromOficial(q) {
   const alts = (q.question_alternatives || []).slice().sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0) || a.letter.localeCompare(b.letter));
   const c = alts.findIndex(a => a.letter === q.correct_answer);
   const topico = Object.keys(TOPICO_OFICIAL).find(k => TOPICO_OFICIAL[k] === q.topic) || null;
-  return { ref: String(q.id), kind: "oficial", label: `ENEM ${q.year} · questão ${q.original_number}`, topico, topicoOficial: q.topic, eixo: OFICIAL_EIXO[q.topic] || null,
+  return { ref: String(q.id), kind: "oficial", label: `ENEM ${q.year} · questão ${q.original_number}`, dif: DIF[q.difficulty] || null, topico, topicoOficial: q.topic, eixo: OFICIAL_EIXO[q.topic] || null,
     stmt: mdStatement(q.statement), opts: alts.map(a => mdStatement(a.content).replace(/^<p>|<\/p>$/g, "")), c, letras: alts.map(a => a.letter),
     e: `Gabarito oficial do INEP: letra ${q.correct_answer}.${q.topic ? " Assunto: " + q.topic + "." : ""}`, ano: q.year };
 }
 
-const SEL_Q = "id,year,original_number,primary_subject,topic,statement,correct_answer,question_alternatives(letter,content,display_order)";
-export async function fetchOficiais({ topics, n = 1, ano, ids } = {}) {
+const SEL_Q = "id,year,original_number,primary_subject,topic,difficulty,statement,correct_answer,question_alternatives(letter,content,display_order)";
+const DIF = { facil: "Fácil", media: "Média", dificil: "Difícil" };
+export async function fetchOficiais({ topics, n = 1, ano, ids, dif } = {}) {
   try {
     let pool = ids;
     if (!pool) {
       let q = sb.from("questions").select("id").eq("publication_status", "published").eq("primary_subject", "Matemática");
       if (topics?.length) q = q.in("topic", topics);
       if (ano) q = q.eq("year", ano);
+      if (dif) q = q.eq("difficulty", dif);
       const { data, error } = await q.limit(1000);
       if (error || !data?.length) return [];
       pool = shuffle(data.map(r => r.id)).slice(0, n);
@@ -126,10 +129,12 @@ export function viewInicio() {
 
   const v = shell("inicio", `
     <div class="ph"><h1>${saud}, ${esc(primeiroNome())}</h1><p>${done === flat.length ? "Eixo completo. Que tal outro?" : `${esc(s.nome)} · ${done} de ${flat.length} lições`}</p></div>
+    ${cartoesHoje()}
     ${eixos}
     <div id="trail">${units}</div>`);
 
   const trail = v.querySelector("#trail");
+  ligarCartoes(v, e => { eixoAtual = e; try { localStorage.setItem("delta-eixo", e); } catch (x) {} });
   v.querySelectorAll("[data-e]").forEach(b => b.onclick = () => {
     sfx.select(); eixoAtual = b.dataset.e; try { localStorage.setItem("delta-eixo", eixoAtual); } catch (e) {}
     viewInicio();
@@ -365,7 +370,7 @@ export function runSession(items, cfg) {
     w.querySelectorAll(".hearts svg").forEach((s, k) => { s.classList.toggle("off", k >= S.hearts); if (lost && k === S.hearts) { s.classList.remove("popx"); void s.offsetWidth; s.classList.add("popx"); } });
   }
   const tagHTML = q => {
-    const origem = q.kind === "oficial" ? `<span class="tag oficial">${ic("star")}Oficial ENEM</span><span class="tag">${esc(q.label)}</span>`
+    const origem = q.kind === "oficial" ? `<span class="tag oficial">${ic("star")}Oficial ENEM</span><span class="tag">${esc(q.label)}</span>${q.dif ? `<span class="tag">${ic("chart")}${q.dif}</span>` : ""}`
       : q.kind === "var" ? `<span class="tag plat">${ic("sparkle")}Plataforma</span><span class="tag">${esc(q.label.replace(/^Plataforma · /, ""))}</span>`
       : `<span class="tag plat">${ic("sparkle")}Plataforma</span>`;
     const t = q.retry ? TEC_TAG.retry : TEC_TAG[q.tec];
@@ -461,7 +466,7 @@ export function runSession(items, cfg) {
       const r = optEls[q.c].getBoundingClientRect(); flyText(q.retry ? "Boa!" : `+10 XP`, r.right - 90, r.top - 10);
     } else {
       S.combo = 0;
-      if (!livre) { S.hearts--; drawHearts(true); setTimeout(() => sfx.heart(), 180); }
+      if (!livre && !cfg.noHearts) { S.hearts--; drawHearts(true); setTimeout(() => sfx.heart(), 180); }
       optEls[S.sel].classList.add("no");
       sfx.wrong(); react(buddy, av(), "triste", "shake"); face = "triste";
       titulo = S.conf === "certeza" ? "Errar com certeza ensina muito." : pick(FALA_NO);
@@ -469,7 +474,7 @@ export function runSession(items, cfg) {
         resposta_correta: `${letra(q.c)}) ${q.opts[q.c].replace(/<[^>]+>/g, "")}`, explicacao: q.e, topico: q.topicoOficial || q.topico });
       if (!seen("erro1")) { extra = " Guardei esta no seu Caderno de erros."; markSeen("erro1"); }
       // correção guiada + nova chance no fim da lição
-      if (!q.retry && S.retries < 3 && q.kind !== "oficial") {
+      if (!cfg.noRetry && !q.retry && S.retries < 3 && q.kind !== "oficial") {
         const nova = q.gen ? fromGen(q.topico) : q.kind === "plat" && /:\d+$/.test(q.ref) ? fromLesson(...q.ref.split(":").map((x, i) => i ? +x : x)) : { ...q, opts: q.opts.slice() };
         if (nova) { nova.retry = true; items.push(nova); S.retries++; S.tecs.add("correcao"); extra += " Ela volta no fim da lição" + (q.gen ? " com números novos." : "."); }
       }
@@ -532,6 +537,7 @@ export function runSession(items, cfg) {
   async function end() {
     document.removeEventListener("keydown", keys);
     const tempo = Math.round((Date.now() - S.t0) / 1000);
+    if (cfg.custom) return cfg.custom({ acertos: S.acertos, total: Math.max(1, S.total), tempo, porTopico: S.porTopico, xpChain: S.xpChain });
     await finish({ ...cfg, acertos: S.acertos, total: Math.max(1, S.total), tempo, maxCombo: S.maxCombo, xpChain: S.xpChain, porTopico: S.porTopico, chutes: S.chutes, calib: S.calib, tecs: [...S.tecs] });
   }
   function keys(e) {
@@ -547,6 +553,7 @@ export function runSession(items, cfg) {
   }
   document.addEventListener("keydown", keys);
   go.onclick = check; cont.onclick = next; hint.onclick = useHint; w.querySelector(".x").onclick = quit;
+  if (cfg.noHearts) w.querySelector(".hearts").hidden = true;
   drawHearts(); show();
 }
 
@@ -595,6 +602,7 @@ async function finish(ctx) {
     await refreshStats();
   } catch (e) { console.error(e); toast("Parte do progresso não foi salva. Confira sua conexão."); }
 
+  somarMinutos(ctx.tempo);
   const ganhoXP = Math.max(0, (state.stats.xp || 0) - before.xp);
   const ganhoD = Math.max(0, (state.stats.deltas || 0) - before.deltas);
   countUp(w.querySelector("#vx"), ganhoXP, 1000);
@@ -611,6 +619,7 @@ async function finish(ctx) {
     if (nv1 > nv0) await csLevelUp(av(), nv1, state.shop.filter(i => i.nivel_min > nv0 && i.nivel_min <= nv1));
     for (const a of ach.novos || []) await csConquista(a, av());
     if (focoPrecisaPausa(ctx.tempo)) await pausaPomodoro();
+    await talvezPedirFeedback();
     navigate(ctx.exit || "/inicio");
   };
 }
@@ -656,21 +665,22 @@ export async function viewEnem() {
     <div class="card pad"><div class="sel-row">
       <label>Ano<select id="ano"><option value="">Todos</option></select></label>
       <label>Assunto<select id="top"><option value="">Todos</option></select></label>
+      <label>Dificuldade<select id="dif"><option value="">Todas</option><option value="facil">Fácil</option><option value="media">Média</option><option value="dificil">Difícil</option></select></label>
       <label>Questões<select id="n"><option>5</option><option selected>8</option><option>12</option></select></label></div>
       <p class="muted" style="font-weight:700" id="cnt">Contando questões...</p>
       <button class="btn btn-lime btn-block" id="go" style="margin-top:.8rem">${ic("play")}Praticar</button></div>
     <div class="talk" style="margin-top:1.2rem"><div class="dm dm-live">${deltaSVG({ ...av(), expr: "feliz" })}</div><div class="bubble left">Cada acerto aqui vale 10 XP. As questões são exatamente as da prova, com o gabarito oficial.</div></div>`);
-  const ano = v.querySelector("#ano"), top = v.querySelector("#top"), cnt = v.querySelector("#cnt");
-  const { data } = await sb.from("questions").select("year,topic").eq("publication_status", "published").eq("primary_subject", "Matemática").limit(2000);
+  const ano = v.querySelector("#ano"), top = v.querySelector("#top"), cnt = v.querySelector("#cnt"), dif = v.querySelector("#dif");
+  const { data } = await sb.from("questions").select("year,topic,difficulty").eq("publication_status", "published").eq("primary_subject", "Matemática").limit(2000);
   const rows = data || [];
   [...new Set(rows.map(r => r.year))].sort((a, b) => b - a).forEach(a => ano.add(new Option(a, a)));
   [...new Set(rows.map(r => r.topic).filter(Boolean))].sort().forEach(t => top.add(new Option(t, t)));
-  const count = () => { const n = rows.filter(r => (!ano.value || r.year == ano.value) && (!top.value || r.topic === top.value)).length; cnt.textContent = `${n} questões oficiais disponíveis`; return n; };
-  ano.onchange = top.onchange = count; count();
+  const count = () => { const n = rows.filter(r => (!ano.value || r.year == ano.value) && (!top.value || r.topic === top.value) && (!dif.value || r.difficulty === dif.value)).length; cnt.textContent = `${n} questões oficiais disponíveis`; return n; };
+  ano.onchange = top.onchange = dif.onchange = count; count();
   v.querySelector("#go").onclick = async e => {
     if (!count()) return toast("Nenhuma questão para esse filtro.");
     e.currentTarget.disabled = true;
-    const items = await fetchOficiais({ topics: top.value ? [top.value] : null, ano: ano.value ? +ano.value : null, n: +v.querySelector("#n").value });
+    const items = await fetchOficiais({ topics: top.value ? [top.value] : null, ano: ano.value ? +ano.value : null, dif: dif.value || null, n: +v.querySelector("#n").value });
     if (!items.length) { e.currentTarget.disabled = false; return toast("Não deu para carregar as questões."); }
     runSession(items, { mode: "enem", title: "Banco ENEM", exit: "/enem" });
   };

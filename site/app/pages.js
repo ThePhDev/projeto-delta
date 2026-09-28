@@ -12,6 +12,7 @@ import { ic, medalSVG, gemSVG, STAR_SOLID } from "./icons.js";
 import { h, esc, toast, modal, sheet, confetti, coinBurst, flyText, react, coach, countUp } from "./ui.js";
 import { sfx } from "./sfx.js";
 import { csUnbox, csConquista, csChegada } from "./cutscene.js";
+import { abrirFeedback, abrirGuia, plano } from "./plan.js";
 
 // ============================================================
 // PRATICAR
@@ -23,6 +24,11 @@ export function viewPraticar() {
       <h2>Revisão de hoje</h2>
       ${due.length ? `<ul>${due.slice(0, 4).map(r => `<li>${ic("cycle")}${esc(TOPIC[r.topic_id].l.titulo)}</li>`).join("")}</ul><a class="btn" href="#/treino/revisao">Revisar agora</a>`
         : `<ul><li>${ic("check")}Nada vencido hoje</li><li>${ic("bulb")}Reforce seus pontos fracos</li></ul><a class="btn" href="#/treino/revisao">Reforçar mesmo assim</a>`}
+    </div>
+    <h2 class="sec">Organizar os estudos</h2>
+    <div class="hub">
+      <a href="#/cronograma" style="--ib:#0f1a36;--ic:#7fb0ff"><span class="i">${ic("calendar")}</span><div><b>Cronograma</b><small>Escolha o que estudar em cada dia da semana</small></div></a>
+      <a href="#/diagnostico" style="--ib:#1f1238;--ic:#c4b5fd"><span class="i">${ic("target")}</span><div><b>Diagnóstico ${plano().diag ? "(refazer)" : "inicial"}</b><small>8 questões para achar seus pontos fracos</small></div></a>
     </div>
     <h2 class="sec">Treino por eixo</h2>
     <div class="hub">${SUBJECTS.map(s => `<a href="#/treino/${s.id}" style="--ib:hsl(${s.hue} 60% 20%);--ic:hsl(${s.hue} 90% 72%)"><span class="i">${esc(s.simbolo)}</span><div><b>${esc(s.nome)}</b><small>Variações estilo ENEM + questões oficiais</small></div></a>`).join("")}</div>
@@ -38,7 +44,9 @@ export function viewPraticar() {
       <a href="#/missoes" style="--ib:#2e2506;--ic:var(--gold)"><span class="i">${ic("flag")}</span><div><b>Missões</b><small>Metas diárias e semanais com recompensa</small></div></a>
       <a href="#/erros" style="--ib:#1f1238;--ic:#c4b5fd"><span class="i">${ic("book")}</span><div><b>Caderno de erros</b><small>Anote o motivo e marque o que dominou</small></div></a>
       <a href="#/painel" style="--ib:#0f1a36;--ic:#7fb0ff"><span class="i">${ic("chart")}</span><div><b>Painel</b><small>Seu desempenho por eixo e por dia</small></div></a>
+      <button id="guia" style="--ib:#0e3322;--ic:#6ee7a8"><span class="i">${ic("question")}</span><div><b>Como usar o Delta</b><small>Guia rápido de cada função</small></div></button>
     </div>`);
+  v.querySelector("#guia").onclick = () => abrirGuia();
   if (!seen("praticar")) setTimeout(() => document.body.contains(v) && coach([
     { el: ".revcard", text: "Aqui entra a revisão espaçada: eu te lembro do assunto no dia certo, antes de você esquecer." },
     { el: '.hub a[href="#/enem"]', text: "E aqui tem prova de verdade: só questões oficiais do ENEM, com gabarito do INEP." }
@@ -230,6 +238,8 @@ function ajustes() {
       <div class="input"><input id="esc" maxlength="80" value="${esc(p.escola || "")}" placeholder="Escola" aria-label="Escola" /></div>
       <button class="btn btn-sm" id="sv">Salvar dados</button></div>
     <div class="row"><span>${ic("question")} Ver o tutorial de novo</span><button class="btn btn-sm" id="tut">Rever</button></div>
+    <div class="row"><span>${ic("book")} Guia de uso</span><button class="btn btn-sm" id="guiaA">Abrir</button></div>
+    <div class="row"><span>${ic("mail")} Enviar feedback para a equipe</span><button class="btn btn-sm btn-teal" id="fbA">Opinar</button></div>
     <div class="row"><span>${ic("rocket")} Cena de chegada do Delta</span><button class="btn btn-sm" id="cena">Assistir</button></div>
     ${isAdmin() ? `<div class="row"><span>${ic("admin")} Administração</span><a class="btn btn-sm" href="#/admin">Abrir</a></div>` : ""}
     <div class="row"><span>${ic("logout")} Sair da conta</span><button class="btn btn-sm btn-red" id="out">Sair</button></div>
@@ -249,6 +259,8 @@ function ajustes() {
     p.nome = nome; p.escola = escola; toast("Dados salvos."); sfx.correct();
   };
   s.querySelector("#tut").onclick = async () => { await resetTutorial(); s.close(); toast("Tutorial reiniciado."); navigate("/inicio"); };
+  s.querySelector("#guiaA").onclick = () => { s.close(); abrirGuia(); };
+  s.querySelector("#fbA").onclick = () => { s.close(); abrirFeedback("ajustes"); };
   s.querySelector("#cena").onclick = () => { s.close(); csChegada(av(), primeiroNomeP()); };
   s.querySelector("#out").onclick = async () => { s.close(); await sb.auth.signOut(); };
 }
@@ -375,12 +387,18 @@ export async function viewPainel() {
 export async function viewAdmin() {
   if (!isAdmin()) return navigate("/inicio");
   const v = shell("admin", `${page("Domínios autorizados", "Só e-mails com estes sufixos conseguem criar conta. A regra vale no banco, não só na tela.")}
+    <h2 class="sec">Feedback dos estudantes</h2><div id="fbl"><div class="spin"></div></div>
+    <h2 class="sec">Adicionar domínio</h2>
     <div class="card pad"><div class="input"><input id="nd" placeholder="ex.: escola.pr.gov.br" aria-label="Novo domínio" /></div><button class="btn btn-lime btn-block" id="add" style="margin-top:.6rem">Adicionar domínio</button></div><div id="dl"></div>`);
   async function load() {
     const { data } = await sb.from("allowed_email_domains").select("*").order("domain");
     v.querySelector("#dl").innerHTML = (data || []).map(d => `<div class="dom-row"><span>@${esc(d.domain)}</span><button class="btn btn-sm" data-id="${esc(d.id)}" aria-label="Remover">${ic("x")}</button></div>`).join("") || `<div class="empty" style="margin-top:1rem">Nenhum domínio cadastrado.</div>`;
     v.querySelectorAll("[data-id]").forEach(b => b.onclick = async () => { const { error } = await sb.from("allowed_email_domains").delete().eq("id", b.dataset.id); if (error) toast("Não deu para remover."); load(); });
   }
+  sb.from("feedback").select("*").order("created_at", { ascending: false }).limit(100).then(({ data }) => {
+    const l = data || [], med = l.length ? (l.reduce((a, f) => a + f.nota, 0) / l.length).toFixed(1).replace(".", ",") : "-";
+    v.querySelector("#fbl").innerHTML = `<div class="card pad"><b>${l.length} respostas · nota média ${med} de 5</b>${l.slice(0, 30).map(f => `<div class="hist" style="flex-wrap:wrap"><b>${"★".repeat(f.nota)}${"☆".repeat(5 - f.nota)}</b><span class="muted">${new Date(f.created_at).toLocaleDateString("pt-BR")} · ${esc((f.categorias || []).join(", ") || "geral")}</span>${f.texto ? `<p style="flex-basis:100%;font-weight:700">${esc(f.texto)}</p>` : ""}</div>`).join("")}</div>`;
+  });
   v.querySelector("#add").onclick = async () => {
     const dom = v.querySelector("#nd").value.trim().toLowerCase().replace(/^@/, "");
     if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(dom)) return toast("Domínio inválido.");
