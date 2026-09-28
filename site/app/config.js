@@ -6,4 +6,4 @@ export const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_prwvpur0FwpEKRKUlY2_eQ_D
 
 // Captcha (Cloudflare Turnstile). A site key é pública. Deixe vazio para desativar o captcha no app.
 // Ative o captcha no Supabase (Auth → Attack Protection) só depois de preencher esta chave.
-export const TURNSTILE_SITE_KEY = "";
+export const TURNSTILE_SITE_KEY = "0x4AAAAAAFILWzCCsznlwvaQ";
