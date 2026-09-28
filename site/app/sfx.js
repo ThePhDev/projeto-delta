@@ -55,6 +55,11 @@ export const sfx = {
   heart() { tone(300, 0, 0.12, "sine", 0.12, 200); tone(200, 0.12, 0.25, "sine", 0.1, 120); },
   talk() { const n = 3 + Math.floor(Math.random() * 3); for (let i = 0; i < n; i++) tone(420 + Math.random() * 260, i * 0.07, 0.05, "triangle", 0.035); },
   finish() { [523, 659, 784].forEach((f, i) => tone(f, i * 0.12, 0.35, "triangle", 0.13)); tone(1047, 0.4, 0.6, "sine", 0.12); },
+  land() { tone(140, 0, 0.25, "sine", 0.22, 50); noise(0, 0.18, 0.05); },
+  pop() { tone(600, 0, 0.08, "sine", 0.14, 1200); },
+  rise() { tone(220, 0, 0.9, "sawtooth", 0.05, 1400); noise(0, 0.9, 0.03); },
+  shake() { tone(300 + Math.random() * 120, 0, 0.07, "square", 0.05); },
+  burst() { noise(0, 0.35, 0.08); [784, 1047, 1319, 1568].forEach((f, i) => tone(f, 0.05 + i * 0.05, 0.25, "triangle", 0.09)); },
   isMuted() { return muted; },
   setMuted(v) { muted = !!v; try { localStorage.setItem("delta-mute", muted ? "1" : "0"); } catch (e) {} },
   unlock() { const a = ac(); if (a && a.state === "suspended") a.resume(); }

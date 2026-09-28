@@ -11,6 +11,7 @@ import { deltaSVG, avatarHTML, fundoSVG, CORES, COIN } from "./mascot.js";
 import { ic, medalSVG, gemSVG, STAR_SOLID } from "./icons.js";
 import { h, esc, toast, modal, sheet, confetti, coinBurst, flyText, react, coach, countUp } from "./ui.js";
 import { sfx } from "./sfx.js";
+import { csUnbox, csConquista, csChegada } from "./cutscene.js";
 
 // ============================================================
 // PRATICAR
@@ -114,14 +115,10 @@ function comprar(it, btn) {
     if (it.categoria === "poder") state.stats.congelamentos = (state.stats.congelamentos || 0) + 1; else state.items.add(it.id);
     updateTop();
     const ach = await claimAchievements();
-    const m2 = modal(`<div style="width:170px;margin:0 auto" class="item r-${it.raridade}">${preview(it)}</div><h2 style="margin-top:.8rem">É seu!</h2>
-      <p>${it.categoria === "poder" ? "Congelamento guardado. Se você perder um dia, ele salva sua sequência sozinho." : `${esc(it.nome)} já está no seu guarda-roupa.`}</p>
-      ${it.categoria === "poder" ? `<button class="btn btn-lime btn-block" id="ok">Boa!</button>` : `<div class="row2"><button class="btn" id="ok">Depois</button><button class="btn btn-lime" id="eq">Usar agora</button></div>`}`, { onClose: () => {
-        viewLoja();
-        (ach.novos || []).forEach(a => { sfx.achievement(); toast(`Conquista: ${a.titulo} (+${a.recompensa} Δ)`); });
-      } });
-    m2.querySelector("#ok").onclick = () => m2.close();
-    const eq = m2.querySelector("#eq"); if (eq) eq.onclick = async () => { await equipar(it, false, true); m2.close(); };
+    const r = await csUnbox(it, av());
+    if (r === "equip") await equipar(it, false, true);
+    for (const a of ach.novos || []) await csConquista(a, av());
+    viewLoja();
   };
 }
 
@@ -234,6 +231,7 @@ function ajustes() {
       <div class="input"><input id="esc" maxlength="80" value="${esc(p.escola || "")}" placeholder="Escola" aria-label="Escola" /></div>
       <button class="btn btn-sm" id="sv">Salvar dados</button></div>
     <div class="row"><span>${ic("question")} Ver o tutorial de novo</span><button class="btn btn-sm" id="tut">Rever</button></div>
+    <div class="row"><span>${ic("rocket")} Cena de chegada do Delta</span><button class="btn btn-sm" id="cena">Assistir</button></div>
     ${isAdmin() ? `<div class="row"><span>${ic("admin")} Administração</span><a class="btn btn-sm" href="#/admin">Abrir</a></div>` : ""}
     <div class="row"><span>${ic("logout")} Sair da conta</span><button class="btn btn-sm btn-red" id="out">Sair</button></div>
   </div>`);
@@ -252,6 +250,7 @@ function ajustes() {
     p.nome = nome; p.escola = escola; toast("Dados salvos."); sfx.correct();
   };
   s.querySelector("#tut").onclick = async () => { await resetTutorial(); s.close(); toast("Tutorial reiniciado."); navigate("/inicio"); };
+  s.querySelector("#cena").onclick = () => { s.close(); csChegada(av(), primeiroNomeP()); };
   s.querySelector("#out").onclick = async () => { s.close(); await sb.auth.signOut(); };
 }
 
@@ -408,6 +407,7 @@ export function viewTecnicas() {
     sfx.talk();
   };
 }
+const primeiroNomeP = () => (state.profile?.nome || "").trim().split(/\s+/)[0];
 const fmt = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
 // ============================================================

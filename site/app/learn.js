@@ -13,6 +13,7 @@ import { deltaSVG, avatarHTML, COIN } from "./mascot.js";
 import { ic, STAR_SOLID, HEART_SOLID, medalSVG } from "./icons.js";
 import { h, esc, shuffle, sleep, toast, mdStatement, modal, sheet, confetti, flyText, coinBurst, countUp, typeText, react, coach, reduceMotion } from "./ui.js";
 import { sfx } from "./sfx.js";
+import { csStreak, csLevelUp, csConquista } from "./cutscene.js";
 
 const LETRAS = "ABCDE";
 const pick = a => a[Math.random() * a.length | 0];
@@ -476,28 +477,13 @@ async function finish(ctx) {
   cont.onclick = async () => {
     sfx.tap(); cont.disabled = true;
     const nv0 = nivelDe(before.xp).nivel, nv1 = nivelDe(state.stats.xp || 0).nivel;
-    if (streak?.mudou) await celebrate(`<div class="dm dm-live">${deltaSVG({ ...av(), expr: "comemorando" })}</div>
-      <h2 style="color:var(--orange)">${streak.streak} ${streak.streak === 1 ? "dia" : "dias"} de sequência!</h2>
-      <p>${streak.congelou ? "Um congelamento salvou sua sequência de ontem. " : ""}${streak.streak === 1 ? "Sequência acesa. Volte amanhã para ela crescer." : "Você está construindo um hábito de verdade."}</p>`, "streak");
-    if (nv1 > nv0) {
-      const novos = state.shop.filter(i => i.nivel_min > nv0 && i.nivel_min <= nv1);
-      await celebrate(`<div class="dm dm-live">${deltaSVG({ ...av(), expr: "comemorando" })}</div><h2>Nível ${nv1}!</h2>
-        <p>${novos.length ? `Liberou ${novos.length} item${novos.length > 1 ? "s" : ""} novo${novos.length > 1 ? "s" : ""} na loja: ${novos.map(i => esc(i.nome)).join(", ")}.` : "Você subiu de nível. Continue assim."}</p>`, "levelup", true);
-    }
-    for (const a of ach.novos || []) {
-      await celebrate(`<div class="medal">${medalSVG(a.icone)}</div><h2>${esc(a.titulo)}</h2><p>${esc(a.descricao)}</p>${a.recompensa ? `<p><span class="price">+${a.recompensa} ${COIN}</span></p>` : ""}`, "achievement", true);
-    }
+    if (streak?.mudou) await csStreak(av(), streak.streak, streak.congelou);
+    if (nv1 > nv0) await csLevelUp(av(), nv1, state.shop.filter(i => i.nivel_min > nv0 && i.nivel_min <= nv1));
+    for (const a of ach.novos || []) await csConquista(a, av());
     navigate(ctx.exit || "/inicio");
   };
 }
 
-function celebrate(inner, som, conf) {
-  return new Promise(res => {
-    sfx[som] && sfx[som](); if (conf) confetti(120);
-    const m = modal(`${inner}<button class="btn btn-lime btn-block" id="ok">Continuar</button>`, { onClose: res });
-    m.querySelector("#ok").onclick = () => { sfx.tap(); m.close(); };
-  });
-}
 
 // ============================================================
 // BANCO ENEM (somente questões oficiais de Matemática)
@@ -622,8 +608,8 @@ function runSimulado(qs, perQ) {
       <p class="muted" style="font-weight:700">Os erros já estão no seu Caderno de erros.</p>
       <div class="row2" style="display:flex;gap:.6rem;margin-top:1rem"><a class="btn" style="flex:1" href="#/erros">Ver erros</a><a class="btn btn-lime" style="flex:1" href="#/praticar">Concluir</a></div>`, { rail: false });
     sfx.finish(); if (pct >= 60) confetti();
-    if (streak?.mudou) await celebrate(`<div class="dm dm-live">${deltaSVG({ ...av(), expr: "comemorando" })}</div><h2 style="color:var(--orange)">${streak.streak} ${streak.streak === 1 ? "dia" : "dias"} de sequência!</h2><p>Simulado conta para a sequência.</p>`, "streak");
-    for (const a of ach.novos || []) await celebrate(`<div class="medal">${medalSVG(a.icone)}</div><h2>${esc(a.titulo)}</h2><p>${esc(a.descricao)}</p>${a.recompensa ? `<p><span class="price">+${a.recompensa} ${COIN}</span></p>` : ""}`, "achievement", true);
+    if (streak?.mudou) await csStreak(av(), streak.streak, streak.congelou);
+    for (const a of ach.novos || []) await csConquista(a, av());
     void v;
   }
   w.querySelector("#prev").onclick = () => { if (i > 0) { i--; sfx.tap(); show(); } };

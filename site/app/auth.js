@@ -6,6 +6,7 @@ import { deltaSVG, fundoSVG, logoSVG, CORES } from "./mascot.js";
 import { ic } from "./icons.js";
 import { h, esc, sleep, typeText, react, confetti, coinBurst, reduceMotion } from "./ui.js";
 import { sfx } from "./sfx.js";
+import { csChegada } from "./cutscene.js";
 
 const redirect = p => location.origin + location.pathname + "#" + p;
 
@@ -165,7 +166,7 @@ export function viewOnboarding(onDone) {
   }
 
   async function render() {
-    back.hidden = step === 0 || step === TOTAL - 1;
+    back.hidden = step <= 1 || step === TOTAL - 1;
     w.querySelector(".pbar i").style.width = Math.round(step / (TOTAL - 1) * 100) + "%";
     const S = [intro, nome, cor, item, meta, fim][step];
     body.innerHTML = `<div class="ob-step">${S.html()}</div>`;
@@ -279,5 +280,5 @@ export function viewOnboarding(onDone) {
       el.querySelector("#n").onclick = () => { sfx.tap(); onDone(); updateTop(); };
     }
   };
-  render();
+  csChegada({ cor: "teal" }, nome0.split(" ")[0]).then(() => { step = 1; render(); });
 }

@@ -85,18 +85,38 @@ function eyes(expr, color) {
     <path d="${d}" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>${extra}</g>`;
 }
 
+// itens de cabeça desenhados direto sobre o capacete
+const HEADX = {
+  "antena": IRI => `<path d="M100 13 L100 -10" stroke="#2b2a3b" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="100" cy="13" rx="9" ry="3" fill="#2b2a3b"/>
+    <circle class="dm-spark" cx="100" cy="-14" r="6.5" fill="${IRI}" filter="url(#dmglow)"/><circle cx="98" cy="-16" r="2" fill="#fff" opacity=".7"/>`,
+  "bandana": () => `<path d="M44 44 C68 24 132 24 156 44 L152 56 C128 38 72 38 48 56 Z" fill="#e11d48" stroke="#9f1239" stroke-width="1.5"/>
+    ${[60, 78, 96, 114, 132].map((x, i) => `<circle cx="${x + 4}" cy="${40 - Math.sin((i + 1) / 6 * Math.PI) * 6}" r="1.8" fill="#fff" opacity=".85"/>`).join("")}
+    <path d="M154 48 L172 40 L166 54 Z M154 50 L170 62 L156 60 Z" fill="#be123c"/>`,
+  "aureola": () => `<ellipse cx="100" cy="-6" rx="32" ry="7.5" fill="none" stroke="#fde047" stroke-width="5" filter="url(#dmglow)"/><ellipse cx="100" cy="-6" rx="32" ry="7.5" fill="none" stroke="#fff" stroke-width="1.5" opacity=".8"/>`,
+  "coroa-delta": () => `<path d="M68 22 L72 -2 L86 12 L100 -10 L114 12 L128 -2 L132 22 Z" fill="#facc15" stroke="#a16207" stroke-width="2" stroke-linejoin="round"/>
+    <rect x="68" y="18" width="64" height="9" rx="3" fill="#eab308" stroke="#a16207" stroke-width="1.5"/>
+    <path d="M100 4 L107 16 L93 16 Z" fill="#00f0ff" stroke="#fff" stroke-width="1.2" filter="url(#dmglow)"/><circle cx="72" cy="-3" r="3" fill="#ff00e5"/><circle cx="128" cy="-3" r="3" fill="#ff00e5"/>`,
+  "capacete-dourado": () => "", "capacete-holografico": () => ""
+};
+
 export function deltaSVG(o = {}) {
   const k = ++uid;
   const glow = (CORES[o.cor] || CORES.teal).g;
   const expr = o.expr || "idle";
   const eyeColor = o.acessorio === "oculos-vermelhos" ? "#ff3b3b" : glow;
-  const white = o.cabeca === "capacete-astro";
+  const HELM = { "capacete-astro": ["#ffffff", "#eceef5", "#b9bdcc", "#9096aa", "#8f95a8"], "capacete-dourado": ["#fff4c2", "#f5c542", "#b8860b", "#7a5500", "#8a6400"],
+    "capacete-holografico": ["#e8fbff", "#9be7ff", "#8b5cf6", "#3b1a6e", "#6d4ab8"] };
+  const helm = HELM[o.cabeca] || ["#4a4760", "#1d1c28", "#0a0a10", "#030305", "#1f1e2b"];
+  const white = !!HELM[o.cabeca];
   const suit = o.corpo === "traje-astro";
   const up = expr === "comemorando";
   const think = expr === "pensando";
   const hat = o.cabeca && HATS[o.cabeca] ? `<g transform="${HAT_T}">${HATS[o.cabeca]()}</g>` : o.cabeca === "peruca-euler" ? EULER : "";
   const IRI = `url(#dmiri${k})`, CL = `url(#dmcl${k})`, CLS = `url(#dmcls${k})`;
-  const base = suit ? "#e7e8f0" : "#17161f", deep = suit ? "#aeb2c3" : "#07070b", lite = suit ? "#ffffff" : "#34324a";
+  const PAL = { "traje-astro": ["#e7e8f0", "#aeb2c3", "#ffffff"], "moletom-branco": ["#e9e8f0", "#a9a8ba", "#ffffff"], "moletom-roxo": ["#3a1f6b", "#170a30", "#5f3fa3"],
+    "moletom-ciano": ["#0f6b80", "#052f3a", "#1ea3bd"], "jaqueta-varsity": ["#1b2556", "#0a0f2b", "#34428a"] };
+  const [base, deep, lite] = PAL[o.corpo] || ["#17161f", "#07070b", "#34324a"];
+  const lightCloth = o.corpo === "moletom-branco" || suit;
   const seam = suit ? "#9ea3b6" : "#2b2a3b";
 
   // mangas: mãos no bolso (padrão), braços para cima (comemorando) ou mão no queixo (pensando)
@@ -128,6 +148,22 @@ export function deltaSVG(o = {}) {
   const mask = o.acessorio === "mascara-carnaval" ? `<g transform="translate(0,-22)">
       <path d="M58 96 C66 84 86 84 96 98 C100 102 100 102 104 98 C114 84 134 84 142 96 C144 112 128 122 116 116 C108 112 104 108 100 108 C96 108 92 112 84 116 C72 122 56 112 58 96 Z" fill="#a855f7" stroke="#7e22ce" stroke-width="2" opacity=".92"/>
       <path d="M138 90 C148 70 160 66 168 60 M142 92 C156 78 166 78 174 74" stroke="#f472b6" stroke-width="4" stroke-linecap="round" fill="none"/></g>` : "";
+  const hy = up ? -94 : 0;
+  const ACC = {
+    "regua": () => `<g transform="translate(${up ? 20 : 0} ${hy}) rotate(-28 150 165)"><rect x="144" y="122" width="12" height="58" rx="2" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/>${[0,1,2,3,4,5,6,7,8,9].map(i => `<path d="M144 ${127 + i*5.4} l${i % 2 ? 4 : 7} 0" stroke="#92400e" stroke-width="1.2"/>`).join("")}</g>`,
+    "livro-formulas": () => `<g transform="translate(0 ${up ? -90 : 0})"><rect x="26" y="146" width="28" height="36" rx="3" fill="#6d28d9" stroke="#3b0764" stroke-width="2"/><rect x="50" y="148" width="5" height="32" rx="1" fill="#f5f3ff"/>
+      <text x="39" y="168" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="800" fill="#fde68a">f(x)</text><path d="M31 174 L47 174" stroke="#c4b5fd" stroke-width="1.5"/></g>`,
+    "balao-delta": () => `<path d="M${up ? 168 : 138} ${up ? 82 : 176} C${up ? 176 : 170} ${up ? 60 : 120} 168 90 178 58" stroke="#e5e7eb" stroke-width="1.4" fill="none"/>
+      <g class="dm-balloon"><path d="M178 6 C182 6 204 44 204 50 C204 56 152 56 152 50 C152 44 174 6 178 6 Z" fill="${IRI}" stroke="#fff" stroke-width="1.2" stroke-opacity=".5"/>
+      <path d="M170 24 C166 32 162 40 161 46" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".45" fill="none"/><path d="M175 56 L178 62 L181 56 Z" fill="#8b5cf6"/></g>`,
+    "trofeu": () => `<g transform="translate(${up ? 6 : 2} ${up ? -94 : 0})"><path d="M140 140 L166 140 L164 158 C162 166 144 166 142 158 Z" fill="#facc15" stroke="#a16207" stroke-width="1.6"/>
+      <path d="M140 144 C132 144 132 154 141 156 M166 144 C174 144 174 154 165 156" stroke="#eab308" stroke-width="2.5" fill="none"/><rect x="150" y="164" width="6" height="8" fill="#eab308"/><rect x="143" y="171" width="20" height="6" rx="2" fill="#a16207"/>
+      <path d="M153 145 L157 153 L149 153 Z" fill="#fff" opacity=".8"/></g>`
+  };
+  const accX = ACC[o.acessorio] ? ACC[o.acessorio]() : "";
+  const skate = o.acessorio === "skate" ? `<g class="dm-skate"><path d="M36 228 C32 228 30 233 34 235 L166 235 C170 233 168 228 164 228 Z" fill="#1f1d2b" stroke="${IRI}" stroke-width="1.8"/>
+      <rect x="54" y="235" width="16" height="3" fill="#6b6985"/><rect x="130" y="235" width="16" height="3" fill="#6b6985"/>
+      <circle cx="58" cy="240" r="4.5" fill="#00f0ff"/><circle cx="66" cy="240" r="4.5" fill="#00f0ff"/><circle cx="134" cy="240" r="4.5" fill="#ff00e5"/><circle cx="142" cy="240" r="4.5" fill="#ff00e5"/></g>` : "";
   const cape = o.corpo === "capa-super" ? `<path d="M60 128 C42 160 38 196 46 222 L154 222 C162 196 158 160 140 128 Z" fill="#dc2626"/><path d="M60 128 C48 160 46 196 52 222" stroke="#991b1b" stroke-width="3" fill="none"/>` : "";
   const capeFront = o.corpo === "capa-super" ? `<path d="M70 130 L100 122 L130 130 L126 138 L100 130 L74 138 Z" fill="#b91c1c"/>` : "";
   const coat = o.corpo === "jaleco" ? `<path d="M50 186 L56 136 C64 128 80 126 88 128 L100 170 L112 128 C120 126 136 128 144 136 L150 186 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2.5"/>
@@ -151,7 +187,7 @@ export function deltaSVG(o = {}) {
   return `<svg class="dm-svg" viewBox="-12 -20 224 262" role="img" aria-label="Delta, o micro astronauta do Projeto Delta" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="dmiri${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee7ff"/><stop offset=".3" stop-color="#4f7bff"/><stop offset=".6" stop-color="#9b5cff"/><stop offset=".85" stop-color="#e055ff"/><stop offset="1" stop-color="#7df3ff"/></linearGradient>
-    <radialGradient id="dmhel${k}" cx=".34" cy=".26" r=".85"><stop offset="0" stop-color="${white ? "#ffffff" : "#4a4760"}"/><stop offset=".35" stop-color="${white ? "#eceef5" : "#1d1c28"}"/><stop offset=".8" stop-color="${white ? "#b9bdcc" : "#0a0a10"}"/><stop offset="1" stop-color="${white ? "#9096aa" : "#030305"}"/></radialGradient>
+    <radialGradient id="dmhel${k}" cx=".34" cy=".26" r=".85"><stop offset="0" stop-color="${helm[0]}"/><stop offset=".35" stop-color="${helm[1]}"/><stop offset=".8" stop-color="${helm[2]}"/><stop offset="1" stop-color="${helm[3]}"/></radialGradient>
     <linearGradient id="dmvis${k}" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#2a2838"/><stop offset=".45" stop-color="#0b0b12"/><stop offset="1" stop-color="#010103"/></linearGradient>
     <linearGradient id="dmcl${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lite}"/><stop offset=".25" stop-color="${base}"/><stop offset="1" stop-color="${deep}"/></linearGradient>
     <linearGradient id="dmcls${k}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${deep}"/><stop offset=".45" stop-color="${base}"/><stop offset=".7" stop-color="${lite}"/><stop offset="1" stop-color="${base}"/></linearGradient>
@@ -161,7 +197,7 @@ export function deltaSVG(o = {}) {
   <ellipse class="dm-shadow" cx="100" cy="239" rx="56" ry="7" fill="#000" opacity=".35"/>
   <g class="dm-all">
     ${cape}
-    <g class="dm-legs">${leg(-1)}${leg(1)}</g>
+    ${skate}<g class="dm-legs" ${skate ? 'transform="translate(0 -6)"' : ""}>${leg(-1)}${leg(1)}</g>
     <g class="dm-arm">${armsBack}</g>
     <g class="dm-body">
       <path d="M56 134 C66 126 84 123 100 123 C116 123 134 126 144 134 C152 148 154 168 151 182 C134 190 66 190 49 182 C46 168 48 148 56 134 Z" fill="url(#dmbody${k})" stroke="${deep}" stroke-width="2"/>
@@ -175,20 +211,22 @@ export function deltaSVG(o = {}) {
       <g filter="url(#dmglow)"><path d="M124 140 L131.5 153 L116.5 153 Z" fill="none" stroke="${IRI}" stroke-width="2.4" stroke-linejoin="round"/></g>
       <path d="M72 132 C80 128 92 127 98 127" stroke="${lite}" stroke-width="2" fill="none" opacity=".4" stroke-linecap="round"/>`}
       ${pocket(-1)}${pocket(1)}
+      ${o.corpo === "jaqueta-varsity" ? `<path d="M50 180 C68 188 132 188 150 180" stroke="#f5f5f5" stroke-width="3" fill="none"/><path d="M52 186 C68 193 132 193 148 186" stroke="#e11d48" stroke-width="2.5" fill="none"/>
+        <path d="M62 128 C78 122 122 122 138 128" stroke="#f5f5f5" stroke-width="3" fill="none"/><rect x="66" y="140" width="22" height="24" rx="4" fill="#f5f5f5"/><path d="M77 144 L85 159 L69 159 Z" fill="none" stroke="#e11d48" stroke-width="3" stroke-linejoin="round"/>` : ""}
       ${coat}${bag}${capeFront}
     </g>
     <g class="dm-arm dm-arm-f">${armsFront}
-      ${up || suit ? "" : `<text x="0" y="0" transform="translate(52 170) rotate(-78)" font-family="Orbitron,Inter,sans-serif" font-size="5.2" font-weight="800" fill="#d9d5ea" letter-spacing=".5">DELTA</text>`}</g>
-    ${handAcc}
+      ${up || suit ? "" : `<text x="0" y="0" transform="translate(52 170) rotate(-78)" font-family="Orbitron,Inter,sans-serif" font-size="5.2" font-weight="800" fill="${lightCloth ? "#3b3950" : "#d9d5ea"}" letter-spacing=".5">DELTA</text>`}</g>
+    ${handAcc}${accX}
     <g class="dm-head">
       <path d="M50 128 C48 112 62 106 74 112 C84 104 116 104 126 112 C138 106 152 112 150 128 C140 138 60 138 50 128 Z" fill="url(#dmbody${k})" stroke="${deep}" stroke-width="1.5"/>
       <path d="M58 124 C74 132 126 132 142 124" stroke="${lite}" stroke-width="2" fill="none" opacity=".35"/>
       <g class="dm-phones">
-        <circle cx="40" cy="80" r="17" fill="#0c0b12" stroke="#23212f" stroke-width="2"/><circle cx="40" cy="80" r="12" fill="none" stroke="${IRI}" stroke-width="4" filter="url(#dmglow)"/><circle cx="40" cy="80" r="7.5" fill="#15141e"/>
-        <circle cx="160" cy="80" r="17" fill="#0c0b12" stroke="#23212f" stroke-width="2"/><circle cx="160" cy="80" r="12" fill="none" stroke="${IRI}" stroke-width="4" filter="url(#dmglow)"/><circle cx="160" cy="80" r="7.5" fill="#15141e"/>
-        <path d="M31 72 a11 11 0 0 1 8 -4 M151 72 a11 11 0 0 1 8 -4" stroke="#fff" stroke-width="1.5" fill="none" opacity=".35" stroke-linecap="round"/>
+        <rect x="31" y="67" width="14" height="26" rx="4.5" fill="#0c0b12" stroke="#25232f" stroke-width="1.5"/><rect x="155" y="67" width="14" height="26" rx="4.5" fill="#0c0b12" stroke="#25232f" stroke-width="1.5"/>
+        <ellipse cx="34.5" cy="80" rx="3" ry="9.5" fill="#15141e" stroke="${IRI}" stroke-width="2.8" filter="url(#dmglow)"/><ellipse cx="165.5" cy="80" rx="3" ry="9.5" fill="#15141e" stroke="${IRI}" stroke-width="2.8" filter="url(#dmglow)"/>
+        <path d="M33 70 l6 0 M161 70 l6 0" stroke="#fff" stroke-width="1.3" opacity=".3" stroke-linecap="round"/>
       </g>
-      <circle cx="100" cy="72" r="60" fill="url(#dmhel${k})" stroke="${white ? "#8f95a8" : "#1f1e2b"}" stroke-width="2"/>
+      <circle cx="100" cy="72" r="60" fill="url(#dmhel${k})" stroke="${helm[4]}" stroke-width="2"/>
       <path d="M100 12.5 C130 16 152 36 158 62" stroke="${seam}" stroke-width="1.6" fill="none" opacity=".8"/>
       <path d="M100 12.5 C70 16 48 36 42 62" stroke="${seam}" stroke-width="1.6" fill="none" opacity=".5"/>
       <path d="M54 80 C54 50 74 38 100 38 C126 38 146 50 146 80 C146 108 126 120 100 120 C74 120 54 108 54 80 Z" fill="#050508"/>
@@ -199,7 +237,7 @@ export function deltaSVG(o = {}) {
       <path d="M50 42 C58 28 74 18 92 15" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="${white ? ".75" : ".3"}"/>
       <circle cx="46" cy="52" r="2.2" fill="#fff" opacity="${white ? ".6" : ".3"}"/>
       ${eyes(expr, eyeColor)}
-      ${mask}${hat}
+      ${mask}${hat}${HEADX[o.cabeca] ? HEADX[o.cabeca](IRI) : ""}
     </g>
     <g class="dm-arm dm-arm-t">${armThink}</g>
     ${think ? `<g class="dm-think"><circle cx="170" cy="30" r="4" fill="#fff"/><circle cx="182" cy="14" r="6" fill="#fff"/>
@@ -223,7 +261,22 @@ export function fundoSVG(id) {
     galaxia: `<rect width="200" height="200" fill="#0d0620"/><ellipse cx="80" cy="90" rx="90" ry="40" fill="#7c3aed" opacity=".5" transform="rotate(-20 80 90)"/>
       <ellipse cx="130" cy="120" rx="70" ry="28" fill="#ff00e5" opacity=".3" transform="rotate(-20 130 120)"/>${stars(24, "#fde68a")}`,
     aurora: `<rect width="200" height="200" fill="#05121f"/><path d="M-10 90 C40 40 90 120 210 60 L210 110 C120 150 60 90 -10 140 Z" fill="#00f0ff" opacity=".35"/>
-      <path d="M-10 60 C50 20 110 90 210 30 L210 60 C120 100 60 50 -10 90 Z" fill="#b6f23a" opacity=".25"/>${stars(12, "#fff")}`
+      <path d="M-10 60 C50 20 110 90 210 30 L210 60 C120 100 60 50 -10 90 Z" fill="#b6f23a" opacity=".25"/>${stars(12, "#fff")}`,
+    "sala-aula": `<rect width="200" height="200" fill="#f3e6c9"/><rect x="0" y="150" width="200" height="50" fill="#b98552"/><path d="M0 150 L200 150" stroke="#8a5a2b" stroke-width="3"/>
+      <rect x="20" y="30" width="96" height="62" rx="4" fill="#1f4d3a" stroke="#6b4423" stroke-width="5"/><g font-family="Inter,sans-serif" fill="#e7f5ec" opacity=".75" font-size="12"><text x="30" y="52">y = 2x + 1</text><text x="30" y="76">Δ = b² − 4ac</text></g>
+      <rect x="136" y="26" width="46" height="56" rx="3" fill="#bfe3ff" stroke="#fff" stroke-width="4"/><path d="M159 26 L159 82 M136 54 L182 54" stroke="#fff" stroke-width="3"/><circle cx="170" cy="40" r="7" fill="#fde68a"/>`,
+    "lua": `<rect width="200" height="200" fill="#070a1f"/>${stars(26, "#fff")}<circle cx="160" cy="44" r="16" fill="#3b82f6"/><path d="M150 38 C156 34 162 40 168 36 M152 50 C158 48 164 54 170 50" stroke="#22c55e" stroke-width="3" fill="none" opacity=".8"/>
+      <ellipse cx="100" cy="220" rx="170" ry="80" fill="#c9cbd6"/><ellipse cx="100" cy="220" rx="170" ry="80" fill="none" stroke="#e8e9f0" stroke-width="3"/>
+      <ellipse cx="40" cy="168" rx="16" ry="5" fill="#a9abb8"/><ellipse cx="150" cy="176" rx="22" ry="6" fill="#a9abb8"/><ellipse cx="96" cy="190" rx="12" ry="4" fill="#a9abb8"/>`,
+    "por-do-sol": `<defs><linearGradient id="ps${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b0a66"/><stop offset=".5" stop-color="#e0457b"/><stop offset="1" stop-color="#ffb347"/></linearGradient></defs>
+      <rect width="200" height="200" fill="url(#ps${k})"/><circle cx="100" cy="150" r="44" fill="#ffe08a" opacity=".95"/>${[0,1,2,3].map(i => `<rect x="40" y="${140 + i * 10}" width="120" height="3" fill="#e0457b" opacity=".7"/>`).join("")}
+      <rect x="0" y="160" width="200" height="40" fill="#2a0845"/><path d="M0 160 L30 142 L56 160 L90 136 L128 160 L160 146 L200 160 Z" fill="#3b0a66"/>`,
+    "cidade-neon": `<rect width="200" height="200" fill="#0b0620"/>${stars(10, "#fff")}
+      ${[[0,110,34],[30,80,30],[58,120,26],[82,60,36],[116,96,28],[142,70,32],[172,104,28]].map(([x,y,w],i) => `<rect x="${x}" y="${y}" width="${w}" height="${200 - y}" fill="#140c33" stroke="${i % 2 ? "#ff00e5" : "#00f0ff"}" stroke-width="1.2" stroke-opacity=".7"/>
+        ${Array.from({ length: 5 }, (_, r) => `<rect x="${x + 5}" y="${y + 10 + r * 16}" width="5" height="6" fill="${(r + i) % 3 ? "#00f0ff" : "#ff00e5"}" opacity=".7"/><rect x="${x + w - 11}" y="${y + 10 + r * 16}" width="5" height="6" fill="#ffe08a" opacity="${(r * i) % 2 ? .75 : .2}"/>`).join("")}`).join("")}
+      <rect x="0" y="186" width="200" height="14" fill="#1a0f3d"/><path d="M0 186 L200 186" stroke="#8b5cf6" stroke-width="2"/>`,
+    "matrix": `<rect width="200" height="200" fill="#020806"/><g font-family="Inter,monospace" font-size="11" font-weight="700">${Array.from({ length: 12 }, (_, c) => Array.from({ length: 14 }, (_, r) => {
+        const ch = "01Δπ√∑x2"[(c * 7 + r * 3) % 8]; return `<text x="${c * 17 + 3}" y="${r * 15 + 12}" fill="${r % 5 === c % 5 ? "#b6ffd9" : "#00c870"}" opacity="${((r * 13 + c * 7) % 10) / 12 + .1}">${ch}</text>`; }).join("")).join("")}</g>`
   }[id] || "";
   return `<svg class="dm-bg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><radialGradient id="fs${k}" cx=".5" cy=".3" r=".9"><stop offset="0" stop-color="#1b1140"/><stop offset="1" stop-color="#0b0b0f"/></radialGradient></defs>${f}</svg>`;
 }
