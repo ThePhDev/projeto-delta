@@ -168,6 +168,7 @@
   });
   var nav = document.getElementById("nav");
   var lightEl = document.getElementById("light");
+  var appEl = document.getElementById("app");
   var fimEl = document.getElementById("fim");
   var eixosEl = document.getElementById("eixos");
   var progressEl = document.getElementById("progress");
@@ -211,7 +212,8 @@
     var lr = lightEl.getBoundingClientRect();
     var fr = fimEl.getBoundingClientRect();
     var er = eixosEl ? eixosEl.getBoundingClientRect() : null;
-    var overEixos = er && er.top < 70 && er.bottom > 70;
+    var ar = appEl ? appEl.getBoundingClientRect() : null;
+    var overEixos = (er && er.top < 70 && er.bottom > 70) || (ar && ar.top < 70 && ar.bottom > 70);
     var overLightWorld = lr.top < 70 && lr.bottom > 70 && !overEixos;
     var docMax = document.documentElement.scrollHeight - window.innerHeight;
     if (progressEl) progressEl.style.transform = "scaleX(" + (docMax > 0 ? Math.min(1, window.scrollY / docMax) : 0).toFixed(4) + ")";
@@ -298,16 +300,16 @@
   var fineHover = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
   var cur = document.getElementById("cursor");
   if (cur && fineHover && !reduceMotion) {
-    var arrow = cur.querySelector(".c-arrow"), trail = cur.querySelector(".c-trail");
+    var arrow = cur.querySelector(".c-arrow");
     var label = cur.querySelector(".c-label"), ripple = cur.querySelector(".c-ripple");
-    var mx = -100, my = -100, tx2 = mx, ty2 = my, lastMx = mx, tilt = 0, pressed = false, on = false;
+    var mx = -100, my = -100, lastMx = mx, tilt = 0, pressed = false, on = false;
     var LABELS = [
       [".delta-stage", "Arrastar"], [".dopt", "Responder"], [".eixo", "Ver eixo"],
       ['a[href^="app/"]', "Entrar"], ['a[href^="mailto:"]', "Escrever"], ["a", "Abrir"], ["button", "Clicar"]
     ];
     window.addEventListener("mousemove", function (e) {
       mx = e.clientX; my = e.clientY;
-      if (!on) { on = true; tx2 = mx; ty2 = my; document.body.classList.add("cursor-on"); }
+      if (!on) { on = true; document.body.classList.add("cursor-on"); }
     }, { passive: true });
     document.addEventListener("mouseleave", function () { document.body.classList.remove("cursor-on"); on = false; });
     window.addEventListener("mousedown", function () {
@@ -324,11 +326,9 @@
     (function loop() {
       var vx = mx - lastMx; lastMx = mx;
       tilt += (Math.max(-14, Math.min(14, vx * 0.8)) - tilt) * 0.2;
-      tx2 += (mx - tx2) * 0.16; ty2 += (my - ty2) * 0.16;
       arrow.style.transform = "translate(" + (mx - 3) + "px," + (my - 2) + "px) rotate(" + tilt.toFixed(2) + "deg) scale(" + (pressed ? 0.9 : 1) + ")";
       label.style.left = mx + "px"; label.style.top = my + "px";
       ripple.style.left = mx + "px"; ripple.style.top = my + "px";
-      trail.style.transform = "translate(" + tx2.toFixed(1) + "px," + ty2.toFixed(1) + "px)";
       requestAnimationFrame(loop);
     })();
   }

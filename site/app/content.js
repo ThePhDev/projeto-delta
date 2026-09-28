@@ -245,3 +245,31 @@ export const SUBJECTS = [
     ]
   }
 ];
+
+// O que a lição ensina (tela de introdução)
+export const OBJETIVOS = {
+  "mat-u1-l1": ["Calcular porcentagem de um valor", "Aplicar descontos e aumentos", "Descobrir o todo a partir da parte"],
+  "mat-u1-l2": ["Montar uma regra de três", "Distinguir grandezas diretas e inversas", "Converter escalas de mapa"],
+  "num-u1-l3": ["Calcular juros simples", "Calcular juros compostos", "Comparar preço à vista e parcelado"],
+  "num-u2-l1": ["Converter unidades de comprimento", "Relacionar m³ e litros", "Converter áreas e tempo"],
+  "num-u2-l2": ["Operar com potências", "Escrever em notação científica", "Usar as propriedades dos expoentes"],
+  "num-u2-l3": ["Encontrar MMC e MDC", "Resolver problemas de encontro", "Contar divisores"],
+  "mat-u2-l1": ["Montar funções do tipo ax + b", "Encontrar a raiz", "Ler crescimento e decrescimento"],
+  "alg-u1-l2": ["Encontrar raízes pela soma e produto", "Achar o vértice da parábola", "Usar o discriminante"],
+  "alg-u1-l3": ["Modelar crescimento exponencial", "Resolver equações exponenciais simples", "Calcular depreciação"],
+  "alg-u2-l1": ["Achar a razão de uma PA", "Calcular o termo geral", "Somar termos de uma PA"],
+  "alg-u2-l2": ["Achar a razão de uma PG", "Calcular termos de uma PG", "Somar termos de uma PG"],
+  "alg-u2-l3": ["Calcular logaritmos simples", "Usar propriedades dos logaritmos", "Interpretar escalas logarítmicas"],
+  "mat-u2-l2": ["Calcular áreas de figuras planas", "Calcular perímetros", "Usar π nas contas"],
+  "geo-u1-l2": ["Aplicar o teorema de Pitágoras", "Reconhecer triângulos semelhantes", "Relacionar áreas e semelhança"],
+  "geo-u1-l3": ["Usar seno, cosseno e tangente", "Trabalhar com ângulos notáveis", "Resolver problemas de altura"],
+  "geo-u2-l1": ["Calcular volume de prismas", "Calcular volume de cilindros", "Converter volume em litros"],
+  "geo-u2-l2": ["Calcular volume de pirâmides e cones", "Calcular volume da esfera", "Contar faces de sólidos"],
+  "geo-u2-l3": ["Reconhecer planificações", "Usar a relação de Euler", "Interpretar vistas de sólidos"],
+  "mat-u1-l3": ["Calcular média, mediana e moda", "Descobrir a nota que falta", "Ler dados em porcentagem"],
+  "est-u1-l2": ["Escolher o gráfico certo", "Ler variações em tabelas", "Converter ângulos de setores"],
+  "est-u1-l3": ["Calcular amplitude", "Calcular variância", "Comparar regularidade"],
+  "est-u2-l1": ["Usar o princípio multiplicativo", "Contar anagramas", "Contar senhas e placas"],
+  "est-u2-l2": ["Diferenciar arranjo e combinação", "Calcular combinações", "Contar jogos e comissões"],
+  "mat-u2-l3": ["Calcular probabilidades simples", "Multiplicar eventos independentes", "Trabalhar com urnas e dados"]
+};

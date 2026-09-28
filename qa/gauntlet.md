@@ -35,3 +35,13 @@ Tier: **L** (site completo: landing + plataforma). Modo: Redesign com preservaç
 - Coreografia GSAP + ScrollTrigger nas cenas
 - Plataforma: trocar emojis por ícones SVG animados e remover texto em gradiente
 - Medir Core Web Vitals e rodar crítico + júri
+
+## Rodada 2 · nova plataforma e identidade (resultado: pronta para validação no teste)
+
+- Plataforma reescrita em módulos (`core`, `auth`, `learn`, `pages`, `app`), estilo Duolingo, identidade nova (Orbitron + Inter, Δ iridescente, astronauta vetorial).
+- Primeiro acesso animado (nome, @, cor do visor, item inicial, meta) e tutorial guiado que aparece uma única vez por tela.
+- Lição com até 8 questões: 5 da plataforma, até 2 inspiradas em questões do ENEM e 1 oficial do INEP. Cada questão exibe o selo de origem.
+- Recompensas: XP, Deltas, sequência, subida de nível e conquistas com animação e som; loja e guarda-roupa funcionais pelo servidor.
+- Landing: rastro "buraco negro" removido (fica só a seta), nova copy, seção do app com mascote em 3D, botão "Instalar no celular" (PWA com manifest e service worker).
+- Corrigido: `@media(max-width:900px)` sem fechamento na landing, que prendia regras (inclusive reduced-motion) só em telas pequenas.
+- Testes: Playwright com Supabase simulado em iPhone 13 e 1440px (onboarding, tutorial, lição completa, loja, perfil, ranking, missões, simulado, treinos); zero erros de console.
