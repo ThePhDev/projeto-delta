@@ -33,6 +33,18 @@ function msg(w, kind, text) {
   const m = w.querySelector(".msg"); m.className = "msg show " + kind; m.textContent = text;
   const d = w.querySelector("#hdm"); if (d) react(d, { cor: "teal" }, kind === "err" ? "triste" : "comemorando", kind === "err" ? "shake" : "jump");
 }
+const limitado = e => !!e && (e.status === 429 || /rate.?limit|too many|over_.*_rate|security purposes|throttl/i.test((e.code || "") + " " + (e.message || "")));
+// Muitos alunos saem pelo mesmo IP da escola: em vez de falhar, espera e tenta de novo.
+async function comRetentativa(w, fn, tentativas = 4) {
+  let r;
+  for (let i = 0; i < tentativas; i++) {
+    r = await fn();
+    if (!limitado(r.error) || i === tentativas - 1) return r;
+    msg(w, "ok", "Muita gente entrando agora, tentando de novo…");
+    await sleep(1500 * 2 ** i + Math.random() * 1000);
+  }
+  return r;
+}
 function busy(b, on, label) { b.disabled = on; if (label) b.textContent = label; }
 
 export function viewLogin() {
@@ -50,8 +62,9 @@ export function viewLogin() {
     const email = w.querySelector("#email").value.trim(), senha = w.querySelector("#senha").value;
     if (!email || !senha) return msg(w, "err", "Preencha e-mail e senha.");
     busy(go, true, "Entrando...");
-    const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+    const { error } = await comRetentativa(w, () => sb.auth.signInWithPassword({ email, password: senha }));
     busy(go, false, "Entrar");
+    if (limitado(error)) return msg(w, "err", "Muitos acessos ao mesmo tempo. Espere um minutinho e tente de novo.");
     if (error) return msg(w, "err", /not confirmed/i.test(error.message) ? "Seu e-mail ainda não foi confirmado. Abra o link que enviamos para ativar a conta." : "E-mail ou senha incorretos.");
     sfx.correct();
   };
@@ -76,8 +89,10 @@ export function viewCadastro() {
     if (!nome || !email || !senha) return msg(w, "err", "Preencha nome, e-mail e senha.");
     if (senha.length < 8) return msg(w, "err", "A senha precisa de pelo menos 8 caracteres.");
     busy(go, true, "Criando...");
-    const { error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome, escola }, emailRedirectTo: redirect("/confirmar") } });
+    const { data, error } = await comRetentativa(w, () => sb.auth.signUp({ email, password: senha, options: { data: { nome, escola }, emailRedirectTo: redirect("/confirmar") } }));
     busy(go, false, "Criar conta");
+    if (limitado(error)) return msg(w, "err", "Muitos cadastros ao mesmo tempo. Espere um minutinho e tente de novo; sua conta ainda não foi criada.");
+    if (!error && data && data.session) { sfx.correct(); return; } // sem confirmação por e-mail: o listener de auth leva ao onboarding
     if (error) return msg(w, "err", /school|escolar|403|not allowed|invalid/i.test(error.message + (error.status || "")) ?
       "Use um e-mail escolar válido (.edu, .edu.br, .escola.br ou .aluno.br)." : (error.message || "Não deu para criar a conta agora."));
     try { sessionStorage.setItem("delta-signup-email", email); } catch (x) {}
