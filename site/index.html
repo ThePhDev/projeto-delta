@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projeto Delta — Do abismo à aprovação</title>
+<meta name="description" content="Guia de estudos digital e gratuito para o ENEM, focado em Matemática e Ciências da Natureza. Projeto de extensão da Engenharia da Computação — USF Campinas." />
+<meta property="og:title" content="Projeto Delta — Do abismo à aprovação" />
+<meta property="og:description" content="Plataforma gratuita de preparação para o ENEM, criada por estudantes de Engenharia da Computação da USF para alunos da rede pública." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/png" sizes="32x32" href="brand/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="brand/icon-512.png" />
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png" />
+<style>
+:root{
+  --ink:#0d0e12;
+  --paper:#e9eaee;
+  --line:rgba(13,14,18,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) #000}
+body{background:#000;color:#fff;font-family:'Barlow',sans-serif;font-weight:300;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+.serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400}
+::selection{background:rgba(255,255,255,.9);color:#000}
+
+/* ---------- liquid glass ---------- */
+.liquid-glass{background:rgba(255,255,255,0.01);background-blend-mode:luminosity;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,0.1);position:relative;overflow:hidden}
+.liquid-glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.4px;background:linear-gradient(180deg,rgba(255,255,255,0.45) 0%,rgba(255,255,255,0.15) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,0.15) 80%,rgba(255,255,255,0.45) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.liquid-glass-strong{background:rgba(255,255,255,0.01);background-blend-mode:luminosity;backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);border:none;box-shadow:4px 4px 4px rgba(0,0,0,0.05),inset 0 1px 1px rgba(255,255,255,0.15);position:relative;overflow:hidden}
+.liquid-glass-strong::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.4px;background:linear-gradient(180deg,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.2) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,0.2) 80%,rgba(255,255,255,0.5) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+
+
+/* ---------- typography interactions ----------
+   (fix: nunca usar text-fill transparente — com spans/filters filhos o
+   background-clip:text falha e o texto some. Glow luminoso é seguro.) */
+.holo-ink{transition:text-shadow .35s ease}
+.holo-ink:hover{text-shadow:0 0 14px rgba(155,231,255,.85),0 0 34px rgba(201,167,255,.55),0 2px 30px rgba(0,0,0,.55)}
+#ch-travessia .holo-ink:hover,#ch-chegada .holo-ink:hover,#light .holo-ink:hover{text-shadow:0 0 14px rgba(123,92,255,.45),0 0 30px rgba(57,208,255,.35)}
+.ch{display:inline-block;transition:transform .5s var(--ease),color .4s;transition-delay:calc(var(--i)*16ms)}
+#overlay .links a:hover .ch{transform:translateY(-.13em) rotate(-2deg)}
+nav .menu a:hover .ch{transform:translateY(-2.5px)}
+
+/* ---------- loader ---------- */
+#loader{position:fixed;inset:0;z-index:200;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6rem;transition:opacity .8s ease,visibility .8s}
+#loader.done{opacity:0;visibility:hidden;pointer-events:none}
+#loader .tri{width:54px;height:54px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1)}}
+#loader .pct{font-size:.8rem;letter-spacing:.35em;color:rgba(255,255,255,.55);text-transform:uppercase}
+#loader .bar{width:180px;height:1px;background:rgba(255,255,255,.12);overflow:hidden;border-radius:999px}
+#loader .bar i{display:block;height:100%;width:0%;background:#fff;transition:width .25s ease}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:1rem;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;transition:opacity .5s ease, transform .5s ease}
+nav.hidden-nav{opacity:0;transform:translateY(-12px);pointer-events:none}
+nav .logo{width:48px;height:48px;border-radius:9999px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+nav .logo img{width:30px;height:auto;display:block;filter:drop-shadow(0 0 8px rgba(120,140,255,.35))}
+nav .menu{display:flex;align-items:center;gap:.25rem;border-radius:9999px;padding:.375rem}
+nav .menu a{padding:.5rem .75rem;font-size:.875rem;font-weight:500;color:rgba(255,255,255,.9);text-decoration:none;border-radius:9999px;transition:background .3s}
+nav .menu a:hover,nav .menu a:focus-visible{background:rgba(255,255,255,.1);outline:none}
+nav .menu a.cta{background:#fff;color:#000;display:flex;align-items:center;gap:.35rem;white-space:nowrap;padding:.5rem .9rem}
+nav .menu a.cta:hover{background:rgba(255,255,255,.85)}
+nav .spacer{width:48px;height:48px;visibility:hidden}
+nav.on-light .logo{color:var(--ink)}
+nav.on-light .menu a{color:var(--ink)}
+nav.on-light .menu a:hover{background:rgba(13,14,18,.07)}
+nav.on-light .menu a.cta{background:var(--ink);color:#fff}
+nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1px 12px rgba(13,14,18,.06)}
+@media(max-width:820px){nav .menu a:not(.cta){display:none} nav .menu{padding:.3rem} nav{padding:0 1.1rem}}
+@media(min-width:821px){nav{padding:0 4rem}}
+
+/* ---------- journey / canvas ---------- */
+#journey{height:900vh;position:relative}
+#stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+#film{position:absolute;inset:0;width:100%;height:100%;display:block}
+#grain{position:fixed;inset:-100%;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1.2s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-2%)}100%{transform:translate(3%,3%)}}
+
+/* ---------- chapters (overlays) ---------- */
+.chapter{position:absolute;inset:0;display:flex;pointer-events:none;opacity:0;padding:0 2rem;z-index:20}
+.chapter .inner{pointer-events:auto;max-width:1200px;width:100%;margin:0 auto;position:relative}
+/* scrim for legibility over the film */
+.chapter::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.9;
+  background:radial-gradient(120% 90% at 50% 55%,rgba(0,0,0,.62) 0%,rgba(0,0,0,.34) 42%,rgba(0,0,0,0) 72%)}
+#ch-travessia::before,#ch-chegada::before{background:radial-gradient(120% 90% at 50% 55%,rgba(233,234,238,.75) 0%,rgba(233,234,238,.4) 42%,rgba(233,234,238,0) 72%)}
+.chapter h1,.chapter h2{text-shadow:0 2px 30px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4)}
+#ch-travessia h2,#ch-chegada h2{text-shadow:0 2px 24px rgba(233,234,238,.8),0 1px 2px rgba(255,255,255,.6)}
+.chapter .sub,.chapter p{text-shadow:0 1px 16px rgba(0,0,0,.55)}
+#ch-travessia p,#ch-chegada p{text-shadow:0 1px 12px rgba(233,234,238,.85)}
+.kicker{font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.82);font-weight:500;text-shadow:0 1px 14px rgba(0,0,0,.6)}
+
+/* hero */
+#ch-hero{align-items:center;justify-content:center;text-align:center}
+#ch-hero .badge{display:inline-flex;align-items:center;gap:.6rem;border-radius:9999px;padding:.3rem;padding-right:.9rem;margin-bottom:1.6rem}
+#ch-hero .badge b{background:#fff;color:#000;border-radius:9999px;padding:.25rem .75rem;font-size:.72rem;font-weight:600;letter-spacing:.02em}
+#ch-hero .badge span{font-size:.85rem;color:rgba(255,255,255,.9)}
+#ch-hero h1{font-size:clamp(2.9rem,8.5vw,5.6rem);line-height:.88;letter-spacing:-3px;color:#fff;max-width:15ch;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;row-gap:.08em}
+#ch-hero h1 .w{display:inline-block;margin-right:.28em;opacity:0;filter:blur(10px);transform:translateY(50px)}
+#ch-hero.armed h1 .w{animation:blurin .7s cubic-bezier(.22,.65,.35,1) forwards;animation-delay:var(--d)}
+@keyframes blurin{0%{opacity:0;filter:blur(10px);transform:translateY(50px)}50%{opacity:.5;filter:blur(5px);transform:translateY(-5px)}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
+#ch-hero .sub{margin:1.3rem auto 0;font-size:clamp(1.02rem,1.55vw,1.22rem);line-height:1.45;color:#fff;max-width:52ch;font-weight:400}
+#ch-hero .ctas{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1.7rem;flex-wrap:wrap}
+.btn-glass{border-radius:9999px;padding:.72rem 1.4rem;font-size:.9rem;font-weight:500;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:transform .25s ease}
+.btn-glass:hover{transform:translateY(-2px)}
+.btn-glass:active{transform:translateY(0) scale(.98)}
+.link-plain{color:#fff;text-decoration:none;font-size:.9rem;font-weight:500;display:inline-flex;align-items:center;gap:.4rem;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;transition:border-color .25s}
+.link-plain:hover{border-color:#fff}
+#ch-hero .scrollhint{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+@media(max-height:760px){#ch-hero .scrollhint{display:none}}
+@media(max-width:480px){#ch-hero .badge{flex-direction:row;padding-right:.75rem}#ch-hero .badge b{white-space:nowrap}#ch-hero .badge span{font-size:.72rem;line-height:1.25;text-align:left}}
+#ch-hero .scrollhint .line{width:1px;height:38px;background:linear-gradient(#fff,transparent);animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* problema — left aligned, asymmetric */
+#ch-problema{align-items:center}
+#ch-problema .inner{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:2rem;align-items:end}
+#ch-problema h2{font-size:clamp(2.4rem,6vw,4.4rem);line-height:.92;letter-spacing:-2px;color:#fff;margin-top:1rem;max-width:14ch}
+#ch-problema p{font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.5;color:#fff;max-width:44ch}
+#ch-problema .datum{border-radius:1.25rem;padding:1.3rem 1.4rem;margin-top:1.1rem}
+#ch-problema .datum .n{font-family:'Instrument Serif',serif;font-style:italic;font-size:2.2rem;letter-spacing:-1px;line-height:1}
+#ch-problema .datum .l{font-size:.86rem;color:#fff;margin-top:.45rem;line-height:1.4}
+@media(max-width:820px){#ch-problema .inner{grid-template-columns:1fr;align-items:start;gap:1.2rem}}
+
+/* plataforma — right aligned */
+#ch-plataforma{align-items:center;justify-content:flex-end}
+#ch-plataforma .inner{display:flex;flex-direction:column;align-items:flex-end;text-align:right}
+#ch-plataforma h2{font-size:clamp(2.4rem,6vw,4.4rem);line-height:.92;letter-spacing:-2px;margin-top:1rem;max-width:13ch}
+#ch-plataforma p{font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.5;color:#fff;max-width:46ch;margin-top:1rem}
+#ch-plataforma .tags{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.5rem;margin-top:1.4rem;max-width:34rem}
+#ch-plataforma .tags span{border-radius:9999px;padding:.46rem 1.05rem;font-size:.88rem;color:#fff;white-space:nowrap}
+
+/* travessia — dark ink over light frames, anchored left */
+#ch-travessia{align-items:center}
+#ch-travessia .inner{max-width:1200px}
+#ch-travessia .kicker{color:rgba(13,14,18,.55)}
+#ch-travessia h2{font-size:clamp(2.6rem,6.5vw,4.8rem);line-height:.9;letter-spacing:-2.5px;color:var(--ink);margin-top:.8rem;max-width:13ch}
+#ch-travessia p{margin-top:1.1rem;font-size:clamp(1rem,1.45vw,1.18rem);color:rgba(13,14,18,.92);max-width:40ch;line-height:1.5;font-weight:400}
+
+/* chegada — dark text over light frames, anchored right */
+#ch-chegada{align-items:center;justify-content:flex-end}
+#ch-chegada .inner{display:flex;flex-direction:column;align-items:flex-end;text-align:right;max-width:1200px}
+#ch-chegada .kicker{color:rgba(13,14,18,.55)}
+#ch-chegada h2{font-size:clamp(2.6rem,6.5vw,4.8rem);line-height:.9;letter-spacing:-2.5px;color:var(--ink);margin-top:.8rem;max-width:13ch}
+#ch-chegada p{margin-top:1.1rem;font-size:clamp(1rem,1.45vw,1.18rem);color:rgba(13,14,18,.92);max-width:42ch;line-height:1.5;font-weight:400}
+@media(max-width:820px){
+  #ch-travessia,#ch-chegada{align-items:flex-end}
+  #ch-travessia .inner{padding-bottom:14vh}
+  #ch-chegada .inner{padding-bottom:14vh}
+}
+
+/* ---------- light world ---------- */
+#light{background:var(--paper);color:var(--ink);position:relative;z-index:30}
+#light section{padding:7rem 2rem}
+#light .wrap{max-width:1200px;margin:0 auto}
+#light .kicker{color:rgba(13,14,18,.55)}
+.reveal{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .9s ease,transform .9s ease,filter .9s ease}
+.reveal.in{opacity:1;transform:none;filter:none}
+
+/* missão */
+#missao .grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:4rem;align-items:start}
+#missao h2{font-size:clamp(2.6rem,6vw,4.8rem);line-height:.94;letter-spacing:-2.5px;margin-top:1.2rem}
+#missao .lead{font-size:1.05rem;line-height:1.55;margin-top:1.6rem;max-width:56ch;color:rgba(13,14,18,.85)}
+#missao .ods{border-left:1px solid var(--line);padding-left:2rem;display:flex;flex-direction:column;gap:2.2rem;margin-top:1.2rem}
+#missao .ods .num{font-family:'Instrument Serif',serif;font-style:italic;font-size:3.4rem;line-height:1;letter-spacing:-2px}
+#missao .ods h3{font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-top:.4rem}
+#missao .ods p{font-size:.92rem;line-height:1.5;color:rgba(13,14,18,.7);margin-top:.4rem;max-width:34ch}
+@media(max-width:820px){#missao .grid{grid-template-columns:1fr;gap:2.5rem}}
+
+/* metodologia */
+#metodologia{border-top:1px solid var(--line)}
+#metodologia h2{font-size:clamp(2.4rem,5vw,4rem);letter-spacing:-2px;line-height:.95;margin-top:1.2rem;max-width:16ch}
+#metodologia .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:3.5rem;border-top:1px solid var(--line)}
+#metodologia .step{padding:2.2rem 2rem 2.2rem 0;border-right:1px solid var(--line)}
+#metodologia .step:last-child{border-right:none}
+#metodologia .step:nth-child(2){padding-left:2rem}
+#metodologia .step:nth-child(3){padding-left:2rem;padding-right:0}
+#metodologia .step .n{font-family:'Instrument Serif',serif;font-style:italic;font-size:1.1rem;color:rgba(13,14,18,.45)}
+#metodologia .step h3{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;font-size:1.9rem;letter-spacing:-.5px;margin-top:.9rem}
+#metodologia .step p{font-size:.92rem;line-height:1.55;color:rgba(13,14,18,.72);margin-top:.7rem;max-width:34ch}
+#metodologia .stack{margin-top:3rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+#metodologia .stack em{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-style:normal;color:rgba(13,14,18,.5);margin-right:.6rem}
+#metodologia .stack span{border:1px solid var(--line);border-radius:9999px;padding:.4rem 1rem;font-size:.82rem;background:rgba(255,255,255,.5)}
+@media(max-width:820px){#metodologia .steps{grid-template-columns:1fr}#metodologia .step{border-right:none;border-bottom:1px solid var(--line);padding:1.8rem 0}#metodologia .step:nth-child(2),#metodologia .step:nth-child(3){padding-left:0}}
+
+/* equipe */
+#equipe{border-top:1px solid var(--line);text-align:center}
+#equipe h2{font-size:clamp(2.2rem,5vw,3.6rem);letter-spacing:-2px;margin-top:1.2rem}
+#equipe .names{display:flex;flex-wrap:wrap;justify-content:center;column-gap:2.6rem;row-gap:1.2rem;margin-top:3rem;max-width:900px;margin-left:auto;margin-right:auto}
+#equipe .names span{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(1.4rem,2.6vw,1.9rem);letter-spacing:-.5px;white-space:nowrap;transition:opacity .3s}
+#equipe .names:hover span{opacity:.4}
+#equipe .names span:hover{opacity:1}
+#equipe .inst{margin-top:3rem;font-size:.85rem;line-height:1.6;color:rgba(13,14,18,.6);max-width:52ch;margin-left:auto;margin-right:auto}
+
+/* footer cta */
+#fim{background:#000;color:#fff;position:relative;z-index:30;text-align:center;padding:8rem 2rem 3rem}
+#fim h2{font-size:clamp(2.6rem,7vw,5rem);letter-spacing:-2.5px;line-height:.9}
+#fim p{margin:1.4rem auto 0;max-width:46ch;color:rgba(255,255,255,.85);font-size:1rem;line-height:1.5}
+#fim .ctas{display:flex;justify-content:center;gap:1.5rem;margin-top:2.2rem;flex-wrap:wrap}
+#fim .meta{margin-top:6rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12);padding-top:1.6rem;font-size:.78rem;color:rgba(255,255,255,.5);max-width:1200px;margin-left:auto;margin-right:auto;text-align:left}
+#fim .meta .serif{font-size:1.05rem;color:#fff}
+
+/* ---------- blur-text (word-by-word reveal) ---------- */
+.blur-text{display:inline-flex;flex-wrap:wrap}
+.blur-text .w{display:inline-block;margin-right:.26em;opacity:0;filter:blur(12px);transform:translateY(14px);transition:opacity .9s var(--ease),filter .9s var(--ease),transform .9s var(--ease)}
+.blur-text.in .w{opacity:1;filter:blur(0);transform:none}
+:root{--ease:cubic-bezier(.22,.65,.35,1)}
+#missao .blur-text,#equipe .blur-text{justify-content:inherit}
+#equipe .blur-text{justify-content:center}
+
+/* ---------- black-hole cursor ---------- */
+body.bh-on, body.bh-on a, body.bh-on button, body.bh-on input, body.bh-on label{cursor:none}
+#bh{position:fixed;top:0;left:0;width:38px;height:38px;pointer-events:none;z-index:120;transform:translate(-50%,-50%);transition:width .35s var(--ease),height .35s var(--ease);will-change:transform}
+#bh .lens{position:absolute;inset:-110%;border-radius:50%;backdrop-filter:blur(2.5px) saturate(1.65) brightness(1.07);-webkit-backdrop-filter:blur(2.5px) saturate(1.65) brightness(1.07);-webkit-mask:radial-gradient(circle,#000 0%,#000 26%,transparent 58%);mask:radial-gradient(circle,#000 0%,#000 26%,transparent 58%)}
+/* accretion disk: elliptical window clipping a spinning conic gradient */
+#bh .disk{position:absolute;left:-58%;right:-58%;top:30%;bottom:30%;-webkit-mask:radial-gradient(ellipse 50% 50% at 50% 50%,transparent 33%,#000 44%,#000 80%,transparent 94%);mask:radial-gradient(ellipse 50% 50% at 50% 50%,transparent 33%,#000 44%,#000 80%,transparent 94%);filter:blur(1.2px) saturate(1.5);opacity:.95;overflow:hidden;border-radius:50%}
+#bh .disk i{content:"";position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:50%;background:conic-gradient(from 0deg,rgba(155,231,255,.15) 0deg,rgba(155,231,255,.9) 55deg,rgba(255,255,255,1) 105deg,rgba(201,167,255,.92) 165deg,rgba(255,92,207,.75) 235deg,rgba(255,209,102,.55) 290deg,rgba(155,231,255,.15) 360deg);animation:bhspin 2.8s linear infinite}
+@keyframes bhspin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+#bh .halo{position:absolute;inset:-16% 22%;border-radius:50%;-webkit-mask:linear-gradient(#000 38%,transparent 55%);mask:linear-gradient(#000 38%,transparent 55%);background:radial-gradient(50% 50% at 50% 50%,transparent 60%,rgba(210,230,255,.55) 68%,rgba(190,170,255,.35) 74%,transparent 82%);filter:blur(.6px);opacity:.8;animation:bhhalo 3.2s ease-in-out infinite}
+@keyframes bhhalo{0%,100%{opacity:.55}50%{opacity:.95}}
+#bh .core{position:absolute;inset:24%;border-radius:50%;background:radial-gradient(circle at 42% 38%,#050508 0%,#000 62%,#000 100%);box-shadow:0 0 18px 4px rgba(0,0,0,.6)}
+#bh .ring{position:absolute;inset:17%;border-radius:50%;border:1.5px solid rgba(255,255,255,.92);box-shadow:0 0 9px 1px rgba(220,235,255,.85),inset 0 0 5px rgba(200,225,255,.55);filter:blur(.35px);animation:bhring 2.4s ease-in-out infinite}
+@keyframes bhring{0%,100%{box-shadow:0 0 9px 1px rgba(220,235,255,.85),inset 0 0 5px rgba(200,225,255,.55)}50%{box-shadow:0 0 16px 3px rgba(220,235,255,1),inset 0 0 8px rgba(200,225,255,.8)}}
+#bh.grow{width:70px;height:70px}
+#bh.grow .disk i{animation-duration:1.4s}
+@media (hover:none),(pointer:coarse){#bh{display:none}body.bh-on,body.bh-on a,body.bh-on button{cursor:auto}}
+
+/* ---------- fullscreen menu (awwwards) ---------- */
+.burger{width:48px;height:48px;border-radius:9999px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;border:none}
+.burger span{display:block;width:19px;height:1.5px;background:#fff;transition:transform .4s var(--ease),opacity .3s}
+nav.on-light .burger span{background:var(--ink)}
+.burger:hover span:first-child{transform:translateX(2px)}
+#overlay{position:fixed;inset:0;z-index:150;background:#050608;display:flex;flex-direction:column;justify-content:center;padding:2rem 2rem 2rem;opacity:0;visibility:hidden;transition:opacity .6s var(--ease),visibility .6s;cursor:auto}
+#overlay.open{opacity:1;visibility:visible}
+#overlay::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 60% at 80% 20%,rgba(255,255,255,.05),transparent 70%)}
+#overlay .close{position:absolute;top:1.4rem;right:1.6rem;width:52px;height:52px;border-radius:9999px;border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.2rem;display:grid;place-items:center;background:none}
+#overlay .close:hover{background:rgba(255,255,255,.08)}
+#overlay .links{max-width:1200px;margin:0 auto;width:100%}
+#overlay .links a{display:flex;align-items:baseline;gap:1.2rem;color:#fff;text-decoration:none;font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(2.6rem,9vw,6rem);line-height:1.02;letter-spacing:-2px;padding:.4rem 0;opacity:0;transform:translateY(30px);filter:blur(8px);transition:color .3s}
+#overlay.open .links a{animation:menuin .7s var(--ease) forwards;animation-delay:var(--d)}
+@keyframes menuin{to{opacity:1;transform:none;filter:blur(0)}}
+#overlay .links a .no{font-family:'Barlow',sans-serif;font-style:normal;font-size:.9rem;letter-spacing:.1em;color:rgba(255,255,255,.4);font-weight:500;transform:translateY(-1.4em)}
+#overlay .links a:hover{color:#9db4ff}
+#overlay .links a:hover .no{color:#9db4ff}
+#overlay .foot{max-width:1200px;margin:2.5rem auto 0;width:100%;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;color:rgba(255,255,255,.45);font-size:.8rem;border-top:1px solid rgba(255,255,255,.12);padding-top:1.4rem}
+#overlay .foot .serif{color:#fff;font-size:1rem}
+@media(max-width:520px){#overlay .links a .no{display:none}}
+
+@media (prefers-reduced-motion: reduce){
+  #grain{animation:none}
+  .blur-text .w{opacity:1 !important;filter:none !important;transform:none !important}
+  #bh .ring,#bh .disk{animation:none}
+  #overlay .links a{animation:none;opacity:1;transform:none;filter:none}
+  #ch-hero h1 .w{opacity:1 !important;filter:none !important;transform:none !important;animation:none !important}
+  .reveal{opacity:1;transform:none;filter:none;transition:none}
+  #loader .tri{animation:none}
+  #ch-hero .scrollhint .line{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="loader" role="status" aria-label="Carregando">
+  <svg class="tri" viewBox="0 0 100 100" fill="none"><path d="M50 12 L92 84 H8 Z" stroke="white" stroke-width="4" stroke-linejoin="round"/></svg>
+  <div class="bar"><i id="loadbar"></i></div>
+  <div class="pct" id="loadpct">0%</div>
+</div>
+
+<nav id="nav" aria-label="Navegação principal">
+  <a class="logo liquid-glass" href="#topo" aria-label="Projeto Delta — início"><img src="brand/delta-mark@2x.png" alt="Projeto Delta" /></a>
+  <div class="menu liquid-glass">
+    <a href="#problema">O problema</a>
+    <a href="#plataforma">A plataforma</a>
+    <a href="#metodologia">Metodologia</a>
+    <a href="#equipe">Equipe</a>
+    <a class="cta" href="app/">Entrar na plataforma
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+    </a>
+  </div>
+  <button class="burger liquid-glass" id="burger" aria-label="Abrir menu"><span></span><span></span></button>
+</nav>
+
+<div id="overlay" aria-hidden="true">
+  <button class="close" id="closeMenu" aria-label="Fechar menu">✕</button>
+  <div class="links">
+    <a href="#missao" data-d=".08s"><span class="no">01</span>A missão</a>
+    <a href="#plataforma" data-d=".16s"><span class="no">02</span>A plataforma</a>
+    <a href="#metodologia" data-d=".24s"><span class="no">03</span>Metodologia</a>
+    <a href="#equipe" data-d=".32s"><span class="no">04</span>A tripulação</a>
+    <a href="app/" data-d=".40s"><span class="no">05</span>Entrar na plataforma</a>
+  </div>
+  <div class="foot">
+    <span class="serif">Δ Projeto Delta</span>
+    <span>Universidade São Francisco · Campinas · 2026</span>
+  </div>
+</div>
+
+<div id="bh" aria-hidden="true"><div class="lens"></div><div class="disk"><i></i></div><div class="halo"></div><div class="core"></div><div class="ring"></div></div>
+
+<div id="grain" aria-hidden="true"></div>
+
+<a id="topo"></a>
+<div id="journey" aria-label="A travessia — narrativa em vídeo controlada pelo scroll">
+  <div id="stage">
+    <canvas id="film" aria-hidden="true"></canvas>
+
+    <!-- CAP 0 · HERO · frames 0–18 -->
+    <section class="chapter" id="ch-hero" data-in="-0.1" data-hold="-0.05" data-out="0.14">
+      <div class="inner">
+        <div class="badge liquid-glass">
+          <b>USF · 2026.1</b>
+          <span>Extensão universitária — Engenharia da Computação</span>
+        </div>
+        <h1 class="serif" id="heroTitle">O ENEM não deveria ser um abismo.</h1>
+        <p class="sub">Para quem estuda na rede pública, atravessá-lo exige o que muitos não têm: cursinho, método e acompanhamento. O <strong style="font-weight:500">Projeto Delta</strong> é um guia de estudos digital, gratuito, feito para mudar isso.</p>
+        <div class="ctas">
+          <a class="btn-glass liquid-glass-strong" href="app/">Acessar a plataforma
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+          </a>
+          <a class="link-plain" href="#problema">Começar a travessia</a>
+        </div>
+      </div>
+      <div class="scrollhint"><span>Role para descer</span><span class="line"></span></div>
+    </section>
+
+    <!-- CAP 1 · PROBLEMA · escuridão / buraco negro -->
+    <section class="chapter" id="ch-problema" data-in="0.20" data-hold="0.30" data-out="0.38">
+      <div class="inner">
+        <div>
+          <p class="kicker">Capítulo 01 — O problema</p>
+          <h2 class="serif">A lacuna é real. E não é falta de talento.</h2>
+        </div>
+        <div>
+          <p>Formandos da escola <strong style="font-weight:500">CEMEP</strong> chegam ao terceiro ano sem ferramentas digitais de estudo, sem cronograma estruturado e sem o acompanhamento que os cursinhos particulares vendem caro.</p>
+          <div class="datum liquid-glass">
+            <div class="n serif">Exatas &amp; Natureza</div>
+            <div class="l">Matemática, Física, Química e Biologia — justamente as áreas onde a distância de desempenho entre rede pública e privada mais pesa na nota.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAP 2 · PLATAFORMA -->
+    <section class="chapter" id="ch-plataforma" data-in="0.44" data-hold="0.54" data-out="0.62">
+      <div class="inner">
+        <p class="kicker">Capítulo 02 — A plataforma</p>
+        <h2 class="serif">Método de cursinho, custo zero.</h2>
+        <p>Um guia digital que organiza a rotina de quem estuda sozinho: o que revisar, quando revisar e por onde continuar — construído a partir das dificuldades reais mapeadas com os próprios alunos.</p>
+        <div class="tags">
+          <span class="liquid-glass">Revisão espaçada</span>
+          <span class="liquid-glass">Cronogramas personalizados</span>
+          <span class="liquid-glass">Banco de questões do ENEM</span>
+          <span class="liquid-glass">Aprendizagem adaptativa</span>
+          <span class="liquid-glass">100% gratuito e responsivo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAP 3 · TRAVESSIA · emergindo na luz -->
+    <section class="chapter" id="ch-travessia" data-in="0.73" data-hold="0.79" data-out="0.86">
+      <div class="inner">
+        <p class="kicker">Capítulo 03 — A travessia</p>
+        <h2 class="serif">Velocidade é método aplicado todos os dias.</h2>
+        <p>Não é milagre, é engenharia: diagnóstico, prática guiada e revisão no tempo certo — até o conteúdo que parecia impossível virar rotina.</p>
+      </div>
+    </section>
+
+    <!-- CAP 4 · CHEGADA · luz -->
+    <section class="chapter" id="ch-chegada" data-in="0.90" data-hold="0.95" data-out="1.03">
+      <div class="inner">
+        <p class="kicker">Capítulo 04 — A chegada</p>
+        <h2 class="serif">Do outro lado, a aprovação.</h2>
+        <p>Delta (Δ) é o símbolo da variação. A nossa: a diferença entre o estudante que começa a jornada e o que chega ao fim dela — preparado.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="light">
+  <section id="missao"><a id="problema" style="position:absolute"></a>
+    <div class="wrap">
+      <div class="grid">
+        <div class="reveal">
+          <p class="kicker">A missão</p>
+          <h2 class="serif blur-text">Feito para quem os cursinhos costumam esquecer.</h2>
+          <p class="lead">Somos dez estudantes de Engenharia da Computação da Universidade São Francisco (Campinas). Este projeto de extensão nasceu de uma vontade simples: usar o que aprendemos na faculdade para democratizar métodos de estudo que hoje ficam trancados atrás de mensalidades — começando pelos formandos da escola pública CEMEP, nossa parceira.</p>
+        </div>
+        <div class="ods reveal">
+          <div>
+            <div class="num serif">ODS 4</div>
+            <h3>Educação de qualidade</h3>
+            <p>Acesso gratuito a preparação estruturada para o ENEM, independente da renda.</p>
+          </div>
+          <div>
+            <div class="num serif">ODS 9</div>
+            <h3>Indústria, inovação e infraestrutura</h3>
+            <p>Tecnologia aplicada como infraestrutura social: uma plataforma aberta, leve e acessível.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="metodologia"><a id="plataforma" style="position:absolute"></a>
+    <div class="wrap">
+      <div class="reveal">
+        <p class="kicker">Metodologia — pesquisa-ação</p>
+        <h2 class="serif blur-text">Ouvir primeiro, construir depois, medir sempre.</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <span class="n">/01</span>
+          <h3>Diagnóstico</h3>
+          <p>Questionários aplicados com os alunos do CEMEP mapeiam as lacunas reais de conhecimento — nada é construído no achismo.</p>
+        </div>
+        <div class="step reveal">
+          <span class="n">/02</span>
+          <h3>Construção</h3>
+          <p>Guia customizado com banco de questões baseado em provas anteriores do ENEM, interfaces acessíveis e algoritmos de aprendizagem adaptativa.</p>
+        </div>
+        <div class="step reveal">
+          <span class="n">/03</span>
+          <h3>Avaliação contínua</h3>
+          <p>Acompanhamos o uso e o desempenho para medir o impacto da ferramenta na rotina de estudos — e melhorar a cada ciclo.</p>
+        </div>
+      </div>
+      <div class="stack reveal">
+        <em>Construído com</em>
+        <span>React Native</span><span>Node.js</span><span>PostgreSQL</span><span>UI/UX acessível</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="equipe">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="kicker">A tripulação</p>
+        <h2 class="serif blur-text">Dez estudantes, uma travessia.</h2>
+      </div>
+      <div class="names reveal">
+        <span>Matheus Pires Canada</span>
+        <span>Beatriz Bassi</span>
+        <span>Paulo Henrique de Oliveira</span>
+        <span>Evelyn Guimarães dos Reis</span>
+        <span>Murilo Polycarpo de Abreu dos Santos</span>
+        <span>Valnei Vitor Mendes de Oliveira</span>
+        <span>Heitor Margosian Bueno de Oliveira</span>
+        <span>Felipe Nonato Gomes</span>
+        <span>Gabriel Roberto Silva</span>
+        <span>Henrique Monteiro</span>
+      </div>
+      <p class="inst reveal">Alunos da graduação em Engenharia da Computação · Universidade São Francisco — Campus Sagrado Coração de Jesus, Campinas · Projeto extensionista 2026.1, sob orientação do professor coordenador.</p>
+    </div>
+  </section>
+</div>
+
+<section id="fim">
+  <div class="reveal">
+    <p class="kicker" style="color:rgba(255,255,255,.6)">Próxima órbita</p>
+    <h2 class="serif blur-text" style="margin-top:1rem">A travessia começa agora.</h2>
+    <p>A plataforma está em desenvolvimento junto com os alunos do CEMEP. Quer acompanhar, apoiar ou levar o Projeto Delta para a sua escola? Fale com a gente.</p>
+    <div class="ctas">
+      <a class="btn-glass liquid-glass-strong" href="app/">Acessar a plataforma
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+      </a>
+      <a class="link-plain" href="mailto:matheuspirescanada@gmail.com?subject=Projeto%20Delta">Falar com a equipe
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+      </a>
+      <a class="link-plain" href="#topo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Refazer a travessia</a>
+    </div>
+  </div>
+  <div class="meta">
+    <span class="serif">Δ Projeto Delta</span>
+    <span>Universidade São Francisco · Campinas · 2026</span>
+    <span>ODS 4 — Educação de Qualidade · ODS 9 — Inovação e Infraestrutura</span>
+  </div>
+</section>
+
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
