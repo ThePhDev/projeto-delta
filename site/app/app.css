@@ -285,7 +285,7 @@ input,select,textarea{font:inherit;font-size:16px;color:var(--ink)}
 .dm{position:relative}
 .dm-svg{width:100%;height:auto;overflow:visible}
 .dm-live .dm-all{animation:dmBob 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:100px 205px}
-.dm-live .dm-eyes{animation:dmBlink 5.5s infinite;transform-box:view-box;transform-origin:100px 104px}
+.dm-live .dm-eyes{animation:dmBlink 5.5s infinite;transform-box:view-box;transform-origin:100px 80px}
 .dm-live .dm-spark{animation:twinkle 1s ease-in-out infinite alternate}
 .dm-live .dm-think{animation:dmFloat 2s ease-in-out infinite}
 .dm-live .dm-zzz text{animation:zz 2.4s ease-in-out infinite}

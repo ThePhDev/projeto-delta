@@ -62,7 +62,7 @@ const EULER = `<g fill="#f8fafc" stroke="#cbd5e1" stroke-width="2">
   <circle cx="30" cy="100" r="12"/><circle cx="170" cy="100" r="12"/></g>`;
 
 function eyes(expr, color) {
-  const tri = (cx, cy, s = 11) => `M${cx} ${cy - s} L${cx + s * 0.95} ${cy + s * 0.65} L${cx - s * 0.95} ${cy + s * 0.65} Z`;
+  const tri = (cx, cy, s = 12.5) => `M${cx} ${cy - s} L${cx + s * 0.95} ${cy + s * 0.65} L${cx - s * 0.95} ${cy + s * 0.65} Z`;
   let d = "", extra = "";
   switch (expr) {
     case "feliz": case "comemorando":
@@ -82,7 +82,7 @@ function eyes(expr, color) {
   }
   return `<g class="dm-eyes" filter="url(#dmglow)">
     <path d="${d}" fill="none" stroke="${color}" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>${extra}</g>`;
+    <path d="${d}" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>${extra}</g>`;
 }
 
 export function deltaSVG(o = {}) {
@@ -92,72 +92,116 @@ export function deltaSVG(o = {}) {
   const eyeColor = o.acessorio === "oculos-vermelhos" ? "#ff3b3b" : glow;
   const white = o.cabeca === "capacete-astro";
   const suit = o.corpo === "traje-astro";
-  const cloth = suit ? "#e6e7ef" : "#1a1924";
-  const clothD = suit ? "#b9bccb" : "#0e0d15";
   const up = expr === "comemorando";
   const think = expr === "pensando";
   const hat = o.cabeca && HATS[o.cabeca] ? `<g transform="${HAT_T}">${HATS[o.cabeca]()}</g>` : o.cabeca === "peruca-euler" ? EULER : "";
-  const IRI = `url(#dmiri${k})`;
-  const armL = up ? `<path d="M60 136 C44 122 36 104 34 88" stroke="${cloth}" stroke-width="20" stroke-linecap="round" fill="none"/><circle cx="34" cy="84" r="11" fill="${clothD}" stroke="${IRI}" stroke-width="2.5"/>`
-    : `<path d="M58 136 C50 150 56 162 70 168" stroke="${cloth}" stroke-width="20" stroke-linecap="round" fill="none"/>`;
-  const armR = up ? `<path d="M140 136 C156 122 164 104 166 88" stroke="${cloth}" stroke-width="20" stroke-linecap="round" fill="none"/><circle cx="166" cy="84" r="11" fill="${clothD}" stroke="${IRI}" stroke-width="2.5"/>`
-    : think ? `<path d="M142 136 C160 138 150 120 134 118" stroke="${cloth}" stroke-width="20" stroke-linecap="round" fill="none"/><circle cx="132" cy="118" r="10" fill="${clothD}" stroke="${IRI}" stroke-width="2.5"/>`
-    : `<path d="M142 136 C150 150 144 162 130 168" stroke="${cloth}" stroke-width="20" stroke-linecap="round" fill="none"/>`;
-  const handAcc = o.acessorio === "calculadora" ? `<g transform="translate(${up ? -2 : 6} ${up ? -86 : 0})"><rect x="140" y="150" width="22" height="30" rx="4" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/><rect x="143" y="153" width="16" height="7" rx="1.5" fill="#a7f3d0"/>
+  const IRI = `url(#dmiri${k})`, CL = `url(#dmcl${k})`, CLS = `url(#dmcls${k})`;
+  const base = suit ? "#e7e8f0" : "#17161f", deep = suit ? "#aeb2c3" : "#07070b", lite = suit ? "#ffffff" : "#34324a";
+  const seam = suit ? "#9ea3b6" : "#2b2a3b";
+
+  // mangas: mãos no bolso (padrão), braços para cima (comemorando) ou mão no queixo (pensando)
+  const sleeveDown = side => {
+    const m = side < 0 ? "" : ` transform="translate(200 0) scale(-1 1)"`;
+    return `<g${m}>
+      <path d="M60 134 C47 142 42 158 45 172 C47 180 55 184 63 182 L76 177 C73 166 69 152 69 138 Z" fill="${CLS}" stroke="${deep}" stroke-width="1.5"/>
+      <path d="M52 146 C50 156 51 166 55 174" stroke="${lite}" stroke-width="2" fill="none" opacity=".35" stroke-linecap="round"/>
+      <path d="M49 168 C52 176 58 180 66 179" stroke="${deep}" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/></g>`;
+  };
+  const sleeveUp = (side, tx, ty) => {
+    const sx = 100 + side * 40, ex = 100 + side * tx;
+    return `<path d="M${sx} 138 C${sx + side * 16} 126 ${ex - side * 4} ${ty + 22} ${ex} ${ty + 8}" stroke="${deep}" stroke-width="24" stroke-linecap="round" fill="none"/>
+      <path d="M${sx} 138 C${sx + side * 16} 126 ${ex - side * 4} ${ty + 22} ${ex} ${ty + 8}" stroke="${base}" stroke-width="20" stroke-linecap="round" fill="none"/>
+      <path d="M${sx + side * 6} 132 C${sx + side * 16} 124 ${ex - side * 8} ${ty + 22} ${ex - side * 4} ${ty + 12}" stroke="${lite}" stroke-width="3" stroke-linecap="round" fill="none" opacity=".35"/>
+      <ellipse cx="${ex}" cy="${ty + 6}" rx="11" ry="4" fill="none" stroke="${IRI}" stroke-width="3"/>
+      <circle cx="${ex}" cy="${ty - 2}" r="10" fill="#0c0b12" stroke="#2c2a3c" stroke-width="1.5"/><path d="M${ex - 5} ${ty - 7} a6 6 0 0 1 7 -2" stroke="#fff" stroke-width="1.6" fill="none" opacity=".3" stroke-linecap="round"/>`;
+  };
+  const armsBack = up ? sleeveUp(-1, 66, 76) + sleeveUp(1, 66, 76) : "";
+  const armsFront = up ? "" : sleeveDown(-1) + (think ? "" : sleeveDown(1));
+  const armThink = think ? sleeveUp(1, 40, 112) : "";
+  const pocket = side => { const x = side < 0 ? 0 : 200, f = side < 0 ? 1 : -1;
+    return `<path d="M${x + f * 62} 160 C${x + f * 64} 168 ${x + f * 68} 176 ${x + f * 76} 180" stroke="${IRI}" stroke-width="3.2" fill="none" stroke-linecap="round"/>`; };
+
+  const handAcc = o.acessorio === "calculadora" ? `<g transform="translate(${up ? 8 : 4} ${up ? -94 : 4})"><rect x="140" y="150" width="22" height="30" rx="4" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/><rect x="143" y="153" width="16" height="7" rx="1.5" fill="#a7f3d0"/>
       ${[0,1,2].map(r => [0,1,2].map(c => `<rect x="${143 + c*5.5}" y="${163 + r*5}" width="4" height="3.4" rx="1" fill="#e2e8f0"/>`).join("")).join("")}</g>`
-    : o.acessorio === "lapis-dourado" ? `<g transform="translate(${up ? 14 : 0} ${up ? -84 : 0}) rotate(-30 150 165)"><rect x="146" y="130" width="9" height="40" rx="2" fill="#facc15" stroke="#a16207" stroke-width="1.5"/>
+    : o.acessorio === "lapis-dourado" ? `<g transform="translate(${up ? 20 : 2} ${up ? -92 : 0}) rotate(-30 150 165)"><rect x="146" y="130" width="9" height="40" rx="2" fill="#facc15" stroke="#a16207" stroke-width="1.5"/>
       <path d="M146 170 L150.5 181 L155 170 Z" fill="#fde68a" stroke="#a16207" stroke-width="1.2"/><rect x="146" y="126" width="9" height="6" rx="2" fill="#f472b6"/></g>` : "";
   const mask = o.acessorio === "mascara-carnaval" ? `<g transform="translate(0,-22)">
       <path d="M58 96 C66 84 86 84 96 98 C100 102 100 102 104 98 C114 84 134 84 142 96 C144 112 128 122 116 116 C108 112 104 108 100 108 C96 108 92 112 84 116 C72 122 56 112 58 96 Z" fill="#a855f7" stroke="#7e22ce" stroke-width="2" opacity=".92"/>
       <path d="M138 90 C148 70 160 66 168 60 M142 92 C156 78 166 78 174 74" stroke="#f472b6" stroke-width="4" stroke-linecap="round" fill="none"/></g>` : "";
-  const cape = o.corpo === "capa-super" ? `<path d="M62 128 C44 160 40 196 48 222 L152 222 C160 196 156 160 138 128 Z" fill="#dc2626"/>` : "";
-  const capeFront = o.corpo === "capa-super" ? `<path d="M70 132 L100 124 L130 132 L126 140 L100 132 L74 140 Z" fill="#b91c1c"/>` : "";
-  const coat = o.corpo === "jaleco" ? `<path d="M52 186 L58 136 C66 128 80 126 88 128 L100 170 L112 128 C120 126 134 128 142 136 L148 186 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2.5"/>
+  const cape = o.corpo === "capa-super" ? `<path d="M60 128 C42 160 38 196 46 222 L154 222 C162 196 158 160 140 128 Z" fill="#dc2626"/><path d="M60 128 C48 160 46 196 52 222" stroke="#991b1b" stroke-width="3" fill="none"/>` : "";
+  const capeFront = o.corpo === "capa-super" ? `<path d="M70 130 L100 122 L130 130 L126 138 L100 130 L74 138 Z" fill="#b91c1c"/>` : "";
+  const coat = o.corpo === "jaleco" ? `<path d="M50 186 L56 136 C64 128 80 126 88 128 L100 170 L112 128 C120 126 136 128 144 136 L150 186 Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2.5"/>
       <path d="M100 170 L100 188" stroke="#cbd5e1" stroke-width="2"/><rect x="118" y="150" width="16" height="11" rx="2" fill="none" stroke="#cbd5e1" stroke-width="2"/><path d="M123 144 L125 152" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/>` : "";
   const bag = o.corpo === "mochila-enem" ? `<path d="M66 132 L80 186 M134 132 L120 186" stroke="#f97316" stroke-width="6" stroke-linecap="round"/>
-      <rect x="146" y="140" width="22" height="42" rx="7" fill="#fb923c" stroke="#c2410c" stroke-width="2"/><text x="157" y="165" font-size="8" font-weight="800" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif">ENEM</text>` : "";
-  const suitPanel = suit ? `<rect x="84" y="146" width="32" height="20" rx="5" fill="#cbd0dc"/><circle cx="93" cy="156" r="3.5" fill="#ef4444"/><circle cx="104" cy="156" r="3.5" fill="#22c55e"/><rect x="109" y="153" width="5" height="6" rx="1" fill="#3b82f6"/>` : "";
+      <rect x="148" y="140" width="22" height="42" rx="7" fill="#fb923c" stroke="#c2410c" stroke-width="2"/><text x="159" y="165" font-size="8" font-weight="800" text-anchor="middle" fill="#fff" font-family="Inter,sans-serif">ENEM</text>` : "";
+  const suitPanel = `<rect x="84" y="146" width="32" height="20" rx="5" fill="#cbd0dc" stroke="#9ea3b6"/><circle cx="93" cy="156" r="3.5" fill="#ef4444"/><circle cx="104" cy="156" r="3.5" fill="#22c55e"/><rect x="109" y="153" width="5" height="6" rx="1" fill="#3b82f6"/>`;
+
+  const leg = side => { const m = side < 0 ? "" : ` transform="translate(200 0) scale(-1 1)"`;
+    return `<g${m}>
+      <path d="M63 184 L99 184 L99 210 C99 216 94 218 84 218 C72 218 64 216 63 210 Z" fill="${CL}" stroke="${deep}" stroke-width="1.5"/>
+      <path d="M65 188 L66 212" stroke="${IRI}" stroke-width="4.5" stroke-linecap="round"/>
+      <path d="M78 190 C78 197 86 197 86 190" stroke="#6f6c86" stroke-width="1.8" fill="none"/><rect x="77" y="187" width="10" height="3" rx="1.5" fill="${seam}"/>
+      <path d="M68 200 C76 203 90 203 97 200" stroke="${deep}" stroke-width="1.6" fill="none"/>
+<g transform="translate(0 7)">      <path d="M58 212 C58 204 66 200 80 200 C93 200 101 204 101 212 L101 222 L56 222 C55 218 56 215 58 212 Z" fill="#0e0d15" stroke="#26243a" stroke-width="1.5"/>
+      <path d="M60 214 C70 208 84 208 99 213" stroke="${IRI}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <path d="M72 202 L88 202 M73 206 L89 206" stroke="#cfc6ff" stroke-width="1.6" stroke-linecap="round" opacity=".85"/>
+      <path d="M60 206 C62 203 66 202 70 202" stroke="#fff" stroke-width="1.6" fill="none" opacity=".25" stroke-linecap="round"/>
+      <rect x="54" y="220" width="49" height="9" rx="4.5" fill="${IRI}"/><path d="M57 224.5 L100 224.5" stroke="#fff" stroke-width="1" opacity=".55"/></g></g>`; };
 
   return `<svg class="dm-svg" viewBox="-12 -20 224 262" role="img" aria-label="Delta, o micro astronauta do Projeto Delta" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="dmiri${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00f0ff"/><stop offset=".35" stop-color="#2979ff"/><stop offset=".65" stop-color="#a855f7"/><stop offset="1" stop-color="#ff00e5"/></linearGradient>
-    <radialGradient id="dmhel${k}" cx=".38" cy=".3" r=".75"><stop offset="0" stop-color="${white ? "#ffffff" : "#3a3850"}"/><stop offset=".55" stop-color="${white ? "#dfe2ec" : "#15141d"}"/><stop offset="1" stop-color="${white ? "#a9aec0" : "#050508"}"/></radialGradient>
-    <linearGradient id="dmcl${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${cloth}"/><stop offset="1" stop-color="${clothD}"/></linearGradient>
+    <linearGradient id="dmiri${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5ee7ff"/><stop offset=".3" stop-color="#4f7bff"/><stop offset=".6" stop-color="#9b5cff"/><stop offset=".85" stop-color="#e055ff"/><stop offset="1" stop-color="#7df3ff"/></linearGradient>
+    <radialGradient id="dmhel${k}" cx=".34" cy=".26" r=".85"><stop offset="0" stop-color="${white ? "#ffffff" : "#4a4760"}"/><stop offset=".35" stop-color="${white ? "#eceef5" : "#1d1c28"}"/><stop offset=".8" stop-color="${white ? "#b9bdcc" : "#0a0a10"}"/><stop offset="1" stop-color="${white ? "#9096aa" : "#030305"}"/></radialGradient>
+    <linearGradient id="dmvis${k}" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#2a2838"/><stop offset=".45" stop-color="#0b0b12"/><stop offset="1" stop-color="#010103"/></linearGradient>
+    <linearGradient id="dmcl${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${lite}"/><stop offset=".25" stop-color="${base}"/><stop offset="1" stop-color="${deep}"/></linearGradient>
+    <linearGradient id="dmcls${k}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${deep}"/><stop offset=".45" stop-color="${base}"/><stop offset=".7" stop-color="${lite}"/><stop offset="1" stop-color="${base}"/></linearGradient>
+    <radialGradient id="dmbody${k}" cx=".5" cy=".2" r=".9"><stop offset="0" stop-color="${lite}"/><stop offset=".45" stop-color="${base}"/><stop offset="1" stop-color="${deep}"/></radialGradient>
     <filter id="dmglow" filterUnits="userSpaceOnUse" x="-20" y="-30" width="240" height="280"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
   </defs>
-  <ellipse class="dm-shadow" cx="100" cy="234" rx="52" ry="7" fill="#000" opacity=".35"/>
+  <ellipse class="dm-shadow" cx="100" cy="239" rx="56" ry="7" fill="#000" opacity=".35"/>
   <g class="dm-all">
     ${cape}
-    <g class="dm-legs">
-      <rect x="70" y="178" width="26" height="40" rx="9" fill="url(#dmcl${k})"/><rect x="104" y="178" width="26" height="40" rx="9" fill="url(#dmcl${k})"/>
-      <rect x="70" y="182" width="4" height="32" rx="2" fill="${IRI}"/><rect x="126" y="182" width="4" height="32" rx="2" fill="${IRI}"/>
-      <path d="M64 214 C64 208 70 206 84 206 C96 206 100 210 100 216 L100 224 L62 224 C60 224 62 218 64 214 Z" fill="#101018" stroke="${IRI}" stroke-width="2"/>
-      <path d="M100 216 C100 210 104 206 116 206 C130 206 136 208 136 214 C138 218 140 224 138 224 L100 224 Z" fill="#101018" stroke="${IRI}" stroke-width="2"/>
-      <rect x="61" y="222" width="40" height="6" rx="3" fill="${IRI}"/><rect x="99" y="222" width="40" height="6" rx="3" fill="${IRI}"/>
-    </g>
-    <g class="dm-arm dm-arm-l">${up ? "" : armL}</g>
+    <g class="dm-legs">${leg(-1)}${leg(1)}</g>
+    <g class="dm-arm">${armsBack}</g>
     <g class="dm-body">
-      <path d="M60 132 C70 126 86 124 100 124 C114 124 130 126 140 132 C148 146 150 170 148 186 C132 192 68 192 52 186 C50 170 52 146 60 132 Z" fill="url(#dmcl${k})" stroke="${clothD}" stroke-width="2"/>
-      <path d="M54 184 C70 190 130 190 146 184 L146 190 C130 196 70 196 54 190 Z" fill="${clothD}"/>
-      ${suit ? suitPanel : `<path d="M100 128 L100 186" stroke="#3a3850" stroke-width="2.5"/><circle cx="100" cy="136" r="2.4" fill="#6b6985"/>
-        <path d="M121 146 L128 158 L114 158 Z" fill="none" stroke="${IRI}" stroke-width="2.6" stroke-linejoin="round"/>
-        <path d="M66 164 L78 170 M134 164 L122 170" stroke="${IRI}" stroke-width="3.5" stroke-linecap="round"/>`}
+      <path d="M56 134 C66 126 84 123 100 123 C116 123 134 126 144 134 C152 148 154 168 151 182 C134 190 66 190 49 182 C46 168 48 148 56 134 Z" fill="url(#dmbody${k})" stroke="${deep}" stroke-width="2"/>
+      <path d="M50 178 C68 186 132 186 150 178 L150 188 C132 195 68 195 50 188 Z" fill="${deep}"/>
+      ${Array.from({ length: 16 }, (_, i) => `<path d="M${56 + i * 5.8} ${182 + Math.sin(i / 15 * Math.PI) * 3} l0 8" stroke="${lite}" stroke-width="1" opacity=".22"/>`).join("")}
+      ${suit ? suitPanel : `
+      <path d="M100 126 L100 184" stroke="#7d7a90" stroke-width="1.4"/><path d="M100 128 L100 183" stroke="#4a4860" stroke-width="3.2" stroke-dasharray="1.2 1.8"/>
+      <rect x="97.6" y="129" width="4.8" height="8" rx="1.4" fill="#b9b6c9"/><circle cx="100" cy="138.5" r="1.4" fill="#b9b6c9"/>
+      <path d="M92 128 C91 136 91 144 90 151 M108 128 C109 136 109 144 110 151" stroke="#d9d5ea" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+      <rect x="88.6" y="150" width="3" height="5" rx="1" fill="#9d9ab0"/><rect x="108.4" y="150" width="3" height="5" rx="1" fill="#9d9ab0"/>
+      <g filter="url(#dmglow)"><path d="M124 140 L131.5 153 L116.5 153 Z" fill="none" stroke="${IRI}" stroke-width="2.4" stroke-linejoin="round"/></g>
+      <path d="M72 132 C80 128 92 127 98 127" stroke="${lite}" stroke-width="2" fill="none" opacity=".4" stroke-linecap="round"/>`}
+      ${pocket(-1)}${pocket(1)}
       ${coat}${bag}${capeFront}
     </g>
-    <g class="dm-arm dm-arm-l2">${up ? armL : ""}</g>
-    <g class="dm-arm dm-arm-r">${armR}</g>
+    <g class="dm-arm dm-arm-f">${armsFront}
+      ${up || suit ? "" : `<text x="0" y="0" transform="translate(52 170) rotate(-78)" font-family="Orbitron,Inter,sans-serif" font-size="5.2" font-weight="800" fill="#d9d5ea" letter-spacing=".5">DELTA</text>`}</g>
     ${handAcc}
     <g class="dm-head">
-      <ellipse cx="100" cy="128" rx="46" ry="12" fill="${clothD}"/>
-      <circle cx="38" cy="78" r="16" fill="#0d0c14" stroke="${IRI}" stroke-width="4"/><circle cx="38" cy="78" r="7" fill="#1f1d2c"/>
-      <circle cx="162" cy="78" r="16" fill="#0d0c14" stroke="${IRI}" stroke-width="4"/><circle cx="162" cy="78" r="7" fill="#1f1d2c"/>
-      <circle cx="100" cy="72" r="60" fill="url(#dmhel${k})" stroke="${white ? "#9ca3b8" : "#26243a"}" stroke-width="2"/>
-      <ellipse cx="100" cy="78" rx="45" ry="37" fill="#040407" stroke="${IRI}" stroke-width="3"/>
-      <path d="M66 58 C74 48 90 44 104 45" stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".22"/>
-      <path d="M52 44 C60 30 76 20 94 17" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="${white ? ".7" : ".28"}"/>
+      <path d="M50 128 C48 112 62 106 74 112 C84 104 116 104 126 112 C138 106 152 112 150 128 C140 138 60 138 50 128 Z" fill="url(#dmbody${k})" stroke="${deep}" stroke-width="1.5"/>
+      <path d="M58 124 C74 132 126 132 142 124" stroke="${lite}" stroke-width="2" fill="none" opacity=".35"/>
+      <g class="dm-phones">
+        <circle cx="40" cy="80" r="17" fill="#0c0b12" stroke="#23212f" stroke-width="2"/><circle cx="40" cy="80" r="12" fill="none" stroke="${IRI}" stroke-width="4" filter="url(#dmglow)"/><circle cx="40" cy="80" r="7.5" fill="#15141e"/>
+        <circle cx="160" cy="80" r="17" fill="#0c0b12" stroke="#23212f" stroke-width="2"/><circle cx="160" cy="80" r="12" fill="none" stroke="${IRI}" stroke-width="4" filter="url(#dmglow)"/><circle cx="160" cy="80" r="7.5" fill="#15141e"/>
+        <path d="M31 72 a11 11 0 0 1 8 -4 M151 72 a11 11 0 0 1 8 -4" stroke="#fff" stroke-width="1.5" fill="none" opacity=".35" stroke-linecap="round"/>
+      </g>
+      <circle cx="100" cy="72" r="60" fill="url(#dmhel${k})" stroke="${white ? "#8f95a8" : "#1f1e2b"}" stroke-width="2"/>
+      <path d="M100 12.5 C130 16 152 36 158 62" stroke="${seam}" stroke-width="1.6" fill="none" opacity=".8"/>
+      <path d="M100 12.5 C70 16 48 36 42 62" stroke="${seam}" stroke-width="1.6" fill="none" opacity=".5"/>
+      <path d="M54 80 C54 50 74 38 100 38 C126 38 146 50 146 80 C146 108 126 120 100 120 C74 120 54 108 54 80 Z" fill="#050508"/>
+      <path d="M58 80 C58 54 76 42 100 42 C124 42 142 54 142 80 C142 104 124 115 100 115 C76 115 58 104 58 80 Z" fill="url(#dmvis${k})" stroke="#cdbfff" stroke-width="1.8" filter="url(#dmglow)"/>
+      <path d="M66 62 C72 52 84 47 98 46" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none" opacity=".2"/>
+      <ellipse cx="74" cy="56" rx="5" ry="3" fill="#fff" opacity=".22" transform="rotate(-30 74 56)"/>
+      <path d="M126 106 C132 102 137 96 139 89" stroke="#fff" stroke-width="2" stroke-linecap="round" fill="none" opacity=".12"/>
+      <path d="M50 42 C58 28 74 18 92 15" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="${white ? ".75" : ".3"}"/>
+      <circle cx="46" cy="52" r="2.2" fill="#fff" opacity="${white ? ".6" : ".3"}"/>
       ${eyes(expr, eyeColor)}
       ${mask}${hat}
     </g>
+    <g class="dm-arm dm-arm-t">${armThink}</g>
     ${think ? `<g class="dm-think"><circle cx="170" cy="30" r="4" fill="#fff"/><circle cx="182" cy="14" r="6" fill="#fff"/>
       <circle cx="196" cy="-6" r="15" fill="#fff"/><text x="196" y="1" text-anchor="middle" font-size="20" font-weight="800" fill="#7c3aed" font-family="Inter,sans-serif">?</text></g>` : ""}
     ${expr === "dormindo" ? `<g class="dm-zzz" font-family="Orbitron,Inter,sans-serif" font-weight="800" fill="${glow}"><text x="150" y="24" font-size="18">z</text><text x="166" y="8" font-size="14">z</text><text x="178" y="-6" font-size="11">z</text></g>` : ""}

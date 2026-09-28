@@ -1,5 +1,5 @@
 /* Projeto Delta · service worker: abre offline e carrega rápido. Nunca guarda dados do Supabase. */
-const V = "delta-v4";
+const V = "delta-v5";
 const CORE = [
   "/app/", "/app/app.css", "/app/app.js", "/app/core.js", "/app/auth.js", "/app/learn.js", "/app/pages.js",
   "/app/ui.js", "/app/mascot.js", "/app/icons.js", "/app/sfx.js", "/app/content.js", "/app/bank.js", "/app/config.js",

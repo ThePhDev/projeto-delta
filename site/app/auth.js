@@ -141,12 +141,12 @@ export function viewRedefinir() {
 // ============================================================
 // PRIMEIRO ACESSO: criar o astronauta, nome, @ e meta
 // ============================================================
-const INICIAIS = [["capacete-astro", "Capacete branco"], ["bone-azul", "Boné azul"], ["tiara", "Tiara"], [null, "Sem nada"]];
+const INICIAIS = [[null, "Visual oficial"], ["capacete-astro", "Capacete branco"], ["bone-azul", "Boné azul"], ["tiara", "Tiara"]];
 const METAS = [[20, "Casual", "5 min por dia", "idle"], [50, "Regular", "10 min por dia", "feliz"], [100, "Intenso", "20 min por dia", "comemorando"]];
 
 export function viewOnboarding(onDone) {
   const nome0 = (state.profile?.nome || "").trim();
-  const d = { nome: nome0, user: "", cor: "teal", ini: "capacete-astro", meta: 50 };
+  const d = { nome: nome0, user: "", cor: "teal", ini: null, meta: 50 };
   let step = 0, userOk = false, chkT;
   const TOTAL = 6;
   const w = h(`<div class="ob"><div class="ob-top"><button class="back" aria-label="Voltar" hidden>${ic("back")}</button><div class="pbar"><i></i></div></div><div class="ob-body"></div></div>`);
@@ -227,7 +227,7 @@ export function viewOnboarding(onDone) {
     }
   };
   const item = {
-    html: () => `<h1>Seu primeiro item é presente</h1><p class="lead">Depois você ganha Deltas e compra muito mais na loja.</p>
+    html: () => `<h1>Quer um item de presente?</h1><p class="lead">Fique com o visual oficial ou escolha um item grátis. Depois você compra muito mais na loja.</p>
       <div class="stage">${fundoSVG("espaco")}<div class="dm dm-live" id="m">${deltaSVG({ ...look(), expr: "feliz" })}</div></div>
       <div class="picks">${INICIAIS.map(([id, n]) => `<button class="pick ${d.ini === id ? "on" : ""}" data-i="${id || ""}"><div class="dm">${deltaSVG({ cor: d.cor, cabeca: id, expr: "idle" })}</div>${n}</button>`).join("")}</div>
       <div class="ob-foot"><button class="btn btn-lime btn-block" id="n">Continuar</button></div>`,
