@@ -1,9 +1,10 @@
 // ============================================================
 // PROJETO DELTA · APP — SPA gamificada (Supabase Auth + gamificação)
 // ============================================================
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "./config.js";
-import { SUBJECTS } from "./content.js";
+import { SUBJECTS, AREA } from "./content.js";
+
+const { createClient } = window.supabase;
 
 const sb = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
@@ -321,7 +322,7 @@ function viewCadastro(){
     <div class="field"><label>Escola</label><input type="text" id="escola" placeholder="Ex.: CEMEP" /></div>
     <div class="field"><label>E-mail escolar</label><input type="email" id="email" autocomplete="email" placeholder="voce@escola.edu.br" />
       <div class="hint">Aceitamos apenas domínios escolares (.edu, .edu.br, .escola.br, .aluno.br).</div></div>
-    <div class="field"><label>Senha</label><input type="password" id="senha" autocomplete="new-password" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="field"><label>Senha</label><input type="password" id="senha" autocomplete="new-password" placeholder="Mínimo 8 caracteres" /></div>
     <button class="btn btn-primary" id="go">Criar conta</button>
     <p class="auth-alt">Já tem conta? <a href="#/login">Entrar</a></p>
   `);
@@ -332,7 +333,7 @@ function viewCadastro(){
     const email = w.querySelector("#email").value.trim();
     const senha = w.querySelector("#senha").value;
     if (!nome || !email || !senha){ showMsg(w,"err","Preencha nome, e-mail e senha."); return; }
-    if (senha.length < 6){ showMsg(w,"err","A senha deve ter ao menos 6 caracteres."); return; }
+    if (senha.length < 8){ showMsg(w,"err","A senha deve ter ao menos 8 caracteres."); return; }
     go.disabled = true; go.textContent = "Criando…";
     const { data, error } = await sb.auth.signUp({
       email, password: senha,
@@ -399,7 +400,7 @@ function viewRedefinir(){
     <h1 class="serif">Nova senha</h1>
     <p class="lead">Defina sua nova senha de acesso.</p>
     <div class="auth-msg"></div>
-    <div class="field"><label>Nova senha</label><input type="password" id="senha" autocomplete="new-password" placeholder="Mínimo 6 caracteres" /></div>
+    <div class="field"><label>Nova senha</label><input type="password" id="senha" autocomplete="new-password" placeholder="Mínimo 8 caracteres" /></div>
     <div class="field"><label>Confirmar senha</label><input type="password" id="senha2" autocomplete="new-password" placeholder="Repita a senha" /></div>
     <button class="btn btn-primary" id="go">Salvar nova senha</button>
     <p class="auth-alt"><a href="#/login">Voltar ao login</a></p>
@@ -407,7 +408,7 @@ function viewRedefinir(){
   if (!state.session) showMsg(w,"err","Abra esta página pelo link enviado ao seu e-mail para redefinir a senha.");
   w.querySelector("#go").onclick = async (e) => {
     const s1 = w.querySelector("#senha").value, s2 = w.querySelector("#senha2").value;
-    if (s1.length<6){ showMsg(w,"err","A senha deve ter ao menos 6 caracteres."); return; }
+    if (s1.length<8){ showMsg(w,"err","A senha deve ter ao menos 8 caracteres."); return; }
     if (s1!==s2){ showMsg(w,"err","As senhas não coincidem."); return; }
     e.target.disabled = true; e.target.textContent="Salvando…";
     const { error } = await sb.auth.updateUser({ password: s1 });
@@ -423,7 +424,7 @@ function viewRedefinir(){
 // ============================================================
 const NAV_ITEMS = [
   { t:"inicio",   ic:"⌂", label:"Aprender", href:"#/inicio" },
-  { t:"materias", ic:"⬡", label:"Matérias", href:"#/materias" },
+  { t:"materias", ic:"⬡", label:"Eixos", href:"#/materias" },
   { t:"ranking",  ic:"⛨", label:"Ligas",    href:"#/ranking" },
   { t:"missoes",  ic:"◎", label:"Missões",  href:"#/missoes" },
   { t:"loja",     ic:"▣", label:"Loja",     href:"#/loja" },
@@ -531,14 +532,14 @@ function railHtml(){
   <div class="rail-card">
     <div class="rail-head"><span class="t">Desempenho</span><a href="#/desempenho">Detalhes</a></div>
     <div class="rperf">
-      <div class="pc"><div class="l">◎ Precisão</div><div class="v" id="railPrec">—</div>${spark(7)}</div>
-      <div class="pc"><div class="l">✓ Acertos</div><div class="v" id="railAc">—</div>${spark(23)}</div>
-      <div class="pc"><div class="l">∿ Hoje</div><div class="v" id="railHoje">—</div>${spark(51)}</div>
+      <div class="pc"><div class="l">◎ Precisão</div><div class="v" id="railPrec">-</div>${spark(7)}</div>
+      <div class="pc"><div class="l">✓ Acertos</div><div class="v" id="railAc">-</div>${spark(23)}</div>
+      <div class="pc"><div class="l">∿ Hoje</div><div class="v" id="railHoje">-</div>${spark(51)}</div>
     </div>
   </div>
   <div class="rail-card">
     <div class="rail-head"><span class="t">Ranking semanal</span><a href="#/ranking">Ver ranking</a></div>
-    <div class="rrank-you"><span>🏆</span><span class="pos" id="railPos">#—</span><span class="nm">Você</span><span class="xp" id="railXp">— XP</span></div>
+    <div class="rrank-you"><span>🏆</span><span class="pos" id="railPos">#-</span><span class="nm">Você</span><span class="xp" id="railXp">- XP</span></div>
     <div class="rrank-note">Continue assim e suba no ranking!</div>
   </div>
   <div class="rail-foot">
@@ -556,7 +557,7 @@ function fillRail(shell){
     const d = data.filter(m=>m.periodo==="diaria").slice(0,3);
     host.innerHTML = d.map(m=>{
       const pct = Math.min(100, Math.round(m.progresso/m.alvo*100));
-      return `<div class="rmis"><span class="e">${m.emoji}</span>
+      return `<div class="rmis"><span class="e">${esc(m.emoji)}</span>
         <span class="bx"><div class="n">${esc(m.titulo)}</div><div class="bar"><i style="width:${pct}%"></i></div></span>
         <span class="v">${Math.min(m.progresso,m.alvo)} / ${m.alvo}</span>
         <span class="xpb">${m.resgatada?"✓":"XP"}</span></div>`;
@@ -576,7 +577,7 @@ function fillRail(shell){
   }).catch(()=>{});
   // precisão / acertos (dados locais) + XP de hoje
   let t=0,a=0; Object.values(state.topics||{}).forEach(r=>{ a+=r.acertos||0; t+=(r.acertos||0)+(r.erros||0); });
-  if (q("#railPrec")) q("#railPrec").textContent = t? Math.round(a/t*100)+"%" : "—";
+  if (q("#railPrec")) q("#railPrec").textContent = t? Math.round(a/t*100)+"%" : "-";
   if (q("#railAc")) q("#railAc").textContent = a;
   const d0 = new Date(); d0.setHours(0,0,0,0);
   sb.from("xp_events").select("amount").gte("created_at", d0.toISOString()).then(({data})=>{
@@ -630,7 +631,7 @@ function viewInicio(){
     nodes.push(`<div class="pnode chest ${unitDone?'open':'closed'}"><button data-chest="${unitDone?1:0}">🎁</button><div class="plbl">${unitDone?"Baú da unidade":"Complete a unidade"}</div></div>`);
     const bot = `<img class="path-bot ${ui%2?'l':'r'}" style="top:${ui%2?110:70}px" src="../brand/delta-bot-${(ui%2)+1}.png" alt=""/>`;
     return `<div class="pcol">
-      <div class="path-div"><span>Unidade ${ui+1} — ${esc(u.titulo)}</span></div>
+      <div class="path-div"><span>Unidade ${ui+1}: ${esc(u.titulo)}</span></div>
       ${bot}
       ${nodes.join('<div class="pnode"><span class="seg"></span></div>')}
     </div>`;
@@ -656,12 +657,12 @@ function viewInicio(){
   v.querySelectorAll("[data-chest]").forEach(n=>n.onclick=()=>toast(n.dataset.chest==="1" ? "Baú aberto! O bônus de XP já foi somado nas lições. 🎉" : "Complete todas as lições da unidade para abrir o baú. 🎁"));
   const gb = v.querySelector("#guiaBtn");
   if (gb) gb.onclick = ()=>{
-    const inner = s.unidades.map((u,ui)=>`<div class="gu"><div class="ut">Unidade ${ui+1} — ${esc(u.titulo)}</div>${
+    const inner = s.unidades.map((u,ui)=>`<div class="gu"><div class="ut">Unidade ${ui+1}: ${esc(u.titulo)}</div>${
       u.licoes.map(l=>{
         const st = state.lessons[l.id]?.estrelas||0;
         return `<a class="gl" href="#/licao/${l.id}"><span class="s">${st>0?"△":"○"}</span>${esc(l.titulo)}<span style="margin-left:auto;color:var(--iris-5)">${"★".repeat(st)}</span></a>`;
       }).join("")}</div>`).join("");
-    openSheet(`Guia — ${s.nome}`, inner);
+    openSheet(`Guia de ${s.nome}`, inner);
   };
 }
 
@@ -692,18 +693,18 @@ function viewMaterias(){
     </div>`;
   }).join("");
   const v = appShell("materias", `
-    <div class="hello"><p class="k">Escolha sua trilha</p><h1 class="serif">Matérias</h1></div>
+    <div class="hello"><p class="k">Matemática e suas Tecnologias · 2º dia</p><h1 class="serif">Eixos do ENEM</h1></div>
     <div class="today glass">
       <div class="glowring"></div>
       <h3>Para você hoje</h3>
-      <p>Selecionamos o que mais rende agora — revisões no ponto certo e tópicos para reforçar.</p>
+      <p>Selecionamos o que mais rende agora: revisões no ponto certo e tópicos para reforçar.</p>
       <div class="rec-list">${recHtml || '<div class="empty">Comece uma trilha abaixo para receber recomendações inteligentes. ✨</div>'}</div>
     </div>
-    <div class="section-title"><h2>Trilhas</h2><span class="s">4 matérias</span></div>
+    <div class="section-title"><h2>Trilhas</h2><span class="s">${SUBJECTS.length} eixos · ${SUBJECTS.reduce((a,s)=>a+s.unidades.reduce((b,u)=>b+u.licoes.length,0),0)} lições</span></div>
     <div class="subj-grid">${subjHtml}</div>
     <div class="enem-banner glass holo-border" id="goEnem">
       <span class="enem-word">ENEM</span>
-      <div><h3>Banco de questões oficiais</h3><p>Pratique com questões reais das provas do ENEM, com gabarito oficial e filtros por matéria, ano e assunto.</p></div>
+      <div><h3>Banco de questões oficiais</h3><p>Pratique com questões reais de Matemática do ENEM, com gabarito oficial e filtros por ano e assunto.</p></div>
       <span class="go">→</span>
     </div>
   `);
@@ -730,7 +731,7 @@ function viewLoja(){
       <div class="hello" style="margin:0"><p class="k">Recompensas</p><h1 class="serif">Loja</h1></div>
       <span class="coins">💠 ${coins.toLocaleString("pt-BR")}</span>
     </div>
-    <p style="color:var(--text-dim);font-size:.86rem;margin-bottom:1.1rem">Seus <b>Delta Coins</b> crescem junto com o XP que você conquista estudando. Os itens da loja estão chegando — continue acumulando!</p>
+    <p style="color:var(--text-dim);font-size:.86rem;margin-bottom:1.1rem">Seus <b>Delta Coins</b> crescem junto com o XP que você conquista estudando. Os itens da loja estão chegando. continue acumulando!</p>
     <div class="shop-grid">${items.map(i=>`
       <div class="shop-card soon">
         <div class="se">${i.e}</div>
@@ -910,8 +911,7 @@ async function viewEnem(){
     <div class="hello"><p class="k">Questões oficiais · INEP</p>
       <h1 class="serif">Banco ENEM</h1></div>
     <div class="filters glass" id="filters">
-      <div class="f"><label>Matéria</label><select id="fMat"><option value="">Todas</option>
-        <option>Matemática</option><option>Física</option><option>Química</option><option>Biologia</option></select></div>
+      <div class="f"><label>Área</label><select id="fMat" disabled><option value="${AREA}">${AREA}</option></select></div>
       <div class="f"><label>Ano</label><select id="fAno"><option value="">Todos</option></select></div>
       <div class="f"><label>Assunto</label><select id="fTop"><option value="">Todos</option></select></div>
       <div class="f"><label>Questões</label><select id="fN"><option>5</option><option selected>10</option><option>15</option></select></div>
@@ -973,7 +973,7 @@ function runEnemSession(host, qs){
   let idx=0, acertos=0, answered=false;
   host.innerHTML = `<div class="lesson">
     <div class="lesson-top">
-      <a class="x" href="#/enem" onclick="location.reload()">✕</a>
+      <button class="x" id="enemQuit" title="Sair">✕</button>
       <div class="progressbar"><i id="pbar" style="width:0%"></i></div>
       <span class="hearts" id="score">0/${qs.length}</span>
     </div>
@@ -982,6 +982,7 @@ function runEnemSession(host, qs){
   </div>`;
   const qhost=host.querySelector("#qhost"), nextBtn=host.querySelector("#next"),
         pbar=host.querySelector("#pbar"), scoreEl=host.querySelector("#score");
+  host.querySelector("#enemQuit").onclick = ()=>viewEnem();
 
   function renderQ(){
     answered=false;
@@ -1019,14 +1020,14 @@ function runEnemSession(host, qs){
         } else { chosenEl.classList.add("wrong"); rightEl?.classList.add("correct");
           fb.className="feedback show wrong"; fb.querySelector(".h").innerHTML="✗ Não foi dessa vez";
         }
-        fb.querySelector("p").textContent = `Gabarito oficial: ${q.correct_answer} — ENEM ${q.year}, questão ${q.original_number} (aplicação regular, INEP).`;
+        fb.querySelector("p").textContent = `Gabarito oficial: ${q.correct_answer}. ENEM ${q.year}, questão ${q.original_number} (aplicação regular, INEP).`;
         const altText = {}; alts.forEach(a=>altText[a.letter]=a.content);
         logAttempt({ origem:"enem", ref:q.external_id||q.id, materia:q.primary_subject, topico:q.topic,
           correta:ok, resposta:chosen, correta_resp:q.correct_answer });
         if (ok) addXP(XP_POR_ACERTO, "enem", q.external_id||String(q.id));
         else logError({ origem:"enem", ref:String(q.id), enunciado:q.statement,
           resposta_aluno:chosen+") "+(altText[chosen]||""), resposta_correta:q.correct_answer+") "+(altText[q.correct_answer]||""),
-          explicacao:`ENEM ${q.year}, questão ${q.original_number} — gabarito oficial INEP.`,
+          explicacao:`ENEM ${q.year}, questão ${q.original_number}. Gabarito oficial do INEP.`,
           materia:q.primary_subject, topico:q.topic });
         scoreEl.textContent = acertos+"/"+qs.length;
         nextBtn.textContent = idx===qs.length-1 ? "Finalizar" : "Próxima →";
@@ -1039,14 +1040,15 @@ function runEnemSession(host, qs){
         qhost.innerHTML = `<div class="lesson-done">
           <div class="big">${acertos===qs.length?"🏆":acertos/qs.length>=0.7?"🎉":"💪"}</div>
           <h2 class="serif">${acertos} de ${qs.length}</h2>
-          <p>Questões oficiais do ENEM — gabarito INEP.</p>
+          <p>Questões oficiais do ENEM com gabarito do INEP.</p>
           <div class="boxes">
             <div class="box glass"><div class="v" style="color:var(--iris-2)">+${ganho}</div><div class="l">XP</div></div>
             <div class="box glass"><div class="v">${Math.round(acertos/qs.length*100)}%</div><div class="l">Aproveitamento</div></div>
           </div>
-          <button class="btn btn-primary" onclick="location.reload()">Praticar novamente</button>
+          <button class="btn btn-primary" id="enemAgain">Praticar novamente</button>
         </div>`;
         host.querySelector(".lesson-foot").style.display="none";
+        host.querySelector("#enemAgain").onclick = ()=>viewEnem();
       }
     };
   }
@@ -1057,12 +1059,12 @@ function runEnemSession(host, qs){
 // TÉCNICAS DE ESTUDO
 // ============================================================
 const TECNICAS = [
-  { e:"🍅", t:"Técnica Pomodoro", d:"Estude em blocos de 25 minutos com pausas de 5. A cada 4 blocos, uma pausa longa de 15–30 min.", how:"Foco total no bloco, sem celular. A pausa é sagrada — levante, beba água, respire." },
+  { e:"🍅", t:"Técnica Pomodoro", d:"Estude em blocos de 25 minutos com pausas de 5. A cada 4 blocos, uma pausa longa de 15 a 30 min.", how:"Foco total no bloco, sem celular. A pausa é sagrada: levante, beba água, respire." },
   { e:"🔁", t:"Revisão espaçada", d:"Revise o conteúdo em intervalos crescentes (1, 3, 7, 14 dias). Combate o esquecimento no ponto certo.", how:"O app já agenda suas revisões automaticamente na seção 'Para você hoje'." },
   { e:"🧠", t:"Recordação ativa", d:"Em vez de reler, tente lembrar o conteúdo de memória. Responder questões vale mais que grifar.", how:"Feche o material e explique o tópico em voz alta ou por escrito. Depois confira." },
-  { e:"🔗", t:"Interleaving", d:"Misture matérias e tipos de questão no mesmo dia em vez de estudar um só assunto em bloco.", how:"Alterne, por exemplo, Matemática e Física — o cérebro aprende a escolher a estratégia certa." },
+  { e:"🔗", t:"Interleaving", d:"Misture eixos e tipos de questão no mesmo dia em vez de estudar um só assunto em bloco.", how:"Alterne, por exemplo, Geometria e Estatística. O cérebro aprende a escolher a estratégia certa." },
   { e:"👩‍🏫", t:"Técnica Feynman", d:"Explique o assunto como se ensinasse a uma criança. Se travar, achou sua lacuna.", how:"Escreva a explicação simples, identifique os pontos confusos e volte ao conteúdo." },
-  { e:"🎯", t:"Metas SMART", d:"Defina metas específicas, mensuráveis e com prazo. 'Estudar mais' não é meta; '3 lições de Química até sexta' é.", how:"Quebre o edital em pequenas metas semanais e comemore cada conclusão." },
+  { e:"🎯", t:"Metas SMART", d:"Defina metas específicas, mensuráveis e com prazo. 'Estudar mais' não é meta; '3 lições de Geometria até sexta' é.", how:"Quebre o edital em pequenas metas semanais e comemore cada conclusão." },
 ];
 
 function viewTecnicas(){
@@ -1248,18 +1250,18 @@ async function viewRevisao(){
   if (error){ host.innerHTML = '<div class="empty">Não foi possível carregar seus erros agora.</div>'; return; }
   v.querySelector("#errCount").textContent = (errs?.length||0) + " para dominar";
   if (!errs?.length){
-    host.innerHTML = '<div class="empty">Nenhum erro pendente — cada erro que você comete nas lições e no banco ENEM entra aqui automaticamente para virar aprendizado. 💪</div>';
+    host.innerHTML = '<div class="empty">Nenhum erro pendente. Cada erro que você comete nas lições e no banco ENEM entra aqui automaticamente para virar aprendizado. 💪</div>';
     return;
   }
   host.innerHTML = errs.map(e=>`
     <div class="err-card glass" data-id="${e.id}">
       <div class="err-top">
-        <span class="tag">${esc(e.materia||"—")}</span>
+        <span class="tag">${esc(e.materia||"-")}</span>
         <span class="tag dim">${e.origem==="enem"?"ENEM oficial":e.origem==="simulado"?"Simulado":"Lição"}</span>
         <span class="tag dim">${e.tentativas}× errada</span>
       </div>
       <div class="err-q">${esc(e.enunciado).slice(0,400)}${e.enunciado.length>400?"…":""}</div>
-      <div class="err-a"><span class="wrong">✕ ${esc(e.resposta_aluno||"—")}</span><span class="right">✓ ${esc(e.resposta_correta||"—")}</span></div>
+      <div class="err-a"><span class="wrong">✕ ${esc(e.resposta_aluno||"-")}</span><span class="right">✓ ${esc(e.resposta_correta||"-")}</span></div>
       ${e.explicacao?`<div class="err-e">${esc(e.explicacao)}</div>`:""}
       <div class="err-foot">
         <select class="motivo">
@@ -1301,10 +1303,10 @@ async function viewMissoes(){
         const pct = Math.min(100, Math.round(m.progresso/m.alvo*100));
         const done = m.progresso >= m.alvo;
         return `<div class="mission glass ${m.resgatada?'claimed':''}">
-          <span class="me">${m.emoji}</span>
+          <span class="me">${esc(m.emoji)}</span>
           <div class="mi">
             <div class="mt">${esc(m.titulo)} <span class="mx">+${m.xp_recompensa} XP</span></div>
-            <div class="md">${esc(m.descricao)}</div>
+            <div class="md">${esc(String(m.descricao||"").replace(/matérias/g,"eixos"))}</div>
             <div class="mbar"><i style="width:${pct}%"></i></div>
             <div class="mp">${Math.min(m.progresso,m.alvo)}/${m.alvo}</div>
           </div>
@@ -1333,12 +1335,12 @@ async function viewMissoes(){
 // RANKING — ligas + períodos reais (dados do Supabase)
 // ============================================================
 const LIGAS = [
-  { nome:"Liga Carbono",  min:0,    emoji:"⚫" },
-  { nome:"Liga Cobre",    min:100,  emoji:"🟤" },
-  { nome:"Liga Titânio",  min:300,  emoji:"⚪" },
-  { nome:"Liga Plasma",   min:700,  emoji:"🟣" },
-  { nome:"Liga Quântica", min:1500, emoji:"🔵" },
-  { nome:"Liga Cósmica",  min:3000, emoji:"🌌" },
+  { nome:"Liga Ponto",     min:0,    emoji:"·" },
+  { nome:"Liga Reta",      min:100,  emoji:"╱" },
+  { nome:"Liga Plano",     min:300,  emoji:"▱" },
+  { nome:"Liga Prisma",    min:700,  emoji:"⬡" },
+  { nome:"Liga Esfera",    min:1500, emoji:"◯" },
+  { nome:"Liga Infinito",  min:3000, emoji:"∞" },
   { nome:"Liga Delta",    min:6000, emoji:"🔺" },
 ];
 function ligaDe(xpSemana){
@@ -1369,7 +1371,7 @@ async function viewRanking(){
     v.querySelector("#ligaBox").innerHTML = `
       <span class="lg">${liga.emoji}</span>
       <div><b>${liga.nome}</b><div class="ld">${xpSem} XP nesta semana${next?` · faltam ${next.min-xpSem>0?next.min-xpSem:0} XP para a ${next.nome}`:" · liga máxima!"}</div></div>
-      <span class="lp">#${data?.pos||"—"} da semana</span>`;
+      <span class="lp">#${data?.pos||"-"} da semana</span>`;
   });
 
   async function load(period){
@@ -1379,7 +1381,7 @@ async function viewRanking(){
       sb.rpc("my_rank", { p_period: period }),
     ]);
     if (error){ host.innerHTML = '<div class="empty">Não foi possível carregar o ranking.</div>'; return; }
-    if (!rows?.length){ host.innerHTML = '<div class="empty">Ninguém pontuou neste período ainda — seja a primeira pessoa! 🚀</div>'; return; }
+    if (!rows?.length){ host.innerHTML = '<div class="empty">Ninguém pontuou neste período ainda. Seja a primeira pessoa! 🚀</div>'; return; }
     const inList = rows.some(r=>r.is_me);
     host.innerHTML = `<div class="rank-list glass">` + rows.map(r=>{
       const medal = r.pos===1?"🥇":r.pos===2?"🥈":r.pos===3?"🥉":null;
@@ -1406,12 +1408,11 @@ async function viewSimulados(){
   const v = appShell("simulados", `
     <div class="hello"><p class="k">Modo prova</p><h1 class="serif">Simulados</h1></div>
     <div class="filters glass" id="simCfg">
-      <div class="f"><label>Matéria</label><select id="sMat"><option value="">Todas (mix ENEM)</option>
-        <option>Matemática</option><option>Física</option><option>Química</option><option>Biologia</option></select></div>
+      <div class="f"><label>Área</label><select id="sMat" disabled><option value="${AREA}">${AREA}</option></select></div>
       <div class="f"><label>Questões</label><select id="sN"><option>5</option><option selected>10</option><option>20</option><option>45</option></select></div>
       <div class="f"><label>Tempo</label><select id="sT"><option value="180" selected>3 min/questão</option><option value="120">2 min/questão</option><option value="0">Sem limite</option></select></div>
       <button class="btn btn-primary" id="sGo">Iniciar simulado ⏱</button>
-      <div class="count">Questões oficiais do ENEM (INEP), gabarito oficial. Sem dicas, feedback só no final.</div>
+      <div class="count">Questões oficiais de Matemática do ENEM (INEP), gabarito oficial. Sem dicas, feedback só no final.</div>
     </div>
     <div id="simHost"></div>
     <div class="section-title"><h2>Histórico</h2><span class="s" id="shCount"></span></div>
@@ -1431,7 +1432,7 @@ async function viewSimulados(){
       <span class="sm">${esc(x.filtros?.materia||"Mix")} · ${x.total} questões</span>
       <span class="st">${min} min</span>
       <span class="sp ${pct>=70?'good':pct>=50?'mid':'low'}">${x.acertos}/${x.total} · ${pct}%</span></div>`;
-  }).join("") : '<div class="empty">Nenhum simulado ainda. O primeiro é o mais importante — ele vira sua linha de base. 📊</div>';
+  }).join("") : '<div class="empty">Nenhum simulado ainda. O primeiro é o mais importante, porque vira sua linha de base. 📊</div>';
 
   v.querySelector("#sGo").onclick = async ()=>{
     const mat = v.querySelector("#sMat").value;
@@ -1525,7 +1526,7 @@ function runSimulado(host, qs, cfg){
   host.querySelector("#sPrev").onclick=()=>{ if(idx>0){idx--; renderQ();} };
   host.querySelector("#sNext").onclick=()=>{ if(idx<qs.length-1){idx++; renderQ();} };
   host.querySelector("#sMark").onclick=()=>{ marked.has(idx)?marked.delete(idx):marked.add(idx); renderSheet(); };
-  host.querySelector("#sQuit").onclick=()=>{ if(confirm("Abandonar o simulado? Seu progresso não será salvo.")){ clearInterval(timer); location.reload(); } };
+  host.querySelector("#sQuit").onclick=()=>{ if(confirm("Abandonar o simulado? Seu progresso não será salvo.")){ clearInterval(timer); viewSimulados(); } };
   // entregar mesmo sem responder tudo (após 50%)
   const foot=host.querySelector(".sim-foot");
   const early=h(`<button class="btn btn-ghost auto" id="sEarly">Entregar</button>`);
@@ -1546,7 +1547,7 @@ function runSimulado(host, qs, cfg){
       if (!ok) logError({ origem:"simulado", ref:String(q.id), enunciado:q.statement,
         resposta_aluno: answers[i]?answers[i]+") "+(altText[answers[i]]||""):"(em branco)",
         resposta_correta:q.correct_answer+") "+(altText[q.correct_answer]||""),
-        explicacao:`ENEM ${q.year}, questão ${q.original_number} — gabarito oficial INEP.`,
+        explicacao:`ENEM ${q.year}, questão ${q.original_number}. Gabarito oficial do INEP.`,
         materia:q.primary_subject, topico:q.topic });
       return { q:q.external_id||q.id, materia:q.primary_subject, topico:q.topic, resp:answers[i], gab:q.correct_answer, ok };
     });
@@ -1580,9 +1581,11 @@ function runSimulado(host, qs, cfg){
       </div>
       <div class="perf-block glass">${matHtml}</div>
       <p style="font-size:.85rem;color:var(--text-dim);margin:.8rem 0">Os erros foram adicionados ao seu Caderno de Erros para revisão. 📓</p>
-      <button class="btn btn-primary" onclick="location.hash='#/revisao'">Revisar erros</button>
-      <button class="btn btn-ghost" onclick="location.reload()" style="margin-top:.6rem">Novo simulado</button>
+      <button class="btn btn-primary" id="simRev">Revisar erros</button>
+      <button class="btn btn-ghost" id="simAgain" style="margin-top:.6rem">Novo simulado</button>
     </div>`;
+    host.querySelector("#simRev").onclick = ()=>navigate("/revisao");
+    host.querySelector("#simAgain").onclick = ()=>viewSimulados();
   }
 
   renderQ();
@@ -1684,7 +1687,12 @@ async function boot(){
     }
   });
 
-  window.addEventListener("hashchange", router);
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.addEventListener("hashchange", ()=>{
+    if (document.startViewTransition && !reduce) document.startViewTransition(()=>router());
+    else router();
+    window.scrollTo(0,0);
+  });
   router();
 }
 

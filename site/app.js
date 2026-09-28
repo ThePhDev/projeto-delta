@@ -4,6 +4,11 @@
 
   var FRAME_COUNT = 143;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var conn = navigator.connection || {};
+  var lite = !!conn.saveData || /2g|3g/.test(conn.effectiveType || "") ||
+    (window.innerWidth < 820 && (navigator.deviceMemory || 4) <= 4);
+  var STEP = lite ? 2 : 1;
+  var RELEASE_AT = 16;
 
   /* ---------- smooth scroll (Lenis) ---------- */
   if (!reduceMotion && window.Lenis) {
@@ -115,7 +120,7 @@
   function onImgLoad(i) {
     loadedFlags[i] = true;
     loadedCount++;
-    var pct = Math.round((loadedCount / FRAME_COUNT) * 100);
+    var pct = Math.round((loadedCount / order.length) * 100);
     if (!released) {
       loadbar.style.width = pct + "%";
       loadpct.textContent = pct + "%";
@@ -123,17 +128,18 @@
     if (i === pendingFrame || curFrame === -1) drawFrame(pendingFrame);
     // release once the opening stretch is ready
     var ready = true;
-    for (var k = 0; k < 24; k++) { if (!loadedFlags[k]) { ready = false; break; } }
+    for (var k = 0; k < RELEASE_AT; k += STEP) { if (!loadedFlags[k]) { ready = false; break; } }
     if (ready) release();
   }
 
   // priority order: first 24 sequential, then spread, then fill
   var order = [];
-  for (var i = 0; i < 24; i++) order.push(i);
-  for (var i = 24; i < FRAME_COUNT; i += 6) order.push(i);
-  for (var i = 24; i < FRAME_COUNT; i++) if ((i - 24) % 6 !== 0) order.push(i);
+  for (var i = 0; i < RELEASE_AT; i += STEP) order.push(i);
+  for (var i = RELEASE_AT; i < FRAME_COUNT; i += 6 * STEP) order.push(i);
+  for (var i = RELEASE_AT; i < FRAME_COUNT; i += STEP) if (order.indexOf(i) < 0) order.push(i);
+  if (order.indexOf(FRAME_COUNT - 1) < 0) order.push(FRAME_COUNT - 1);
 
-  var cursor = 0, inFlight = 0, MAX_PARALLEL = 8;
+  var cursor = 0, inFlight = 0, MAX_PARALLEL = lite ? 4 : 8;
   function pump() {
     while (inFlight < MAX_PARALLEL && cursor < order.length) {
       (function (idx) {
@@ -148,7 +154,7 @@
     }
   }
   pump();
-  setTimeout(release, 12000); // safety: never trap the user on the loader
+  setTimeout(release, 7000); // nunca prender o usuário no loader
 
   /* ---------- scroll orchestration ---------- */
   var journey = document.getElementById("journey");
@@ -163,6 +169,8 @@
   var nav = document.getElementById("nav");
   var lightEl = document.getElementById("light");
   var fimEl = document.getElementById("fim");
+  var eixosEl = document.getElementById("eixos");
+  var progressEl = document.getElementById("progress");
 
   function clamp01(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
   function ease(x) { return x * x * (3 - 2 * x); }
@@ -202,7 +210,11 @@
     var overLightFrames = rect.top <= 0 && rect.bottom > window.innerHeight && p > 0.7;
     var lr = lightEl.getBoundingClientRect();
     var fr = fimEl.getBoundingClientRect();
-    var overLightWorld = lr.top < 70 && lr.bottom > 70;
+    var er = eixosEl ? eixosEl.getBoundingClientRect() : null;
+    var overEixos = er && er.top < 70 && er.bottom > 70;
+    var overLightWorld = lr.top < 70 && lr.bottom > 70 && !overEixos;
+    var docMax = document.documentElement.scrollHeight - window.innerHeight;
+    if (progressEl) progressEl.style.transform = "scaleX(" + (docMax > 0 ? Math.min(1, window.scrollY / docMax) : 0).toFixed(4) + ")";
     var overFim = fr.top < 70;
     nav.classList.toggle("on-light", (overLightFrames || overLightWorld) && !overFim);
     // hide nav mid-journey to let the film breathe, show at start/end
@@ -218,7 +230,15 @@
   /* ---------- film player: loop automatico quando ocioso, segue o scroll quando usado ---------- */
   var scrollFrame = 0, displayFrame = 0, lastInteract = 0;
   var IDLE_DELAY = 2400, IDLE_SPEED = 0.30; // ~18fps de avanco em 60hz
+  var filmVisible = true, filmRunning = false;
+  function startFilm() {
+    if (filmRunning || !filmVisible || document.hidden) return;
+    filmRunning = true; requestAnimationFrame(filmLoop);
+  }
+  new IntersectionObserver(function (en) { filmVisible = en[0].isIntersecting; startFilm(); }).observe(journey);
+  document.addEventListener("visibilitychange", startFilm);
   function filmLoop(now) {
+    if (!filmVisible || document.hidden) { filmRunning = false; return; }
     if (reduceMotion) { drawFrame(scrollFrame); requestAnimationFrame(filmLoop); return; }
     var idle = (now - lastInteract) > IDLE_DELAY;
     if (idle) {
@@ -231,7 +251,7 @@
     drawFrame(Math.round(displayFrame) % FRAME_COUNT);
     requestAnimationFrame(filmLoop);
   }
-  requestAnimationFrame(filmLoop);
+  startFilm();
 
   /* ---------- blur-text split ---------- */
   document.querySelectorAll(".blur-text").forEach(function (el) {
@@ -274,26 +294,43 @@
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") setMenu(false); });
 
-  /* ---------- black-hole cursor ---------- */
-  var coarse = window.matchMedia("(hover:none),(pointer:coarse)").matches;
-  if (!coarse && !reduceMotion) {
-    var bh = document.getElementById("bh");
-    if (bh) {
-      document.body.classList.add("bh-on");
-      var tx = window.innerWidth / 2, ty = window.innerHeight / 2, cx = tx, cy = ty;
-      window.addEventListener("mousemove", function (e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
-      window.addEventListener("mousedown", function () { bh.classList.add("grow"); });
-      window.addEventListener("mouseup", function () { bh.classList.remove("grow"); });
-      document.addEventListener("mouseover", function (e) {
-        if (e.target.closest("a,button,.subj-card,input")) bh.classList.add("grow");
-        else bh.classList.remove("grow");
-      }, { passive: true });
-      (function follow() {
-        cx += (tx - cx) * 0.18; cy += (ty - cy) * 0.18;
-        bh.style.transform = "translate(" + cx + "px," + cy + "px) translate(-50%,-50%)";
-        requestAnimationFrame(follow);
-      })();
-    }
+  /* ---------- cursor: seta da marca (efeitos ao redor, ponta = clique) ---------- */
+  var fineHover = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+  var cur = document.getElementById("cursor");
+  if (cur && fineHover && !reduceMotion) {
+    var arrow = cur.querySelector(".c-arrow"), trail = cur.querySelector(".c-trail");
+    var label = cur.querySelector(".c-label"), ripple = cur.querySelector(".c-ripple");
+    var mx = -100, my = -100, tx2 = mx, ty2 = my, lastMx = mx, tilt = 0, pressed = false, on = false;
+    var LABELS = [
+      [".delta-stage", "Arrastar"], [".dopt", "Responder"], [".eixo", "Ver eixo"],
+      ['a[href^="app/"]', "Entrar"], ['a[href^="mailto:"]', "Escrever"], ["a", "Abrir"], ["button", "Clicar"]
+    ];
+    window.addEventListener("mousemove", function (e) {
+      mx = e.clientX; my = e.clientY;
+      if (!on) { on = true; tx2 = mx; ty2 = my; document.body.classList.add("cursor-on"); }
+    }, { passive: true });
+    document.addEventListener("mouseleave", function () { document.body.classList.remove("cursor-on"); on = false; });
+    window.addEventListener("mousedown", function () {
+      pressed = true;
+      ripple.style.transform = ""; ripple.classList.remove("go"); void ripple.offsetWidth; ripple.classList.add("go");
+    });
+    window.addEventListener("mouseup", function () { pressed = false; });
+    document.addEventListener("mouseover", function (e) {
+      var hit = null;
+      for (var k = 0; k < LABELS.length && !hit; k++) { var el = e.target.closest(LABELS[k][0]); if (el) hit = LABELS[k][1]; }
+      cur.classList.toggle("act", !!hit);
+      if (hit) label.textContent = hit;
+    }, { passive: true });
+    (function loop() {
+      var vx = mx - lastMx; lastMx = mx;
+      tilt += (Math.max(-14, Math.min(14, vx * 0.8)) - tilt) * 0.2;
+      tx2 += (mx - tx2) * 0.16; ty2 += (my - ty2) * 0.16;
+      arrow.style.transform = "translate(" + (mx - 3) + "px," + (my - 2) + "px) rotate(" + tilt.toFixed(2) + "deg) scale(" + (pressed ? 0.9 : 1) + ")";
+      label.style.left = mx + "px"; label.style.top = my + "px";
+      ripple.style.left = mx + "px"; ripple.style.top = my + "px";
+      trail.style.transform = "translate(" + tx2.toFixed(1) + "px," + ty2.toFixed(1) + "px)";
+      requestAnimationFrame(loop);
+    })();
   }
 })();
 
@@ -331,4 +368,34 @@
     });
   }
   document.querySelectorAll("#overlay .links a, nav .menu a:not(.cta)").forEach(splitChars);
+})();
+
+/* ---------- transição cinematográfica para a plataforma ---------- */
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.querySelectorAll('a[href^="app/"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      if (reduce || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      document.body.classList.add("leaving");
+      setTimeout(function () { window.location.href = a.getAttribute("href"); }, 420);
+    });
+  });
+  window.addEventListener("pageshow", function () { document.body.classList.remove("leaving"); });
+})();
+
+/* ---------- botões magnéticos ---------- */
+(function () {
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+  if (reduce || !fine) return;
+  document.querySelectorAll(".btn-glass, nav .menu a.cta").forEach(function (b) {
+    b.classList.add("magnetic");
+    b.addEventListener("pointermove", function (e) {
+      var r = b.getBoundingClientRect();
+      var x = (e.clientX - r.left - r.width / 2) * 0.25, y = (e.clientY - r.top - r.height / 2) * 0.35;
+      b.style.transform = "translate(" + x.toFixed(1) + "px," + y.toFixed(1) + "px)";
+    });
+    b.addEventListener("pointerleave", function () { b.style.transform = ""; });
+  });
 })();
