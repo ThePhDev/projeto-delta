@@ -163,7 +163,7 @@ export function viewPerfil() {
   const s = state.stats, p = state.profile, n = nivelDe(s.xp || 0);
   const licoes = Object.values(state.lessons).filter(l => l.estrelas > 0).length;
   const v = shell("perfil", `
-    <div class="hero-card dots-bg">
+    <div class="hero-card">
       <button class="cfg" id="cfg" aria-label="Ajustes">${ic("gear")}</button><button class="edit" id="edit" aria-label="Editar astronauta">${ic("pencil")}</button>
       <div class="av iri-border">${avatarHTML(av())}</div>
       <h1>${esc(p.nome || "Estudante")}</h1><div class="nm">@${esc(p.username || "sem_usuario")}${p.escola ? " · " + esc(p.escola) : ""}</div>
@@ -270,7 +270,7 @@ function ajustes() {
 // ============================================================
 export function viewRanking() {
   let period = "semanal";
-  const v = shell("ranking", `<div class="league dots-bg" id="lg"><div class="spin"></div></div>
+  const v = shell("ranking", `<div class="league" id="lg"><div class="spin"></div></div>
     <div class="segs" role="tablist">${[["diario", "Hoje"], ["semanal", "Semana"], ["mensal", "Mês"], ["geral", "Geral"]].map(([k, n]) => `<button data-p="${k}" class="${k === period ? "on" : ""}">${n}</button>`).join("")}</div>
     <div id="rk"><div class="spin"></div></div>`);
   sb.rpc("my_rank", { p_period: "semanal" }).then(({ data }) => {

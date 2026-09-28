@@ -54,8 +54,6 @@ body.leaving #curtain{opacity:1;pointer-events:auto}
    (fix: nunca usar text-fill transparente — com spans/filters filhos o
    background-clip:text falha e o texto some. Glow luminoso é seguro.) */
 .holo-ink{transition:text-shadow .35s ease}
-.holo-ink:hover{text-shadow:0 0 14px rgba(155,231,255,.85),0 0 34px rgba(201,167,255,.55),0 2px 30px rgba(0,0,0,.55)}
-#ch-travessia .holo-ink:hover,#ch-chegada .holo-ink:hover,#light .holo-ink:hover{text-shadow:0 0 14px rgba(123,92,255,.45),0 0 30px rgba(57,208,255,.35)}
 .ch{display:inline-block;transition:transform .5s var(--ease),color .4s;transition-delay:calc(var(--i)*16ms)}
 #overlay .links a:hover .ch{transform:translateY(-.13em) rotate(-2deg)}
 nav .menu a:hover .ch{transform:translateY(-2.5px)}
@@ -106,7 +104,6 @@ nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1p
 #ch-travessia h2,#ch-chegada h2{text-shadow:0 2px 24px rgba(233,234,238,.8),0 1px 2px rgba(255,255,255,.6)}
 .chapter .sub,.chapter p{text-shadow:0 1px 16px rgba(0,0,0,.55)}
 #ch-travessia p,#ch-chegada p{text-shadow:0 1px 12px rgba(233,234,238,.85)}
-.kicker{font-size:.82rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.82);font-weight:500;text-shadow:0 1px 14px rgba(0,0,0,.6)}
 
 /* hero */
 #ch-hero{align-items:center;justify-content:center;text-align:center}
@@ -119,12 +116,11 @@ nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1p
 @keyframes blurin{0%{opacity:0;filter:blur(10px);transform:translateY(50px)}50%{opacity:.5;filter:blur(5px);transform:translateY(-5px)}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
 #ch-hero .sub{margin:1.3rem auto 0;font-size:clamp(1.06rem,1.6vw,1.25rem);line-height:1.55;color:#fff;max-width:52ch;font-weight:400}
 #ch-hero .ctas{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1.7rem;flex-wrap:wrap}
-.btn-glass{border-radius:9999px;padding:.72rem 1.4rem;font-size:.9rem;font-weight:500;color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:transform .25s ease}
+.btn-glass{border-radius:9999px;padding:.78rem 1.5rem;font-size:.95rem;font-weight:700;color:#0b0b0f;background:#fff;box-shadow:0 8px 24px -12px rgba(0,0,0,.6);text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:transform .25s ease}
 .btn-glass:hover{transform:translateY(-2px)}
 .btn-glass:active{transform:translateY(0) scale(.98)}
 .link-plain{color:#fff;text-decoration:none;font-size:.9rem;font-weight:500;display:inline-flex;align-items:center;gap:.4rem;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;transition:border-color .25s}
 .link-plain:hover{border-color:#fff}
-#ch-hero .scrollhint{position:absolute;bottom:1.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.82)}
 @media(max-height:760px){#ch-hero .scrollhint{display:none}}
 @media(max-width:480px){#ch-hero .badge{flex-direction:row;padding-right:.75rem}#ch-hero .badge b{white-space:nowrap}#ch-hero .badge span{font-size:.72rem;line-height:1.25;text-align:left}}
 #ch-hero .scrollhint .line{width:1px;height:38px;background:linear-gradient(#fff,transparent);animation:drip 1.8s ease-in-out infinite}
@@ -151,14 +147,12 @@ nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1p
 /* travessia — dark ink over light frames, anchored left */
 #ch-travessia{align-items:center}
 #ch-travessia .inner{max-width:1200px}
-#ch-travessia .kicker{color:rgba(13,14,18,.78);text-shadow:none}
 #ch-travessia h2{font-size:clamp(2.6rem,6.5vw,4.8rem);line-height:.9;letter-spacing:-2.5px;color:var(--ink);margin-top:.8rem;max-width:13ch}
 #ch-travessia p{margin-top:1.1rem;font-size:clamp(1rem,1.45vw,1.18rem);color:rgba(13,14,18,.92);max-width:40ch;line-height:1.5;font-weight:400}
 
 /* chegada — dark text over light frames, anchored right */
 #ch-chegada{align-items:center;justify-content:flex-end}
 #ch-chegada .inner{display:flex;flex-direction:column;align-items:flex-end;text-align:right;max-width:1200px}
-#ch-chegada .kicker{color:rgba(13,14,18,.78);text-shadow:none}
 #ch-chegada h2{font-size:clamp(2.6rem,6.5vw,4.8rem);line-height:.9;letter-spacing:-2.5px;color:var(--ink);margin-top:.8rem;max-width:13ch}
 #ch-chegada p{margin-top:1.1rem;font-size:clamp(1rem,1.45vw,1.18rem);color:rgba(13,14,18,.92);max-width:42ch;line-height:1.5;font-weight:400}
 @media(max-width:820px){
@@ -171,7 +165,6 @@ nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1p
 #light{background:var(--paper);color:var(--ink);position:relative;z-index:30}
 #light section{padding:7rem 2rem}
 #light .wrap{max-width:1200px;margin:0 auto}
-#light .kicker{color:rgba(13,14,18,.74);text-shadow:none}
 .reveal{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .9s ease,transform .9s ease,filter .9s ease}
 .reveal.in{opacity:1;transform:none;filter:none}
 
@@ -181,7 +174,7 @@ nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1p
 #missao .lead{font-size:1.1rem;line-height:1.65;margin-top:1.6rem;max-width:56ch;color:#1a1c24}
 #missao .ods{border-left:1px solid var(--line);padding-left:2rem;display:flex;flex-direction:column;gap:2.2rem;margin-top:1.2rem}
 #missao .ods .num{font-family:'Orbitron',sans-serif;font-size:3.4rem;line-height:1;letter-spacing:-1.5px}
-#missao .ods h3{font-size:.85rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-top:.4rem}
+#missao .ods h3{font-size:1rem;font-weight:700;margin-top:.4rem}
 #missao .ods p{font-size:1rem;line-height:1.55;color:#2b2e38;margin-top:.4rem;max-width:34ch}
 @media(max-width:820px){#missao .grid{grid-template-columns:1fr;gap:2.5rem}}
 
@@ -199,7 +192,7 @@ nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1p
 #metodologia .stack{margin-top:3rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
 #metodologia .stack{flex-direction:column;align-items:flex-start;gap:1.1rem}
 #metodologia .stack .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
-#metodologia .stack em{font-family:'Inter',sans-serif;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-style:normal;font-weight:600;color:#3b3f4b;min-width:7.5rem}
+#metodologia .stack em{font-family:'Inter',sans-serif;font-size:.95rem;font-style:normal;font-weight:700;color:#3b3f4b;min-width:7.5rem}
 #metodologia .stack span{border:1px solid rgba(13,14,18,.18);border-radius:9999px;padding:.45rem 1rem;font-size:.9rem;background:rgba(255,255,255,.7);color:#14161d;transition:transform .3s var(--ease),background .3s}
 #metodologia .stack span:hover{transform:translateY(-2px);background:#fff}
 @media(max-width:820px){#metodologia .steps{grid-template-columns:1fr}#metodologia .step{border-right:none;border-bottom:1px solid var(--line);padding:1.8rem 0}#metodologia .step:nth-child(2),#metodologia .step:nth-child(3){padding-left:0}}
@@ -313,7 +306,6 @@ nav.on-light .burger span{background:var(--ink)}
 
 /* ---------- eixos (3D) ---------- */
 #eixos{position:relative;overflow:hidden;color:#fff;background:radial-gradient(60% 55% at 72% 45%,rgba(139,92,246,.22),transparent 70%),radial-gradient(45% 45% at 15% 85%,rgba(34,211,238,.12),transparent 70%),#05060a}
-#eixos .kicker{color:rgba(255,255,255,.8)}
 #eixos .eixos-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:3rem;align-items:center}
 #eixos h2{font-size:clamp(2.5rem,5.6vw,4.4rem);line-height:.98;letter-spacing:-1.5px;margin-top:1.1rem}
 #eixos .lead{font-size:1.1rem;line-height:1.65;margin-top:1.3rem;max-width:44ch;color:rgba(255,255,255,.9)}
@@ -326,7 +318,7 @@ nav.on-light .burger span{background:var(--ink)}
 .delta-stage{position:relative;aspect-ratio:1/1;width:100%;max-width:620px;margin:0 auto;touch-action:pan-y;cursor:grab}
 .delta-stage:active{cursor:grabbing}
 #delta3d{position:absolute;inset:0;width:100%;height:100%;display:block}
-.delta-stage .hint{position:absolute;left:0;right:0;bottom:.4rem;text-align:center;font-size:.85rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);pointer-events:none}
+.delta-stage .hint{position:absolute;left:0;right:0;bottom:.4rem;text-align:center;font-size:.9rem;color:rgba(255,255,255,.7);pointer-events:none}
 @media(max-width:900px){#eixos .eixos-grid{grid-template-columns:1fr;gap:1.5rem}.delta-stage{max-width:440px;order:-1}}
 /* ---------- magnetic buttons ---------- */
 .magnetic{will-change:transform;transition:transform .35s var(--ease)}
@@ -378,7 +370,21 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 #app .feats{display:grid;gap:.9rem;margin-top:2rem}
 @media(min-width:560px){#app .feats{grid-template-columns:1fr 1fr}}
 #app .feat{border-radius:20px;padding:1.1rem;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
-#app .feat svg{width:26px;height:26px;stroke:#00f0ff;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#app .feat .mini{height:92px;border-radius:14px;background:#0b0b0f;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem;margin-bottom:.4rem;overflow:hidden}
+#app .f-origem .mini{flex-direction:column;align-items:flex-start;justify-content:center;padding:.8rem 1rem}
+#app .f-origem .mini small{color:rgba(255,255,255,.7);font-size:.82rem;margin-top:.4rem}
+#app .mini .nd{width:34px;height:31px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 4px 0 var(--s)}
+#app .mini .nd svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+#app .mini .ln{width:16px;height:2px;background:repeating-linear-gradient(90deg,#4b4f5c 0 3px,transparent 3px 6px)}
+#app .mini .av{width:62px;height:72px;border-radius:12px;overflow:hidden;position:relative;display:grid;place-items:end center;transition:transform .3s}
+#app .mini .av:hover{transform:translateY(-3px) rotate(-3deg)}
+#app .mini .av .dm-bg{position:absolute;inset:0;width:100%;height:100%}
+#app .mini .av .dm{position:relative;width:88%;margin-bottom:-6%}
+#app .mini .wk{display:flex;gap:6px}
+#app .mini .wk span{width:26px;text-align:center;font-size:.7rem;font-weight:700;color:rgba(255,255,255,.7)}
+#app .mini .wk i{display:block;width:26px;height:26px;border-radius:8px;margin-top:4px;background:#1c1a29}
+#app .mini .wk i.on{background:linear-gradient(140deg,#2979ff,#8b5cf6)}
+#app .mini .wk i.rv{background:linear-gradient(140deg,#00f0ff,#2979ff)}
 #app .feat h3{font-family:'Orbitron',sans-serif;font-size:.98rem;font-weight:700;margin-top:.6rem;letter-spacing:.01em}
 #app .feat p{font-size:.95rem;line-height:1.55;color:rgba(255,255,255,.82);margin-top:.35rem}
 #app .origin{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
@@ -408,17 +414,22 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 @media(max-width:820px){.proposta{grid-template-columns:1fr 1fr}}@media(max-width:520px){.proposta{grid-template-columns:1fr}}
 #objetivos,#dados,#cronograma,#referencial{border-top:1px solid var(--line)}
 #objetivos .lead,#dados .lead,#cronograma .lead{font-size:1.1rem;line-height:1.65;margin-top:1.2rem;max-width:62ch;color:#1a1c24}
-.obj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:3rem}
-@media(max-width:900px){.obj-grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.obj-grid{grid-template-columns:1fr}}
-.obj{background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.4rem;transition:transform .3s var(--ease),box-shadow .3s}
-.obj:hover{transform:translateY(-3px);box-shadow:0 20px 40px -24px rgba(75,0,130,.35)}
-.obj svg{width:40px;height:40px;padding:8px;border-radius:12px;background:linear-gradient(135deg,#2979ff,#8b5cf6 60%,#ff00e5);stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.obj h3{font-family:'Orbitron',sans-serif;font-size:1.02rem;font-weight:700;margin-top:1rem;letter-spacing:.01em}
-.obj p{font-size:.98rem;line-height:1.55;color:#2b2e38;margin-top:.4rem}
-.dados-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:3rem}
+.obj-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:4rem;align-items:start}
+.obj-head{position:sticky;top:7rem}
+@media(max-width:900px){.obj-wrap{grid-template-columns:1fr;gap:2rem}.obj-head{position:static}}
+.obj-list{display:flex;flex-direction:column}
+.obj{display:grid;grid-template-columns:44px 1fr;column-gap:1.1rem;padding:1.5rem 0;border-bottom:1px solid var(--line)}
+.obj:last-child{border-bottom:0}
+.obj svg{grid-row:span 2;width:44px;height:44px;padding:10px;border-radius:14px;background:#0b0b0f;stroke:#00f0ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.obj:hover svg{transform:rotate(-6deg) scale(1.06)}
+.obj h3{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.01em;align-self:end}
+.obj p{font-size:1rem;line-height:1.55;color:#2b2e38;margin-top:.3rem;max-width:52ch}
+.dados-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:1.2rem;margin-top:3rem;align-items:stretch}
+.dados-grid .dado:last-child{background:#15141e;display:flex;flex-direction:column;justify-content:flex-end}
 @media(max-width:820px){.dados-grid{grid-template-columns:1fr}}
 .dado{background:#0b0b0f;color:#fff;border-radius:26px;padding:1.8rem;--em:#00f0ff}
-.dado .big{font-size:clamp(2.2rem,5vw,3.4rem);line-height:1}
+.dado .frase{font-size:clamp(1.15rem,2vw,1.35rem);line-height:1.45;font-weight:500;color:#fff;margin:0}
+.dado .frase b{font-family:'Orbitron',sans-serif;font-weight:800;color:#ff7ef0}.dado .frase b.pb{color:#00f0ff}
 .dado p{margin-top:.6rem;line-height:1.5;color:rgba(255,255,255,.88)}
 .dado small{display:block;margin-top:.6rem;color:rgba(255,255,255,.65);font-size:.8rem}
 .dots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.2rem;max-width:320px}
@@ -431,18 +442,23 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 .tabela{margin-top:1.4rem;overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.2rem}
 .tabela table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
 .tabela caption{text-align:left;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.8rem}
-.tabela th,.tabela td{padding:.55rem .7rem;text-align:left;border-bottom:1px solid var(--line)}
-.tabela thead th{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:#4b4f5c}
+.tabela th,.tabela td{padding:.55rem .7rem;text-align:left}
+.tabela tbody tr:nth-child(odd) td{background:#f6f5fa}.tabela tbody td:first-of-type{border-radius:8px 0 0 8px}.tabela tbody td:last-child{border-radius:0 8px 8px 0}
+.tabela thead th{font-size:.85rem;font-weight:600;color:#4b4f5c;border-bottom:1px solid var(--line)}
 .tabela tbody th{font-weight:700;vertical-align:top}
 .tabela td.neg{color:#be123c;font-weight:700}
 .tabela small{display:block;margin-top:.8rem;color:#4b4f5c}
 .carater{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
 .carater span{border:1px solid var(--line);border-radius:14px;padding:.6rem .9rem;background:#fff;font-size:.95rem}
-.carater b{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:#6d28d9}
+.carater b{font-weight:700;color:#6d28d9}
 .fases{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:.8rem;margin-top:3rem;counter-reset:f}
 @media(max-width:1000px){.fases{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.fases{grid-template-columns:1fr}}
-.fases li{position:relative;background:#fff;border:1px solid var(--line);border-top:4px solid hsl(var(--h) 70% 55%);border-radius:18px;padding:1.2rem 1rem}
-.fases .fn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;background:hsl(var(--h) 70% 50%);font-family:'Orbitron',sans-serif}
+.fases li{position:relative;padding:0 .4rem 0 0}
+.fases li::before{content:"";position:absolute;left:52px;right:-.8rem;top:26px;height:2px;background:linear-gradient(90deg,hsl(var(--h) 70% 55%),transparent)}
+.fases li:last-child::before{display:none}
+.fases .fi{position:relative;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);box-shadow:0 10px 24px -16px hsl(var(--h) 70% 40%)}
+.fases .fi svg{width:26px;height:26px;fill:none;stroke:hsl(var(--h) 65% 42%);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:1000px){.fases li::before{display:none}}
 .fases h3{font-family:'Orbitron',sans-serif;font-size:.92rem;font-weight:700;margin-top:.8rem;line-height:1.3}
 .fases p{font-size:.92rem;line-height:1.5;color:#2b2e38;margin-top:.4rem}
 .objetivo{margin-top:1.6rem;padding:1rem 1.2rem;border:1px dashed rgba(13,14,18,.3);border-radius:16px;line-height:1.55;color:#1a1c24;max-width:80ch}
@@ -454,9 +470,11 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 .quotes blockquote{font-size:1.02rem;line-height:1.6;color:#1a1c24;margin-top:1rem}
 .quotes figcaption{margin-top:.8rem;font-weight:700;font-size:.9rem;color:#6d28d9}
 .refs{margin-top:1.2rem;color:#4b4f5c;font-size:.9rem}
-#equipe .names .lead-role{display:inline-flex;flex-direction:column;align-items:center}
-#equipe .names .lead-role small{font-family:'Inter',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6d28d9}
+#equipe .names .lead-role{display:inline}
+#equipe .names .lead-role small{font-size:.62em;font-weight:600;color:#6d28d9;margin-left:.15em}
 .agradece{font-style:normal;opacity:.85}
+.chip-s{background:rgba(11,11,15,.55);border:1px solid rgba(255,255,255,.2)}
+#ch-problema .datum{background:rgba(11,11,15,.62);border:1px solid rgba(255,255,255,.14)}
 </style>
 </head>
 <body>
@@ -486,20 +504,20 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
 </nav>
 
 <div id="overlay" aria-hidden="true">
-  <button class="close" id="closeMenu" aria-label="Fechar menu">✕</button>
+  <button class="close" id="closeMenu" aria-label="Fechar menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
   <div class="links">
-    <a href="#missao" data-d=".08s"><span class="no">01</span>A missão</a>
-    <a href="#app" data-d=".14s"><span class="no">02</span>O app</a>
-    <a href="#eixos" data-d=".20s"><span class="no">03</span>Os eixos</a>
-    <a href="#objetivos" data-d=".23s"><span class="no">04</span>Objetivos</a>
-    <a href="#metodologia" data-d=".26s"><span class="no">05</span>Metodologia</a>
-    <a href="#equipe" data-d=".32s"><span class="no">06</span>A tripulação</a>
-    <a href="app/" data-d=".38s"><span class="no">07</span>Entrar na plataforma</a>
-    <a href="#instalar" class="install-link" data-install data-d=".44s"><span class="no">08</span>Instalar no celular</a>
+    <a href="#missao" data-d=".08s">A missão</a>
+    <a href="#app" data-d=".14s">O app</a>
+    <a href="#eixos" data-d=".20s">Os eixos</a>
+    <a href="#objetivos" data-d=".23s">Objetivos</a>
+    <a href="#metodologia" data-d=".26s">Metodologia</a>
+    <a href="#equipe" data-d=".32s">A tripulação</a>
+    <a href="app/" data-d=".38s">Entrar na plataforma</a>
+    <a href="#instalar" class="install-link" data-install data-d=".44s">Instalar no celular</a>
   </div>
   <div class="foot">
     <span class="serif">Projeto Delta</span>
-    <span>Universidade São Francisco · Campinas · 2026.2</span>
+    <span>Universidade São Francisco, Campinas. Semestre 2026.2</span>
   </div>
 </div>
 
@@ -523,14 +541,10 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <!-- CAP 0 · HERO · frames 0–18 -->
     <section class="chapter" id="ch-hero" data-in="-0.1" data-hold="-0.05" data-out="0.14">
       <div class="inner">
-        <div class="badge liquid-glass">
-          <b>USF · 2026.2</b>
-          <span>Extensão em Engenharia da Computação</span>
-        </div>
         <h1 class="serif" id="heroTitle">A Matemática do <span class="hchip" aria-hidden="true"><svg viewBox="0 0 100 92" width="40" height="37"><defs><linearGradient id="hcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff00e5"/><stop offset=".5" stop-color="#00f0ff"/><stop offset="1" stop-color="#2979ff"/></linearGradient></defs><path d="M50 8 L94 84 L8 84 Z" fill="none" stroke="url(#hcg)" stroke-width="13"/></svg></span> <span class="sans">ENEM</span> não precisa ser um <em>abismo.</em></h1>
         <p class="sub">São 45 questões de Matemática no 2º dia, e quase tudo que ajuda a acertá-las custa caro: cursinho, método, acompanhamento. O <strong>Projeto Delta</strong> entrega isso de graça, em forma de jogo, direto no seu celular.</p>
         <div class="ctas">
-          <a class="btn-glass liquid-glass-strong" href="app/">Começar grátis
+          <a class="btn-glass" href="app/">Começar grátis
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
           </a>
           <button class="btn-install" type="button" data-install><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Instalar no celular</button>
@@ -547,7 +561,7 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         </div>
         <div>
           <p>Muitos formandos da rede pública, como os da escola <strong>CEMEP</strong>, em Paulínia (SP), chegam ao 3º ano sem cronograma, sem material organizado e sem ninguém para dizer o que revisar. É exatamente isso que os cursinhos vendem.</p>
-          <div class="datum liquid-glass">
+          <div class="datum">
             <div class="n serif">45 <em>questões</em></div>
             <div class="l">Matemática e suas Tecnologias ocupa metade do 2º dia do ENEM. É onde a falta de base mais derruba a nota.</div>
           </div>
@@ -561,13 +575,13 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         <h2 class="serif">Método de cursinho, <em>custo zero.</em></h2>
         <p>Lições curtas, questões oficiais do INEP e revisão no dia certo. Você estuda dez minutos e o Delta cuida do resto: o que revisar, quando revisar e por onde continuar.</p>
         <div class="tags">
-          <span class="liquid-glass">Banco por tema e dificuldade</span>
-          <span class="liquid-glass">Cronograma personalizável</span>
-          <span class="liquid-glass">Revisão espaçada e adaptativa</span>
-          <span class="liquid-glass">Questões oficiais do INEP</span>
-          <span class="liquid-glass">Questões inspiradas no ENEM</span>
-          <span class="liquid-glass">Simulados cronometrados</span>
-          <span class="liquid-glass">Grátis, no celular e no PC</span>
+          <span class="chip-s">Banco por tema e dificuldade</span>
+          <span class="chip-s">Cronograma personalizável</span>
+          <span class="chip-s">Revisão espaçada e adaptativa</span>
+          <span class="chip-s">Questões oficiais do INEP</span>
+          <span class="chip-s">Questões inspiradas no ENEM</span>
+          <span class="chip-s">Simulados cronometrados</span>
+          <span class="chip-s">Grátis, no celular e no PC</span>
         </div>
       </div>
     </section>
@@ -612,22 +626,22 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         </div>
       </div>
       <ul class="proposta reveal" aria-label="Proposta de solução">
-        <li><b>01</b>Oferecer materiais gratuitos para o ENEM, ampliando o acesso à educação de qualidade.</li>
-        <li><b>02</b>Apoiar alunos de escolas públicas, ajudando a reduzir as desigualdades na preparação.</li>
-        <li><b>03</b>Apresentar métodos de estudo que ajudem cada aluno a aprender melhor e organizar a rotina.</li>
-        <li><b>04</b>Reunir questões e acompanhar o progresso dos alunos numa plataforma gratuita e fácil de usar.</li>
+        <li><b>Oferecer</b> materiais gratuitos para o ENEM, ampliando o acesso à educação de qualidade.</li>
+        <li><b>Apoiar</b> alunos de escolas públicas, ajudando a reduzir as desigualdades na preparação.</li>
+        <li><b>Apresentar</b> métodos de estudo que ajudem cada aluno a aprender melhor e organizar a rotina.</li>
+        <li><b>Reunir</b> questões e acompanhar o progresso dos alunos numa plataforma gratuita e fácil de usar.</li>
       </ul>
     </div>
   </section>
 
 
   <section id="objetivos" aria-labelledby="objTitle">
-    <div class="wrap">
-      <div class="reveal">
+    <div class="wrap obj-wrap">
+      <div class="reveal obj-head">
         <h2 class="serif" id="objTitle">O que o projeto se propõe a <em>fazer.</em></h2>
         <p class="lead">Desenvolver e implementar um site gratuito de apoio aos estudos de Matemática do 2º dia do ENEM, voltado para os alunos do ensino médio da escola pública CEMEP.</p>
       </div>
-      <div class="obj-grid">
+      <div class="obj-list">
         <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><h3>Diagnosticar dificuldades</h3><p>Questionários e conversas com os alunos do CEMEP, e um diagnóstico dentro da plataforma.</p></div>
         <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="13" height="10" rx="2"/><rect x="15" y="9" width="6" height="11" rx="1.5"/><path d="M7 18h6"/></svg><h3>Interface responsiva</h3><p>Funciona no celular e no computador, e pode ser instalada como app.</p></div>
         <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M8 7h7M8 11h5"/></svg><h3>Banco de questões</h3><p>Questões oficiais do ENEM organizadas por tema, ano e dificuldade.</p></div>
@@ -642,12 +656,12 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <div class="wrap">
       <div class="reveal">
         <h2 class="serif" id="dadosTitle">A diferença que o Delta quer <em>diminuir.</em></h2>
-        <p class="lead">Dentre as 500 maiores notas do ENEM, 467 são de alunos de escolas particulares. Apenas 29 vêm de escolas públicas, a maioria federais.</p>
+        <p class="lead">Quem estuda em escola pública chega ao ENEM em desvantagem. Os números apresentados pela equipe mostram o tamanho da distância.</p>
       </div>
       <div class="dados-grid">
-        <div class="dado reveal"><div class="big serif">93,4%</div><p>das 500 maiores notas são de alunos de escolas particulares.</p>
+        <div class="dado reveal"><p class="frase"><b>467</b> das 500 maiores notas do ENEM são de alunos de escolas particulares. Só <b class="pb">29</b> vêm de escolas públicas.</p>
           <div class="dots" aria-hidden="true"><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="pb"></i><i class="pb"></i><i class="pb"></i></div><small>Cada ponto representa 10 das 500 maiores notas.</small></div>
-        <div class="dado reveal"><div class="big serif">92,61 <em>pontos</em></div><p>separam a média das escolas privadas (598,24) da média das públicas (505,63).</p>
+        <div class="dado reveal"><p class="frase">A média das escolas públicas fica <b class="pb">92,61 pontos</b> abaixo da média das privadas.</p>
           <div class="bars2"><div><span>Privada</span><i style="--v:598.24"></i><b>598,24</b></div><div><span>Pública</span><i style="--v:505.63" class="pb"></i><b>505,63</b></div></div></div>
       </div>
       <div class="tabela reveal">
@@ -676,13 +690,13 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         <h2 class="serif" id="appTitle">Estudar com um parceiro é <em>outra coisa.</em></h2>
         <p class="lead">O Delta é o micro astronauta que acompanha a sua trilha: comemora cada acerto, explica cada erro e lembra você de voltar amanhã.</p>
         <div class="feats">
-          <div class="feat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 13h6l-1 8 8-10h-6l1-8Z"/></svg><h3>Trilha em forma de jogo</h3><p>Lições de 8 questões com vidas, combos e estrelas. Cada acerto rende XP e Deltas.</p></div>
-          <div class="feat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg><h3>Origem sempre clara</h3><p>Toda questão mostra de onde veio.</p><div class="origin"><span class="of">Oficial ENEM</span><span class="pl">Plataforma</span></div></div>
-          <div class="feat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><h3>Seu astronauta, seu estilo</h3><p>Troque Deltas por capacetes, trajes e fundos. Suba de nível para liberar itens raros.</p></div>
-          <div class="feat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 2v5h-5M6 22v-5h5"/></svg><h3>Revisão no tempo certo</h3><p>Revisão espaçada, caderno de erros e simulados cronometrados como no dia da prova.</p></div>
+          <div class="feat f-trilha"><div class="mini" data-mini="trilha" aria-hidden="true"></div><h3>Trilha em forma de jogo</h3><p>Lições de 8 questões com vidas, combos e estrelas. Cada acerto rende XP e Deltas.</p></div>
+          <div class="feat f-origem"><div class="mini" aria-hidden="true"><div class="origin"><span class="of">Oficial ENEM</span><span class="pl">Plataforma</span></div><small>ENEM 2023, questão 144</small></div><h3>Origem sempre clara</h3><p>Toda questão mostra se é prova real do INEP ou criada pela equipe.</p></div>
+          <div class="feat f-loja"><div class="mini" data-mini="loja" aria-hidden="true"></div><h3>Seu astronauta, seu estilo</h3><p>Troque Deltas por capacetes, trajes e fundos. Suba de nível para liberar itens raros.</p></div>
+          <div class="feat f-rev"><div class="mini" data-mini="semana" aria-hidden="true"></div><h3>Revisão e cronograma</h3><p>O Delta traz cada assunto de volta no dia certo e monta sua semana de estudo.</p></div>
         </div>
         <div class="ctas" style="justify-content:flex-start;margin-top:2rem">
-          <a class="btn-glass liquid-glass-strong" href="app/">Criar meu astronauta
+          <a class="btn-glass" href="app/">Criar meu astronauta
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
           </a>
           <button class="btn-install" type="button" data-install><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Instalar no celular</button>
@@ -709,7 +723,7 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         </div>
         <div class="delta-stage reveal">
           <canvas id="delta3d" role="img" aria-label="Tetraedro 3D interativo: cada face representa um eixo da Matemática do ENEM"></canvas>
-          <p class="hint">Arraste para girar</p>
+          <p class="hint">Arraste o Δ para girar</p>
         </div>
       </div>
       <div class="demo reveal" id="demo" aria-live="polite"></div>
@@ -719,22 +733,19 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <div class="wrap">
       <div class="reveal">
         <h2 class="serif blur-text">Ouvir primeiro, construir depois, medir sempre.</h2>
-        <div class="carater"><span><b>Caráter</b>Qualitativo e exploratório</span><span><b>Abordagem</b>Pesquisa-ação</span><span><b>Território</b>CEMEP, Paulínia (SP)</span></div>
+        <div class="carater"><span><b>Caráter:</b> qualitativo e exploratório</span><span><b>Abordagem:</b> pesquisa-ação</span><span><b>Território:</b> CEMEP, Paulínia (SP)</span></div>
         <p class="lead" style="margin-top:1.4rem;max-width:62ch">Estudantes de escola pública têm dificuldade em exatas e acesso limitado a materiais de qualidade. Como a maioria usa celular ou computador todos os dias, o projeto intervém com um guia de estudos digital: cronograma personalizável e revisão espaçada adaptada a cada aluno, testado diretamente com os estudantes.</p>
       </div>
       <div class="steps">
         <div class="step reveal">
-          <span class="n">/01</span>
           <h3>Diagnóstico</h3>
           <p>Questionários e conversas com os alunos do CEMEP mapeiam as lacunas reais em Matemática e o acesso à tecnologia. Nada é construído no achismo.</p>
         </div>
         <div class="step reveal">
-          <span class="n">/02</span>
           <h3>Construção</h3>
           <p>Trilhas por eixo, questões oficiais do ENEM e questões autorais da plataforma, gamificação e revisão espaçada que se adapta aos seus erros.</p>
         </div>
         <div class="step reveal">
-          <span class="n">/03</span>
           <h3>Testes e ajustes</h3>
           <p>O protótipo é aplicado no CEMEP, os alunos avaliam dentro da própria plataforma e cada ciclo de feedback vira melhoria.</p>
         </div>
@@ -752,12 +763,12 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
       <div class="reveal"><h2 class="serif" id="cronoTitle">Cronograma do <em>projeto.</em></h2>
         <p class="lead">Da primeira conversa no CEMEP até a versão final, em seis etapas.</p></div>
       <ol class="fases">
-        <li class="reveal" style="--h:215"><span class="fn">1</span><h3>Diagnóstico inicial</h3><p>Levantamento das dificuldades dos alunos, do acesso à tecnologia e do uso de ferramentas digitais, por meio de questionários e conversas.</p></li>
-        <li class="reveal" style="--h:140"><span class="fn">2</span><h3>Planejamento do site</h3><p>Definição da estrutura do site, conteúdos, funcionalidades, recursos e estratégias de participação dos estudantes.</p></li>
-        <li class="reveal" style="--h:30"><span class="fn">3</span><h3>Desenvolvimento do protótipo</h3><p>Criação do protótipo do site com conteúdos de exatas, exercícios, explicações e ferramentas interativas.</p></li>
-        <li class="reveal" style="--h:265"><span class="fn">4</span><h3>Testes com os estudantes</h3><p>Aplicação do protótipo no CEMEP Osmar Passarelli Silveira para testes com os estudantes.</p></li>
-        <li class="reveal" style="--h:335"><span class="fn">5</span><h3>Ajustes com base no feedback</h3><p>Coleta de feedback dos alunos para melhorar conteúdo, layout e funcionalidades.</p></li>
-        <li class="reveal" style="--h:185"><span class="fn">6</span><h3>Versão final do site</h3><p>Implementação da versão final e disponibilização para uso contínuo pelos estudantes.</p></li>
+        <li class="reveal" style="--h:215"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span><h3>Diagnóstico inicial</h3><p>Levantamento das dificuldades dos alunos, do acesso à tecnologia e do uso de ferramentas digitais, por meio de questionários e conversas.</p></li>
+        <li class="reveal" style="--h:140"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M7 9h6M7 12h10M9 21h6M12 17v4"/></svg></span><h3>Planejamento do site</h3><p>Definição da estrutura do site, conteúdos, funcionalidades, recursos e estratégias de participação dos estudantes.</p></li>
+        <li class="reveal" style="--h:30"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="m9 9-2 2 2 2M15 9l2 2-2 2M2 20h20"/></svg></span><h3>Desenvolvimento do protótipo</h3><p>Criação do protótipo do site com conteúdos de exatas, exercícios, explicações e ferramentas interativas.</p></li>
+        <li class="reveal" style="--h:265"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4 4 0 0 1 7 0"/></svg></span><h3>Testes com os estudantes</h3><p>Aplicação do protótipo no CEMEP Osmar Passarelli Silveira para testes com os estudantes.</p></li>
+        <li class="reveal" style="--h:335"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg></span><h3>Ajustes com base no feedback</h3><p>Coleta de feedback dos alunos para melhorar conteúdo, layout e funcionalidades.</p></li>
+        <li class="reveal" style="--h:185"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8h18"/><path d="m9 14 2 2 4-4"/></svg></span><h3>Versão final do site</h3><p>Implementação da versão final e disponibilização para uso contínuo pelos estudantes.</p></li>
       </ol>
       <p class="objetivo reveal"><b>Objetivo:</b> oferecer um site acessível, interativo e de qualidade para apoiar os estudantes de escolas públicas na preparação para o ENEM, com foco na melhoria do desempenho em exatas.</p>
     </div>
@@ -782,8 +793,8 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
         <h2 class="serif blur-text">Dez estudantes, uma travessia.</h2>
       </div>
       <div class="names reveal">
-        <span class="lead-role"><small>Líder</small>Matheus Pires Canada</span>
-        <span class="lead-role"><small>Vice-líder</small>Beatriz Bassi</span>
+        <span class="lead-role">Matheus Pires Canada <small>líder</small></span>
+        <span class="lead-role">Beatriz Bassi <small>vice-líder</small></span>
         <span>Paulo Henrique de Oliveira</span>
         <span>Evelyn Guimarães dos Reis</span>
         <span>Murilo Polycarpo de Abreu dos Santos</span>
@@ -804,7 +815,7 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
     <p class="agradece">Agradecemos ao CEMEP, aos estudantes e à USF Sagrado Coração de Jesus pela parceria, pelo território e pelo diálogo que tornaram este projeto possível.</p>
     <p>É grátis, funciona no celular e leva um minuto para começar. Crie seu astronauta e faça a primeira lição hoje. Quer levar o Projeto Delta para a sua escola? Fale com a gente.</p>
     <div class="ctas">
-      <a class="btn-glass liquid-glass-strong" href="app/">Começar grátis
+      <a class="btn-glass" href="app/">Começar grátis
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
       </a>
       <button class="btn-install" type="button" data-install><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Instalar no celular</button>
@@ -816,8 +827,8 @@ nav .logo svg{height:30px;width:auto;display:block;color:#fff}
   </div>
   <div class="meta">
     <span class="serif">Projeto Delta</span>
-    <span>Universidade São Francisco · Campinas · 2026.2</span>
-    <span>ODS 4: Educação de Qualidade · ODS 10: Redução das Desigualdades</span>
+    <span>Universidade São Francisco, Campinas. Semestre 2026.2</span>
+    <span>ODS 4: Educação de Qualidade. ODS 10: Redução das Desigualdades</span>
   </div>
 </section>
 

@@ -46,3 +46,19 @@ if (stage) {
     stage.addEventListener("pointerleave", () => { dm.style.transform = ""; });
   }
 }
+
+// mini cenas reais da plataforma nos cartões do app
+{
+  const tri = document.querySelector('[data-mini="trilha"]');
+  if (tri) {
+    const node = (bg, sh, icon) => `<span class="nd" style="background:${bg};--s:${sh}"><svg viewBox="0 0 24 24">${icon}</svg></span>`;
+    const ok = '<path d="m5 12 5 5 9-10"/>', star = '<path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.3 7.2 18.9l.9-5.4L4.2 9.7l5.4-.8L12 4Z"/>', lock = '<rect x="6" y="11" width="12" height="9" rx="2"/><path d="M8.5 11V8.5a3.5 3.5 0 0 1 7 0V11"/>';
+    tri.innerHTML = node("linear-gradient(140deg,#8b5cf6,#d946ef)", "#5b21b6", ok) + '<span class="ln"></span>' + node("linear-gradient(140deg,#8b5cf6,#d946ef)", "#5b21b6", ok)
+      + '<span class="ln"></span>' + node("linear-gradient(140deg,#00f0ff,#2979ff)", "#1e40af", star) + '<span class="ln"></span>' + node("#2a2840", "#15141f", lock);
+  }
+  const loja = document.querySelector('[data-mini="loja"]');
+  if (loja) loja.innerHTML = [["espaco", {}], ["lua", { cabeca: "coroa-delta" }], ["cidade-neon", { cabeca: "antena", corpo: "moletom-roxo", cor: "rosa" }]]
+    .map(([f, o]) => `<span class="av">${fundoSVG(f)}<span class="dm">${deltaSVG({ cor: "teal", ...o, expr: "feliz" })}</span></span>`).join("");
+  const sem = document.querySelector('[data-mini="semana"]');
+  if (sem) sem.innerHTML = `<div class="wk">${["S", "T", "Q", "Q", "S", "S", "D"].map((d, i) => `<span>${d}<i class="${[0, 2, 4].includes(i) ? "on" : i === 3 ? "rv" : ""}"></i></span>`).join("")}</div>`;
+}

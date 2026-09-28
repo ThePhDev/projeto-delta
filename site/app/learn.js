@@ -118,7 +118,7 @@ export function viewInicio() {
     const allDone = u.licoes.every(l => state.lessons[l.id]?.estrelas > 0);
     const chestX = [0, -58, 34, 62][(idx++) % 4];
     return `<section aria-label="Unidade ${ui + 1}">
-      <div class="unit-head" style="--h:${s.hue + ui * 18}"><div><div class="k">Unidade ${ui + 1}</div><h2>${esc(u.titulo)}</h2></div>
+      <div class="unit-head" style="--h:${s.hue + ui * 18}"><div><h2>${esc(u.titulo)}</h2><div class="k">Unidade ${ui + 1} de ${s.unidades.length}</div></div>
         <button class="guia" data-g="${ui}">${ic("book")}Guia</button></div>
       <div class="path">${nodes}
         <div class="node chest ${allDone ? "" : "lock"}" style="--x:${chestX}px;--d:${idx * 0.06}s">
@@ -226,7 +226,7 @@ export function viewLicao(id) {
   const tecs = ["exemplo", plano.recall && "recall", plano.inter && "inter", plano.revisao && "revisao", "correcao", "confianca", "pomodoro"].filter(Boolean);
   const w = h(`<div class="main" style="padding-top:0">
     <div class="intro-hero">
-      ${syms.slice(0, 6).map((sy, i) => `<span class="floaty" style="left:${[6, 80, 18, 70, 40, 90][i]}%;top:${[18, 22, 62, 58, 10, 78][i]}%;animation-delay:${i * .7}s">${sy}</span>`).join("")}
+      ${syms.slice(0, 4).map((sy, i) => `<span class="floaty" style="left:${[4, 86, 6, 88][i]}%;top:${[16, 20, 44, 48][i]}%;animation-delay:${i * .7}s">${sy}</span>`).join("")}
       <div class="bar"><a class="x" href="#/inicio" aria-label="Fechar">${ic("x")}</a><span>${esc(L.s.nome)} · Unidade ${L.uIdx + 1}</span><span style="width:44px"></span></div>
       <div class="dm dm-live popin" id="m">${deltaSVG({ ...av(), expr: "pensando" })}</div>
       <h1>${esc(L.l.titulo)}</h1>
@@ -698,7 +698,7 @@ export async function viewSimulados() {
     <h2 class="sec">Seus últimos simulados</h2><div id="hist"><div class="spin"></div></div>`);
   sb.from("simulation_attempts").select("*").order("created_at", { ascending: false }).limit(10).then(({ data }) => {
     v.querySelector("#hist").innerHTML = (data || []).length ? data.map(s => { const p = Math.round(s.acertos / s.total * 100);
-      return `<div class="hist">${ic("calendar")}<span>${new Date(s.created_at).toLocaleDateString("pt-BR")} · ${s.total} questões · ${fmtT(s.tempo_seg || 0)}</span><span class="p ${p >= 70 ? "good" : p >= 45 ? "mid" : "low"}">${s.acertos}/${s.total}</span></div>`; }).join("")
+      return `<div class="hist">${ic("calendar")}<span>${new Date(s.created_at).toLocaleDateString("pt-BR")}: ${s.total} questões em ${fmtT(s.tempo_seg || 0)}</span><span class="p ${p >= 70 ? "good" : p >= 45 ? "mid" : "low"}">${s.acertos}/${s.total}</span></div>`; }).join("")
       : `<div class="empty">Nenhum simulado ainda. O primeiro vale conquista.</div>`;
   });
   v.querySelector("#go").onclick = async e => {
@@ -774,7 +774,7 @@ function runSimulado(qs, perQ) {
     const porT = {}; detalhes.forEach(d => { const k = d.topico || "Outros"; porT[k] = porT[k] || [0, 0]; porT[k][1]++; if (d.ok) porT[k][0]++; });
     const v = shell("praticar", `<div class="done" style="min-height:auto;padding-top:1rem">
       <div class="dm dm-live popin">${deltaSVG({ ...av(), expr: pct >= 60 ? "comemorando" : "feliz" })}</div>
-      <h1>${acertos} de ${qs.length}</h1><p class="sub">${pct}% de acerto em ${fmtT(tempo)} · +${Math.max(0, state.stats.xp - before.xp)} XP · +${Math.max(0, state.stats.deltas - before.deltas)} Δ</p></div>
+      <h1>${acertos} de ${qs.length}</h1><p class="sub">${pct}% de acerto em ${fmtT(tempo)}.<br>Você ganhou ${Math.max(0, state.stats.xp - before.xp)} XP e ${Math.max(0, state.stats.deltas - before.deltas)} Δ.</p></div>
       <h2 class="sec">Por assunto</h2><div class="card pad">${Object.entries(porT).map(([t, [a, n]]) => { const p = Math.round(a / n * 100);
         return `<div class="weak"><span class="n">${esc(t)}</span><span class="t"><i style="width:${p}%;background:${p >= 70 ? "var(--green)" : p >= 45 ? "var(--gold)" : "var(--red)"}"></i></span><span class="p">${a}/${n}</span></div>`; }).join("")}</div>
       <h2 class="sec">Gabarito</h2><div class="sheet-cells">${detalhes.map((d, k) => `<button class="${d.ok ? "ans" : ""}" title="Sua: ${d.resp || "-"} · Gabarito: ${d.gab}" style="${d.ok ? "" : "border-color:var(--red);color:var(--red)"}">${k + 1}</button>`).join("")}</div>
