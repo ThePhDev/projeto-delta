@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>springs.js demo: liquid tabs, one-shape button, rubber-band slider</title>
+<style>
+  :root { --ink: #111; --paper: #EEECE8; --card: #fff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; gap: 48px; background: var(--paper);
+         font: 500 15px/1.2 "Geist", ui-sans-serif, system-ui, sans-serif; color: var(--ink); padding: 48px 20px; }
+  .tabs { position: relative; display: flex; background: var(--card); border-radius: 999px; padding: 6px; }
+  .tabs button { position: relative; z-index: 1; border: 0; background: none; font: inherit; padding: 12px 22px; cursor: pointer; color: #666; }
+  .tabs button[aria-selected="true"] { color: #fff; }
+  .pill { position: absolute; top: 6px; bottom: 6px; left: 0; border-radius: 999px; background: var(--ink); }
+  .morph { height: 52px; border: 0; border-radius: 26px; background: var(--ink); color: #fff; font: inherit; cursor: pointer;
+           display: grid; place-items: center; overflow: hidden; }
+  .morph span { grid-area: 1 / 1; white-space: nowrap; }
+  .track { position: relative; width: min(360px, 80vw); height: 44px; background: var(--card); border-radius: 22px; touch-action: none; cursor: grab; }
+  .fill { position: absolute; inset: 0 auto 0 0; background: var(--ink); border-radius: 22px; }
+  @media (prefers-reduced-motion: reduce) { :root { --rm: 1; } }
+</style>
+</head>
+<body>
+  <div class="tabs" role="tablist">
+    <div class="pill" aria-hidden="true"></div>
+    <button role="tab" aria-selected="true">Overview</button>
+    <button role="tab" aria-selected="false">Activity</button>
+    <button role="tab" aria-selected="false">Settings</button>
+  </div>
+  <button class="morph" aria-live="polite"><span class="a">Save changes</span><span class="b"></span></button>
+  <div class="track" role="slider" aria-label="Volume" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" tabindex="0"><div class="fill"></div></div>
+
+<script type="module">
+import { liquidEdges, retarget, rubberBand, dragThenRelease, swap } from "./springs.js";
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const now = () => performance.now() / 1000;
+
+// Liquid tabs: two edges, two springs.
+const tabs = [...document.querySelectorAll('[role="tab"]')], pill = document.querySelector(".pill");
+const edges = (b) => [b.offsetLeft, b.offsetLeft + b.offsetWidth];
+let [L, R] = edges(tabs[0]), anim = null;
+tabs.forEach((b) => b.addEventListener("click", () => {
+  tabs.forEach((x) => x.setAttribute("aria-selected", x === b));
+  const [toL, toR] = edges(b);
+  anim = { t0: now(), fromL: L, fromR: R, toL, toR };
+}));
+
+// One shape: width morphs with a spring, label swaps with blur.
+const btn = document.querySelector(".morph"), [la, lb] = btn.querySelectorAll("span");
+let width = retarget(180, []), swapAt = null;
+btn.addEventListener("click", () => {
+  const t = now();
+  lb.textContent = "Saved ✓";
+  width = retarget(180, [{ t, to: 120, duration: 0.42, bounce: 0.15 }]);
+  swapAt = t;
+});
+
+// Slider: 1:1 drag, rubber-band past the ends, velocity-carrying release.
+const track = document.querySelector(".track"), fill = document.querySelector(".fill");
+let value = 0.4, drag = null, release = null;
+const W = () => track.clientWidth;
+track.addEventListener("pointerdown", (e) => { track.setPointerCapture(e.pointerId); drag = { x0: e.clientX, v0: value, hist: [] }; release = null; });
+track.addEventListener("pointermove", (e) => {
+  if (!drag) return;
+  const raw = drag.v0 + (e.clientX - drag.x0) / W();
+  value = rubberBand(raw, 0, 1, 0.5);
+  drag.hist.push([now(), value]); drag.hist = drag.hist.slice(-5);
+});
+track.addEventListener("pointerup", () => {
+  if (!drag) return;
+  const h = drag.hist, v = h.length > 1 ? (h.at(-1)[1] - h[0][1]) / (h.at(-1)[0] - h[0][0]) : 0;
+  const to = Math.min(Math.max(value, 0), 1);
+  release = { tRelease: now(), releaseValue: value, releaseVelocity: v, to, heldValue: () => value };
+  drag = null;
+});
+
+function frame() {
+  const t = now();
+  if (anim) { const e = reduce ? { left: anim.toL, right: anim.toR } : liquidEdges(t, anim); L = e.left; R = e.right; }
+  pill.style.transform = `translateX(${L}px)`; pill.style.width = `${R - L}px`;
+  btn.style.width = `${reduce ? (swapAt ? 120 : 180) : width(t)}px`;
+  if (swapAt) {
+    const s = swap(t, { t0: swapAt });
+    la.style.cssText = `opacity:${s.old.opacity};filter:blur(${s.old.blur}px);transform:scale(${s.old.scale})`;
+    lb.style.cssText = `opacity:${s.next.opacity};filter:blur(${s.next.blur}px);transform:scale(${s.next.scale})`;
+  } else lb.style.opacity = 0;
+  const shown = release && !drag ? dragThenRelease(t, release) : value;
+  if (release && t - release.tRelease > 1) { value = release.to; release = null; }
+  fill.style.width = `${Math.max(shown, 0) * 100}%`;
+  track.setAttribute("aria-valuenow", Math.round(Math.min(Math.max(shown, 0), 1) * 100));
+  requestAnimationFrame(frame);
+}
+frame();
+</script>
+</body>
+</html>

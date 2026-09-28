@@ -1,0 +1,223 @@
+# React Bits catalog
+
+Source (all variants): C:\\Users\\amigi\\ClaudeTelegram\\sites\\_libs\\react-bits\\src\\ts-default\\<Category>\\<Name>\\ (CSS) and src\\ts-tailwind\\... (Tailwind).
+React install: npx shadcn@latest add @react-bits/<Name>-TS-TW  (or -TS-CSS). Vanilla/Vite sites: read the source and port it (most are canvas/WebGL/GSAP/CSS; keep the math, drop React).
+Live demos: https://reactbits.dev
+
+## Animations (39)
+- **AnimatedContent**: Wrapper that animates any children on scroll or mount with configurable direction, distance, duration, easing and disappear options.
+- **Antigravity**: 3D antigravity particle field that repels from the cursor with smooth motion.
+- **BlobCursor**: Organic blob cursor that smoothly follows the pointer with inertia and elastic morphing.
+- **ClickSpark**: Creates particle spark bursts at click position.
+- **Crosshair**: Custom crosshair cursor with tracking, and link hover effects.
+- **Cubes**: 3D rotating cube cluster. Supports auto-rotation or hover interaction.
+- **CursorGrid**: Canvas grid whose cells light up around the cursor with configurable radius, falloff and click pulses.
+- **DitherVeil**: A photo printed as a 1-bit dither that the cursor burns through to full colour, leaving a trail that knits back cell by cell.
+- **ElasticMesh**: Spring-mesh surface that stretches under the pointer and settles back with damped physics.
+- **ElectricBorder**: Jittery electric energy border with animated arcs, glow and adjustable intensity.
+- **FadeContent**: Simple directional fade / slide entrance / exit wrapper with threshold-based activation.
+- **GhostCursor**: Semi-transparent ghost cursor that smoothly follows the real cursor with a trailing effect.
+- **GlareHover**: Adds a realistic moving glare highlight on hover over any element.
+- **GlowCursor**: Shader-powered light trail that smoothly follows the pointer with customizable glow, color, taper and pulse.
+- **GradualBlur**: Progressively un-blurs content based on scroll or trigger creating a cinematic reveal.
+- **HalftoneReveal**: Print-style halftone dot matrix that resolves into sharp content around the cursor.
+- **ImageTrail**: Cursor-based image trail with several built-in variants.
+- **LaserFlow**: Dynamic laser light that flows onto a surface, customizable effect.
+- **LogoLoop**: Continuously looping marquee of brand or tech logos with seamless repeat and hover pause.
+- **MagicRings**: Interactive magic rings effect with customizable parameters.
+- **Magnet**: Elements magnetically ease toward the cursor then settle back with spring physics.
+- **MagnetLines**: Animated field lines bend toward the cursor.
+- **MetaBalls**: Liquid metaball blobs that merge and separate with smooth implicit surface animation.
+- **MetallicPaint**: Liquid metallic paint shader which can be applied to SVG elements.
+- **Noise**: Animated film grain / noise overlay adding subtle texture and motion.
+- **OrbitImages**: SVG Path customizable orbiting images effect
+- **PixelSwap**: Pixel fragments assemble into a full cover, swap arbitrary content, then dissolve away with reversible colors and triggers.
+- **PixelTrail**: Pixelated cursor trail emitting fading squares with retro digital feel.
+- **PixelTransition**: Pixel dissolve transition for content reveal on hover.
+- **Ribbons**: Flowing responsive ribbons/cursor trail driven by physics and pointer motion.
+- **RippleDistortion**: Pointer-driven water displacement that warps content and leaves a decaying wake.
+- **ScrollExpand**: A rounded media frame that grows to full bleed as it scrolls through the viewport.
+- **ShapeBlur**: Morphing blurred geometric shape. The effect occurs on hover.
+- **SplashCursor**: Liquid splash burst at cursor with curling ripples and waves.
+- **StarBorder**: Animated star / sparkle border orbiting content with twinkle pulses.
+- **StickerPeel**: Sticker corner lift + peel interaction using 3D transform and shadow depth.
+- **Strands**: Glowing ribbon-like strands that ripple and weave across a transparent canvas.
+- **SwarmCursor**: Flocking particle swarm that chases the pointer, jostles for space and drifts apart at rest.
+- **TargetCursor**: A cursor follow animation with 4 corners that lock onto targets.
+
+## TextAnimations (33)
+- **ASCIIText**: Renders text with an animated ASCII background for a retro feel.
+- **BlurText**: Text starts blurred then crisply resolves for a soft-focus reveal effect.
+- **CircularText**: Layouts characters around a circle with optional rotation animation.
+- **CountUp**: Animated number counter supporting formatting and decimals.
+- **CurvedLoop**: Flowing looping text path along a customizable curve with drag interaction.
+- **DecryptedText**: Hacker-style decryption cycling random glyphs until resolving to real text.
+- **DepthText**: Layered extruded type with parallax that shifts against the pointer.
+- **EchoText**: Ghosted copies trail behind the text and settle into a single word.
+- **FallingText**: Characters fall with gravity + bounce creating a playful entrance.
+- **FoldText**: Lines unfold into place like creased paper opening flat.
+- **FuzzyText**: Vibrating fuzzy text with controllable hover intensity.
+- **GlitchText**: RGB split and distortion glitch effect with jitter effects.
+- **GradientText**: Animated gradient sweep across live text with speed and color control.
+- **MaskedHeading**: A large headline with a drifting colour mesh or image showing through the glyphs, revealed word by word.
+- **ParticleText**: Text assembles from drifting particles that scatter and reform on demand.
+- **RotatingText**: Cycles through multiple phrases with 3D rotate / flip transitions.
+- **ScrambledText**: Detects cursor position and applies a distortion effect to text.
+- **ScrollFloat**: Text gently floats / parallax shifts on scroll.
+- **ScrollReveal**: Text gently unblurs and reveals on scroll.
+- **ScrollVelocity**: Text marquee animatio - speed and distortion scale with user's scroll velocity.
+- **ShinyText**: Metallic sheen sweeps across text producing a reflective highlight.
+- **Shuffle**: Animated text reveal where characters shuffle before settling.
+- **SplitFlapText**: Mechanical split-flap departure board that clacks through to each new phrase.
+- **SplitText**: Splits text into characters / words for staggered entrance animation.
+- **StrokeText**: Outlined letterforms draw themselves on, then flood with fill.
+- **TechText**: A wordmark whose letters turn into dashed vector paths under the cursor. Grab any letter to drag it off the baseline and it springs back home.
+- **TextCursor**: Make any text element follow your cursor, leaving a trail of copies behind it.
+- **TextLoop**: A seamless text marquee that flows along curved SVG paths.
+- **TextPressure**: Characters scale / warp interactively based on pointer pressure zone.
+- **TextType**: Typewriter effect with blinking cursor and adjustable typing cadence.
+- **TrueFocus**: Applies dynamic blur / clarity based over a series of words in order.
+- **VariableProximity**: Letter styling changes continuously with pointer distance mapping.
+- **WarpText**: WebGL warp that bends and refracts the text around the pointer.
+
+## Components (45)
+- **AccordionGallery**: Panels expand on hover or focus, revealing parallax imagery and captions.
+- **AnimatedList**: List items enter with staggered motion variants for polished reveals.
+- **BorderGlow**: Glowing mesh-gradient border that follows cursor direction and intensifies near edges.
+- **BounceCards**: Cards bounce that bounce in on mount.
+- **BubbleMenu**: Floating circular expanding menu with staggered item reveal.
+- **CardNav**: Expandable navigation bar with card panels revealing nested links.
+- **CardSwap**: Cards animate position swapping with smooth layout transitions.
+- **Carousel**: Responsive carousel with touch gestures, looping and transitions.
+- **ChromaGrid**: A responsive grid of grayscale tiles. Hovering the grid reaveals their colors.
+- **CircularGallery**: Circular orbit gallery rotating images.
+- **Counter**: Flexible animated counter supporting increments + easing.
+- **CurvedInput**: Arc-bent input bar with text, caret and submit button all following the curve.
+- **DecayCard**: Hover parallax effect that disintegrates the content of a card.
+- **DepthCarousel**: Cards recede into depth on a 3D rail, with drag, keyboard and auto-advance.
+- **Dock**: macOS style magnifying dock with proximity scaling of icons.
+- **DomeGallery**: Immersive 3D dome gallery projecting images on a hemispheric surface.
+- **DriftWall**: An endless perspective wall of tiles drifting past, lifting on hover.
+- **ElasticSlider**: Slider handle stretches elastically then snaps with spring physics.
+- **FlowingMenu**: Liquid flowing active indicator glides between menu items.
+- **FluidGlass**: Glassmorphism container with animated liquid distortion refraction.
+- **FlyingPosters**: 3D posters rotate on scroll infinitely.
+- **Folder**: Interactive folder opens to reveal nested content smooth motion.
+- **GlassIcons**: Icon set styled with frosted glass blur.
+- **GlassSurface**: Advanced Apple-style glass surface with real-time distortion + lighting.
+- **GooeyNav**: Navigation indicator morphs with gooey blob transitions between items.
+- **InfiniteMenu**: Horizontally looping menu effect that scrolls endlessly with seamless wrap.
+- **InfiniteSpiral**: An endlessly looping 3D helix of images with customizable motion, depth, spacing and interaction.
+- **Lanyard**: Swinging 3D lanyard / badge card with realistic inertial motion.
+- **LineSidebar**: Static list navigation with a cursor-proximity effect that shifts and highlights nearby items.
+- **MagicBento**: Interactive bento grid tiles expand + animate with various options.
+- **Masonry**: Responsive masonry layout with animated reflow + gaps optimization.
+- **ModelViewer**: Three.js model viewer with orbit controls and lighting presets.
+- **MorphSlider**: WebGL slider that melts between images with a displacement transition.
+- **OptionWheel**: Curved option picker that spins via scroll, drag, or arrow keys, fading and tilting items away from the selection.
+- **PillNav**: Minimal pill nav with sliding active highlight + smooth easing.
+- **PixelCard**: Card content revealed through pixel expansion transition.
+- **ProfileCard**: Animated profile card glare with 3D hover effect.
+- **ReflectiveCard**: Card with dynamic webcam reflection and glare effects that respond to cursor movement.
+- **ScrollStack**: Overlapping card stack reveals on scroll with depth layering.
+- **SpecularButton**: Glass button with a shader-driven specular rim light that sweeps around the edge and follows the cursor.
+- **SpotlightCard**: Dynamic spotlight follows cursor casting gradient illumination.
+- **Stack**: Layered stack with swipe animations, autoplay and smooth transitions.
+- **StaggeredMenu**: Menu with staggered item animations and smooth transitions on open/close.
+- **Stepper**: Animated multi-step progress indicator with active state transitions.
+- **TiltedCard**: 3D perspective tilt card reacting to pointer.
+
+## Backgrounds (57)
+- **AcidSquares**: A crystalline corridor of stacked squares receding into depth.
+- **AeroShards**: A GPU-driven wind sculpture of folded foil shards with crisp detail, content-safe placements, and responsive pointer interactions. _[webgpu, vgpu, particles, procedural]_
+- **Aurora**: Flowing aurora gradient background.
+- **Balatro**: The balatro shader, fully customizalbe and interactive.
+- **Ballpit**: Physics ball pit simulation with bouncing colorful spheres.
+- **Beams**: Crossing animated ribbons with customizable properties.
+- **CRTWarp**: Full-canvas CRT plasma with curved distortion, scanlines, bloom and pointer interaction.
+- **ColorBends**: Vibrant color bends with smooth flowing animation.
+- **DarkVeil**: Subtle dark background with a smooth animation and postprocessing.
+- **Dither**: Retro dithered noise shader background.
+- **DotField**: Interactive dot grid with cursor bulge, glow, sparkle, and wave effects.
+- **DotGrid**: Animated dot grid with cursor interactions.
+- **EvilEye**: Procedural evil eye shader with animated iris, slit pupil, and fiery outer glow.
+- **FaultyTerminal**: Terminal CRT scanline squares effect with flicker + noise.
+- **Ferrofluid**: A churning magnetic fluid traced by glowing contour lines, with a cursor magnet.
+- **FloatingLines**: 3D floating lines that react to cursor movement.
+- **Galaxy**: Parallax realistic starfield with pointer interactions.
+- **GhostFibers**: A deep-blue recursive fiber field with luminous bands, radial twisting and soft atmospheric glow.
+- **GradientBlinds**: Layered gradient blinds with spotlight and noise distortion.
+- **GradientWaves**: Raymarched sine waves rolling toward a soft, hazy horizon.
+- **Grainient**: Grainy gradient swirls with soft wave distortion.
+- **GridDistortion**: Warped grid mesh distorts smoothly reacting to cursor.
+- **GridMotion**: Perspective moving grid lines based on cusror position.
+- **GridScan**: Animated grid room 3D scan effect and cool interactions.
+- **Hyperspeed**: Animated lines continuously moving to simulate hyperspace travel on click hold.
+- **Iridescence**: Slick iridescent shader with shifting waves.
+- **LetterGlitch**: Matrix style letter animation.
+- **LightPillar**: Vertical pillar of light with glow effects.
+- **LightRays**: Volumetric light rays/beams with customizable direction.
+- **LightTunnel**: A radial fibre-optic tunnel with light pulses racing into depth.
+- **Lightfall**: Colorful light streaks raining down a glowing tunnel with a cursor light.
+- **Lightning**: Procedural lightning bolts with branching and glow flicker.
+- **LineWaves**: Animated line wave pattern with colorful warped distortion.
+- **LiquidChrome**: Liquid metallic chrome shader with flowing reflective surface.
+- **LiquidEther**: Interactive liquid shader with flowing distortion and customizable colors.
+- **MoltenMetal**: Swirling caustic plasma filaments with molten, white-hot cores.
+- **Orb**: Floating energy orb with customizable hover effect.
+- **Particles**: Configurable particle system.
+- **PixelBlast**: Exploding pixel particle bursts with optional liquid postprocessing.
+- **PixelSnow**: Falling pixelated snow effect with customizable density and speed.
+- **Plasma**: Organic plasma gradients swirl + morph with smooth turbulence.
+- **PlasmaWave**: Raymarched plasma waves with dual-wave interference and OGL.
+- **Prism**: Rotating prism with configurable intensity, size, and colors.
+- **PrismaticBurst**: Burst of light rays with controllable color, distortion, amount.
+- **Radar**: Radar sweep effect with concentric rings, radial spokes, and a rotating beam.
+- **RippleGrid**: A grid that continuously animates with a ripple effect.
+- **Scanner**: Calm interference bands sweeping across the screen like an oscilloscope.
+- **ShapeGrid**: Animated grid with shape variants (square, hexagon, circle, triangle) + direction customization.
+- **ShapeWaves**: A WebGPU field of triangles, circles and squares that brighten and grow along rolling waves, with an optional text cutout the waves flow around. _[webgpu, vgpu, grid, shapes]_
+- **SideRays**: Animated light rays emanating from the side with customizable colors and speed.
+- **Silk**: Smooth waves background with soft lighting.
+- **SlicedWaves**: A grid of soft glowing bars rippling like a slatted equalizer.
+- **SoftAurora**: Soft aurora borealis shader with 3D Perlin noise and cosine gradient palettes.
+- **Threads**: Animated pattern of lines forming a fabric-like motion.
+- **Topography**: A living contour map with glowing, elevation-tinted lines.
+- **Waves**: Layered lines that form smooth wave patterns with animation.
+- **WebThreads**: Glowing sine threads woven through a luminous convergence point.
+
+## Micro (34)
+- **BellToggle**: Pill toggle that answers a press at three tempos: the bell rings on damped keyframes, the label blur-crossfades, and the pill unfurls to the longer label through a clip-path on a critically damped spring. The pressed state is the receipt. _[toggle, button, bell, notify]_
+- **BranchedMenu**: Collapsible menu whose sections unfold into a trunk with a curved branch to each child, and an accent line that travels down the trunk and around the curve to whatever you pick, while a marker glides to the open section. _[menu, navigation, sidebar, tree]_
+- **CallChip**: Inline tool-call chip whose fill wipes across while a live ms counter ticks, completing with a green wash on success or stopping short and shaking red with a retry glyph on error. _[chip, status, ai, agent]_
+- **CodeSlots**: One-time-code input where a hidden overlay input owns focus, paste and SMS autofill while each slot lands its digit on one spring: the fill swells from the centre, the digit rises and the caret glides; a wrong code drains the slots in a cascade, a right one merges them into a single accent wash. _[input, otp, form, spring]_
+- **CometDial**: Tick-ring dial you flick by angle: the reading launches on a spring and a velocity-driven comet streaks behind the lit head, trailing the direction of travel and vanishing at rest. _[dial, knob, gauge, drag]_
+- **DodgeField**: Wrapper that makes any child flee the pointer inside a bounded field, dodges once per approach, then relents after a few tries and glides home. _[hover, pointer, playful, wrapper]_
+- **FlipCard**: Two-faced card that flips in 3D on a click, a drag or a flick, settling on a spring that carries your release velocity, with an optional cursor tilt, a sheen that follows the pointer and a shadow that narrows as it turns edge on. _[card, flip, 3d, tilt]_
+- **FolderFloat**: Folder that opens on hover or press: the flap tilts toward you, a paper edge rises, and its notes spring out from behind the flap into a floating cloud to pick from, then sink back when the folder closes. _[folder, menu, hover, select]_
+- **FuseButton**: Action button whose done state carries its own undo on a burning fuse: press, the label crossfades to Undo, a hairline burns for the undo window, and Undo or Escape runs it back. _[button, undo, confirm, timer]_
+- **GlideSelect**: Select chip whose menu pops out of its own corner and whose single hover highlight glides between rows, remembering where you left it so re-entry slides from there instead of blinking in. _[select, dropdown, menu, popover]_
+- **HoldButton**: Hold-to-confirm button whose liquid fill rises while pressed, snaps back on an early release and swaps its label through a blur when the hold completes. _[button, confirm, hold, press]_
+- **JellyRadio**: Radio group of labelled chips where the chosen one swells wide-then-tall on two springs and barges its neighbours outward with a travelling stagger, so a selection reads as a force moving through the row. _[radio, select, chips, spring]_
+- **LatticeLoader**: Inline agent-status row: a 3x3 or 4x4 lattice whose cells brighten in a phase-offset wave beside a verb and a live stopwatch, resolving into a check or a cross when the task ends. _[loader, status, ai, agent]_
+- **PaperCrumple**: An image that crumples into a textured 3D sheet while held and follows the grabbed point as you drag. Release it as a crumpled ball, unfold it flat, or leave the paper creased, with customizable folds, paper grain, lighting and shadows. _[paper, crumple, 3d, three]_
+- **PeekRating**: Star rating you can try before you commit: sweeping the row lifts a trailing wave of stars up to the pointer while a tip hops along with the label; a click commits with a pop. _[rating, stars, hover, preview]_
+- **PromptBar**: Chat composer with an @ sources menu, a / commands menu, a model picker, dictation and attachments, whose send tile charges to ink the moment there is something to send and morphs its arrow into a stop square while busy. _[composer, prompt, chat, ai]_
+- **PulseHeart**: Like button that contracts to a dot, flips colour at its smallest frame and pulses back while the count swaps one glyph. _[like, heart, button, reaction]_
+- **RefineFrame**: Reserved-aspect frame that walks any media through queued, generating, refining and complete without layout shift: each stage is one blur, saturate, scale and opacity tween, a soft band sweeps while it works, a chip reports the stage, and an error dims the picture behind a retry pill. _[ai, image, generation, loading]_
+- **RubberSegment**: Segmented control with a rubber thumb: taps stretch it across the gap and squash it onto the target, and you can grab, drag and flick it between slots. _[segmented, tabs, drag, spring]_
+- **ScrubField**: Number chip you drag to scrub: the value follows the hand, pushes past the range on a rubber band, and a click without moving opens it for typing. _[input, number, drag, scrub]_
+- **Shredder**: A list with a paper shredder at the bottom. Drag a row into the slit and the rollers tug it in, pull it through and cut it into strips that curl out underneath, tumble away and fade out. The rest of the list settles down on a spring and the shredded item is handed to you to delete. _[shredder, delete, drag, list]_
+- **SlideCommit**: Slide-to-confirm handle that plants with a spinner while your action runs, unfurls into a done pill on success and springs home with a squash and shake on failure. _[slide, confirm, async, gesture]_
+- **SlingButton**: Send button you pull back like a slingshot: the band stretches, a power arc arms it, and releasing fires the action with the flick's velocity. _[button, send, slingshot, drag]_
+- **SloshGauge**: Tank gauge whose liquid chases the value with mass, tilts with its own speed and splashes against the top when it slams full; optionally a vertical slider. _[gauge, meter, progress, liquid]_
+- **SpringCheck**: Checkbox row where a single spring fills the box, draws the tick, strikes the label and dims the words in one press. _[checkbox, toggle, form, spring]_
+- **SquishSwitch**: Drag-scrubbable switch whose thumb stretches by how fast it moves, flips at the midpoint and squashes against the track end on a flick. _[switch, toggle, spring, drag]_
+- **StatusMark**: A 20px status glyph for agent task lists that morphs in place from a dashed idle ring to a spinning or real-progress arc, then draws a check or a cross, with an optional label strike. _[status, progress, spinner, check]_
+- **SwipeRow**: List row that swipes open to reveal actions, snaps by flick velocity, and deletes on a full swipe that stretches the action colour across the row. _[swipe, list, gesture, delete]_
+- **SwipeToast**: Single toast that rises through its bottom edge, swipes down to dismiss on a flick or a distance, and burns a thin fuse for exactly its remaining time; hover pauses it and an inline mode keeps it inside any container. _[toast, notification, swipe, drag]_
+- **TearTicket**: Ticket whose perforated stub tears off by hand: paper bridges stretch into fibres and snap one by one from the far end, the torn edges are jagged and fit each other, the freed stub dangles and drops, and the body is stamped as used. The artwork tilts in 3D with parallax on hover. _[ticket, tear, perforation, stub]_
+- **ThoughtLine**: Reasoning-trace header: a glyph and a label breathe beside a live clock while steps appear beneath, then the line settles on one beat into "Thought for 4.2s" through a blur crossfade and the trace folds into it. _[ai, agent, status, reasoning]_
+- **VoicePill**: Mic button that swells into a tinted capsule of level-driven equalizer bars and an elapsed clock while held or toggled, then relaxes back into the mic on release; simulated voice by default, real microphone as an opt-in. _[mic, voice, dictation, equalizer]_
+- **WakeSlider**: Range slider drawn as thin bars with no thumb: drag speed raises a wake that trails behind the handle and flattens again at rest. _[slider, range, input, drag]_
+- **WarmTooltip**: Tooltip group with one shared delay: the first label waits and pops from its trigger, then siblings open instantly while the group is warm, with an optional velocity lean. _[tooltip, hover, toolbar, delay]_
