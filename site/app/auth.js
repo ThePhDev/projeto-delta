@@ -7,6 +7,7 @@ import { ic } from "./icons.js";
 import { h, esc, sleep, typeText, react, confetti, coinBurst, reduceMotion } from "./ui.js";
 import { sfx } from "./sfx.js";
 import { csChegada } from "./cutscene.js";
+import { TURNSTILE_SITE_KEY } from "./config.js";
 
 const redirect = p => location.origin + location.pathname + "#" + p;
 
@@ -45,6 +46,48 @@ async function comRetentativa(w, fn, tentativas = 4) {
   }
   return r;
 }
+
+// ---- Captcha (Cloudflare Turnstile) -------------------------------------
+let tsLoad;
+const carregarTurnstile = () => tsLoad || (tsLoad = new Promise((ok, no) => {
+  if (window.turnstile) return ok();
+  const s = document.createElement("script");
+  s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+  s.async = true; s.onload = () => ok(); s.onerror = () => { tsLoad = null; no(new Error("captcha")); };
+  document.head.appendChild(s);
+}));
+const CAPTCHA_HTML = TURNSTILE_SITE_KEY ? '<div class="captcha" aria-label="Verificação anti-robô"></div>' : "";
+// Devolve { token(): Promise<string|undefined>, reset() }. Sem site key, não faz nada.
+function captcha(w) {
+  const box = w.querySelector(".captcha");
+  if (!TURNSTILE_SITE_KEY || !box) return { token: async () => undefined, reset() {} };
+  let id, pend = null, tok = null;
+  const ready = carregarTurnstile().then(() => {
+    id = window.turnstile.render(box, {
+      sitekey: TURNSTILE_SITE_KEY, theme: "dark", language: "pt-br",
+      callback: t => { tok = t; if (pend) { pend(t); pend = null; } },
+      "expired-callback": () => { tok = null; },
+      "error-callback": () => { tok = null; }
+    });
+  }).catch(() => {});
+  return {
+    async token() {
+      await ready;
+      if (tok) return tok;
+      return new Promise((ok, no) => { pend = ok; setTimeout(() => { if (pend) { pend = null; no(new Error("captcha")); } }, 45000); });
+    },
+    reset() { tok = null; try { if (id != null) window.turnstile.reset(id); } catch (e) {} }
+  };
+}
+// Executa fn(captchaToken) com token novo a cada tentativa (o token só vale uma vez).
+async function comCaptcha(w, cap, fn) {
+  return comRetentativa(w, async () => {
+    let t; try { t = await cap.token(); } catch (e) { return { data: null, error: { message: "captcha", code: "captcha_failed", status: 400 } }; }
+    const r = await fn(t); cap.reset(); return r;
+  });
+}
+const captchaFalhou = e => !!e && /captcha/i.test((e.code || "") + " " + (e.message || ""));
+const MSG_CAPTCHA = "Não deu para validar a verificação anti-robô. Aguarde a caixa carregar, marque e tente de novo.";
 function busy(b, on, label) { b.disabled = on; if (label) b.textContent = label; }
 
 export function viewLogin() {
@@ -52,18 +95,20 @@ export function viewLogin() {
     <form id="f" novalidate>
       ${field("email", "E-mail escolar", "mail", "email", "voce@escola.edu.br", "email", 'inputmode="email" required')}
       ${field("senha", "Senha", "lock", "password", "Sua senha", "current-password", "required")}
+      ${CAPTCHA_HTML}
       <button class="btn btn-lime btn-block" id="go" type="submit">Entrar</button>
     </form>
     <p class="auth-alt"><a class="link" href="#/esqueci">Esqueci minha senha</a></p>
     <p class="auth-alt">Primeira vez aqui? <a class="link" href="#/cadastro">Criar conta grátis</a></p>`);
-  const go = w.querySelector("#go");
+  const go = w.querySelector("#go"), cap = captcha(w);
   w.querySelector("#f").onsubmit = async e => {
     e.preventDefault(); sfx.unlock();
     const email = w.querySelector("#email").value.trim(), senha = w.querySelector("#senha").value;
     if (!email || !senha) return msg(w, "err", "Preencha e-mail e senha.");
     busy(go, true, "Entrando...");
-    const { error } = await comRetentativa(w, () => sb.auth.signInWithPassword({ email, password: senha }));
+    const { error } = await comCaptcha(w, cap, t => sb.auth.signInWithPassword({ email, password: senha, options: { captchaToken: t } }));
     busy(go, false, "Entrar");
+    if (captchaFalhou(error)) return msg(w, "err", MSG_CAPTCHA);
     if (limitado(error)) return msg(w, "err", "Muitos acessos ao mesmo tempo. Espere um minutinho e tente de novo.");
     if (error) return msg(w, "err", /not confirmed/i.test(error.message) ? "Seu e-mail ainda não foi confirmado. Abra o link que enviamos para ativar a conta." : "E-mail ou senha incorretos.");
     sfx.correct();
@@ -78,10 +123,11 @@ export function viewCadastro() {
       ${field("email", "E-mail escolar", "mail", "email", "voce@escola.edu.br", "email", 'inputmode="email" required')}
       <p class="field hint" style="margin-top:-.5rem">Aceitamos e-mails escolares: .edu, .edu.br, .escola.br e .aluno.br.</p>
       ${field("senha", "Senha", "lock", "password", "Mínimo de 8 caracteres", "new-password", 'minlength="8" required')}
+      ${CAPTCHA_HTML}
       <button class="btn btn-lime btn-block" id="go" type="submit">Criar conta</button>
     </form>
     <p class="auth-alt">Já tem conta? <a class="link" href="#/login">Entrar</a></p>`);
-  const go = w.querySelector("#go");
+  const go = w.querySelector("#go"), cap = captcha(w);
   w.querySelector("#f").onsubmit = async e => {
     e.preventDefault(); sfx.unlock();
     const v = id => w.querySelector("#" + id).value.trim();
@@ -89,8 +135,9 @@ export function viewCadastro() {
     if (!nome || !email || !senha) return msg(w, "err", "Preencha nome, e-mail e senha.");
     if (senha.length < 8) return msg(w, "err", "A senha precisa de pelo menos 8 caracteres.");
     busy(go, true, "Criando...");
-    const { data, error } = await comRetentativa(w, () => sb.auth.signUp({ email, password: senha, options: { data: { nome, escola }, emailRedirectTo: redirect("/confirmar") } }));
+    const { data, error } = await comCaptcha(w, cap, t => sb.auth.signUp({ email, password: senha, options: { data: { nome, escola }, emailRedirectTo: redirect("/confirmar"), captchaToken: t } }));
     busy(go, false, "Criar conta");
+    if (captchaFalhou(error)) return msg(w, "err", MSG_CAPTCHA);
     if (limitado(error)) return msg(w, "err", "Muitos cadastros ao mesmo tempo. Espere um minutinho e tente de novo; sua conta ainda não foi criada.");
     if (!error && data && data.session) { sfx.correct(); return; } // sem confirmação por e-mail: o listener de auth leva ao onboarding
     if (error) return msg(w, "err", /school|escolar|403|not allowed|invalid/i.test(error.message + (error.status || "")) ?
@@ -118,16 +165,18 @@ export function viewConfirmar() {
 export function viewEsqueci() {
   const w = authShell("Recuperar senha", "Acontece com todo mundo. Vamos resolver.", `
     <form id="f" novalidate>${field("email", "E-mail da conta", "mail", "email", "voce@escola.edu.br", "email", 'inputmode="email"')}
+    ${CAPTCHA_HTML}
     <button class="btn btn-lime btn-block" id="go" type="submit">Enviar link</button></form>
     <p class="auth-alt"><a class="link" href="#/login">Voltar para o login</a></p>`);
-  const go = w.querySelector("#go");
+  const go = w.querySelector("#go"), cap = captcha(w);
   w.querySelector("#f").onsubmit = async e => {
     e.preventDefault();
     const email = w.querySelector("#email").value.trim(); if (!email) return msg(w, "err", "Informe seu e-mail.");
     busy(go, true, "Enviando...");
-    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirect("/redefinir") });
+    const { error } = await comCaptcha(w, cap, t => sb.auth.resetPasswordForEmail(email, { redirectTo: redirect("/redefinir"), captchaToken: t }));
     busy(go, false, "Enviar link");
-    if (error) msg(w, "err", "Não deu para enviar agora. Tente de novo.");
+    if (captchaFalhou(error)) msg(w, "err", MSG_CAPTCHA);
+    else if (error) msg(w, "err", "Não deu para enviar agora. Tente de novo.");
     else msg(w, "ok", "Se esse e-mail tiver conta, o link de redefinição já está a caminho.");
   };
 }

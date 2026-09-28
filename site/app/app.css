@@ -717,3 +717,5 @@ canvas.confetti{position:fixed;inset:0;z-index:250;pointer-events:none}
 /* faixas roláveis: borda que esmaece mostra que há mais conteúdo */
 .pcards,.filters,.eixos{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)}
 .node.cur{margin-top:2.8rem}
+
+.captcha{display:flex;justify-content:center;min-height:65px;margin:0 0 1rem}
