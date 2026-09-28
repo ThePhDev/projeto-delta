@@ -4,6 +4,7 @@
 // ============================================================
 import { SUBJECTS } from "./content.js";
 import { VARIACOES, origemLabel } from "./bank.js";
+import { GEN } from "./gen.js";
 import {
   sb, state, root, navigate, shell, page, LESSON, TOPIC, EIXO, OBJETIVOS, TOPICO_OFICIAL, OFICIAL_EIXO, VAR_BY_ID,
   av, nivelDe, addXP, touchStreak, claimAchievements, saveLesson, updateTopic, logAttempt, logError, refreshStats,
@@ -22,15 +23,29 @@ const fmtT = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 // ============================================================
 // NORMALIZAÇÃO DAS QUESTÕES
 // ============================================================
+const passosDe = e => String(e || "").split(/(?<=[.;:])\s+(?=[A-ZÀ-Ú0-9(])/).filter(Boolean);
 function fromLesson(lessonId, i) {
   const L = LESSON[lessonId], q = L.l.questoes[i];
   const order = shuffle(q.o.map((_, k) => k));
   return { ref: `${lessonId}:${i}`, kind: "plat", label: "Questão da plataforma", topico: L.l.topico, eixo: L.s.id,
-    stmt: `<p>${esc(q.q)}</p>`, opts: order.map(k => esc(q.o[k])), c: order.indexOf(q.c), e: q.e };
+    stmt: `<p>${esc(q.q)}</p>`, opts: order.map(k => esc(q.o[k])), c: order.indexOf(q.c), e: q.e, passos: passosDe(q.e) };
 }
+// questão gerada: números novos a cada vez
+export function fromGen(topico) {
+  const g = GEN[topico]; if (!g) return null;
+  const q = g(), T = TOPIC[topico];
+  return { ref: `gen:${topico}`, kind: "plat", label: "Questão da plataforma", topico, eixo: T?.s.id || null, gen: true,
+    stmt: `<p>${esc(q.q)}</p>`, opts: q.o.map(esc), c: q.c, e: q.e, passos: q.passos };
+}
+// todas as questões possíveis de uma lição (autorais ou geradas)
+export function lessonQs(l, n = 5) {
+  if (l.gen) return Array.from({ length: n }, () => fromGen(l.topico));
+  return shuffle(l.questoes.map((_, i) => fromLesson(l.id, i))).slice(0, n);
+}
+const concluidas = () => Object.keys(state.lessons).filter(id => state.lessons[id]?.estrelas > 0 && LESSON[id]);
 function fromVar(v) {
   return { ref: v.id, kind: "var", label: origemLabel(v), topico: v.topico, eixo: v.eixo,
-    stmt: `<p>${esc(v.q)}</p>`, opts: v.o.map(esc), c: v.c, e: v.e };
+    stmt: `<p>${esc(v.q)}</p>`, opts: v.o.map(esc), c: v.c, e: v.e, passos: passosDe(v.e) };
 }
 function fromOficial(q) {
   const alts = (q.question_alternatives || []).slice().sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0) || a.letter.localeCompare(b.letter));
@@ -81,7 +96,7 @@ export function viewInicio() {
 
   const eixos = `<div class="eixos" role="tablist" aria-label="Eixos da Matemática">${SUBJECTS.map(x => {
     const d = x.unidades.flatMap(u => u.licoes).filter(l => state.lessons[l.id]?.estrelas > 0).length;
-    return `<button role="tab" aria-selected="${x.id === s.id}" class="${x.id === s.id ? "on" : ""}" data-e="${x.id}" style="--h:${x.hue}"><span class="s">${esc(x.simbolo)}</span>${esc(x.nome)}<small class="muted">${d}/6</small></button>`;
+    return `<button role="tab" aria-selected="${x.id === s.id}" class="${x.id === s.id ? "on" : ""}" data-e="${x.id}" style="--h:${x.hue}"><span class="s">${esc(x.simbolo)}</span>${esc(x.nome)}<small class="muted">${d}/${x.unidades.flatMap(u => u.licoes).length}</small></button>`;
   }).join("")}</div>`;
 
   let idx = 0;
@@ -110,7 +125,7 @@ export function viewInicio() {
   }).join("");
 
   const v = shell("inicio", `
-    <div class="ph"><h1>${saud}, ${esc(primeiroNome())}</h1><p>${done === 6 ? "Eixo completo. Que tal outro?" : `${esc(s.nome)} · ${done} de 6 lições`}</p></div>
+    <div class="ph"><h1>${saud}, ${esc(primeiroNome())}</h1><p>${done === flat.length ? "Eixo completo. Que tal outro?" : `${esc(s.nome)} · ${done} de ${flat.length} lições`}</p></div>
     ${eixos}
     <div id="trail">${units}</div>`);
 
@@ -139,7 +154,7 @@ export function viewInicio() {
     } else {
       const L = LESSON[b.dataset.l], st = state.lessons[L.l.id];
       if (node.classList.contains("lock")) html = `<div class="pop lock"><h3>${esc(L.l.titulo)}</h3><p>Conclua a lição anterior para liberar esta.</p><button class="btn" disabled>${ic("lock")} Bloqueada</button></div>`;
-      else html = `<div class="pop"><h3>${esc(L.l.titulo)}</h3><p>Lição ${L.n} de 6${st ? ` · recorde ${st.melhor_pontuacao}%` : ""}</p><a class="btn" href="#/licao/${L.l.id}">${st?.estrelas ? "Praticar de novo" : "Começar"}</a></div>`;
+      else html = `<div class="pop"><h3>${esc(L.l.titulo)}</h3><p>Lição ${L.n} de ${L.s.unidades.flatMap(u => u.licoes).length}${st ? ` · recorde ${st.melhor_pontuacao}%` : ""}</p><a class="btn" href="#/licao/${L.l.id}">${st?.estrelas ? "Praticar de novo" : "Começar"}</a></div>`;
     }
     const pop = h(html); node.appendChild(pop);
     trail.querySelectorAll(".node.open").forEach(n => n.classList.remove("open")); node.classList.add("open");
@@ -191,38 +206,75 @@ export function viewInicio() {
 // ============================================================
 export function viewLicao(id) {
   const L = LESSON[id]; if (!L) return navigate("/inicio");
-  const vars = VARIACOES.filter(x => x.topico === L.l.topico).length;
   const st = state.lessons[id];
+  const plano = planoLicao(id);
   const syms = ["%", "Δ", "π", "√", "x²", "∑", "÷", "σ"];
+  const TEC = {
+    exemplo: ["book", "Exemplo guiado", "Você vê um problema resolvido passo a passo antes de tentar."],
+    recall: ["cycle", "Recordação ativa", "Começa puxando da memória algo que você já estudou."],
+    inter: ["grid", "Intercalação", "Uma questão de outro eixo no meio, como na prova."],
+    revisao: ["calendar", "Revisão espaçada", "Traz um assunto que está no ponto certo de revisar."],
+    correcao: ["pencil", "Correção guiada", "Errou? Refazemos juntos e a questão volta com números novos."],
+    confianca: ["target", "Confiança", "Você diz se tinha certeza. Acerto no chute volta para revisão."],
+    pomodoro: ["timer", "Pausa na hora certa", "Depois de 25 minutos de foco, o Delta sugere 5 de pausa."]
+  };
+  const tecs = ["exemplo", plano.recall && "recall", plano.inter && "inter", plano.revisao && "revisao", "correcao", "confianca", "pomodoro"].filter(Boolean);
   const w = h(`<div class="main" style="padding-top:0">
     <div class="intro-hero">
       ${syms.slice(0, 6).map((sy, i) => `<span class="floaty" style="left:${[6, 80, 18, 70, 40, 90][i]}%;top:${[18, 22, 62, 58, 10, 78][i]}%;animation-delay:${i * .7}s">${sy}</span>`).join("")}
       <div class="bar"><a class="x" href="#/inicio" aria-label="Fechar">${ic("x")}</a><span>${esc(L.s.nome)} · Unidade ${L.uIdx + 1}</span><span style="width:44px"></span></div>
       <div class="dm dm-live popin" id="m">${deltaSVG({ ...av(), expr: "pensando" })}</div>
       <h1>${esc(L.l.titulo)}</h1>
-      <p>${st ? `Seu recorde aqui é ${st.melhor_pontuacao}%. Bora bater?` : esc(L.s.desc)}</p>
+      <p>${st ? `Seu recorde aqui é ${st.melhor_pontuacao}%. Bora bater?` : esc(L.u.titulo)}</p>
     </div>
     <div class="meta-chips">
-      <div>${ic("question")}${5 + Math.min(2, vars) + 1} questões</div>
-      <div>${ic("clock")}~${Math.round((5 + Math.min(2, vars) + 1) * 1.2)} min</div>
+      <div>${ic("question")}${plano.total} questões</div>
+      <div>${ic("clock")}~${Math.round(plano.total * 1.3)} min</div>
       <div>${ic("bolt")}até 150 XP</div>
       <div>${ic("heart")}5 vidas</div>
     </div>
     <div class="card learn"><h3>${ic("target")}Nesta lição você vai</h3><ul>${(OBJETIVOS[id] || []).map(o => `<li>${ic("check")}${esc(o)}</li>`).join("")}</ul></div>
+    <div class="card learn" style="margin-top:.8rem"><h3>${ic("bulb")}Como esta lição te ensina</h3>
+      <div class="tecs">${tecs.map(k => `<div class="tec"><span class="ti">${ic(TEC[k][0])}</span><div><b>${TEC[k][1]}</b><small>${TEC[k][2]}</small></div></div>`).join("")}</div></div>
     <div class="card learn" style="margin-top:.8rem"><h3>${ic("shield")}De onde vêm as questões</h3>
-      <p class="muted" style="font-weight:700">Cada questão mostra a origem no topo: <span class="tag oficial">${ic("star")}Oficial ENEM</span> é prova real do INEP. <span class="tag plat">${ic("sparkle")}Plataforma</span> foi criada pela equipe Delta, muitas inspiradas em questões do ENEM.</p></div>
+      <p class="muted" style="font-weight:700"><span class="tag oficial">${ic("star")}Oficial ENEM</span> é prova real do INEP. <span class="tag plat">${ic("sparkle")}Plataforma</span> é criada pela equipe Delta, muitas inspiradas no ENEM.</p></div>
     <div class="intro-foot"><button class="btn btn-lime btn-block" id="go">Começar lição</button><small>Você tem ${state.stats.deltas} Δ para usar em dicas.</small></div>
   </div>`);
   root().replaceChildren(w);
   w.querySelector("#go").onclick = async e => {
     sfx.unlock(); sfx.whoosh();
-    const b = e.currentTarget; b.disabled = true; b.textContent = "Carregando questões...";
-    const items = [...L.l.questoes.map((_, i) => fromLesson(id, i))];
-    shuffle(VARIACOES.filter(x => x.topico === L.l.topico)).slice(0, 2).forEach(v => items.push(fromVar(v)));
-    const of = await fetchOficiais({ topics: [TOPICO_OFICIAL[L.l.topico]], n: 1 });
-    items.push(...of);
-    runSession(items, { mode: "licao", lessonId: id, topico: L.l.topico, title: L.l.titulo, exit: "/inicio" });
+    const b = e.currentTarget; b.disabled = true; b.textContent = "Montando a lição...";
+    runSession(await montarLicao(id, plano), { mode: "licao", lessonId: id, topico: L.l.topico, title: L.l.titulo, exit: "/inicio" });
   };
+}
+
+// o que entra na lição, além das questões do assunto
+function planoLicao(id) {
+  const L = LESSON[id], feitas = concluidas().filter(x => x !== id);
+  const mesmoEixo = feitas.filter(x => LESSON[x].s.id === L.s.id);
+  const outroEixo = feitas.filter(x => LESSON[x].s.id !== L.s.id);
+  const due = revisoesHoje().map(r => r.topic_id).filter(t => t !== L.l.topico);
+  const recall = mesmoEixo.length ? pick(mesmoEixo) : null;
+  const inter = outroEixo.length ? pick(outroEixo) : pick(SUBJECTS.filter(x => x.id !== L.s.id)).unidades[0].licoes[0].id;
+  const revisao = due.length ? pick(due) : null;
+  const vars = Math.min(1, VARIACOES.filter(x => x.topico === L.l.topico).length);
+  return { recall, inter, revisao, vars, total: 4 + vars + 1 + (recall ? 1 : 0) + 1 + (revisao ? 1 : 0) };
+}
+
+async function montarLicao(id, plano) {
+  const L = LESSON[id];
+  const base = lessonQs(L.l, 5);
+  const exemplo = { ...base.pop(), tipo: "exemplo" };
+  const tag = (q, t) => q && Object.assign(q, { tec: t });
+  const items = [exemplo];
+  if (plano.recall) items.push(tag(lessonQs(LESSON[plano.recall].l, 1)[0], "recall"));
+  items.push(...base.slice(0, 2));
+  shuffle(VARIACOES.filter(x => x.topico === L.l.topico)).slice(0, plano.vars).forEach(v => items.push(fromVar(v)));
+  items.push(tag(lessonQs(LESSON[plano.inter].l, 1)[0], "inter"));
+  items.push(...base.slice(2));
+  if (plano.revisao && TOPIC[plano.revisao]) items.push(tag(lessonQs(TOPIC[plano.revisao].l, 1)[0], "revisao"));
+  items.push(...await fetchOficiais({ topics: [TOPICO_OFICIAL[L.l.topico]], n: 1 }));
+  return items.filter(Boolean);
 }
 
 // ============================================================
@@ -233,7 +285,7 @@ export async function startTreino(kind) {
   root().replaceChildren(load);
   let items = [], cfg = { mode: "treino", exit: "/praticar" };
   const lessonsOf = eixo => EIXO[eixo].unidades.flatMap(u => u.licoes);
-  const randLessonQs = (ls, n) => shuffle(ls.flatMap(l => l.questoes.map((_, i) => [l.id, i]))).slice(0, n).map(([l, i]) => fromLesson(l, i));
+  const randLessonQs = (ls, n) => Array.from({ length: n }, () => { const l = pick(ls); return lessonQs(l, 1)[0]; });
   if (kind === "revisao") {
     const due = revisoesHoje().map(r => r.topic_id);
     const topics = due.length ? due : Object.values(state.topics).sort((a, b) => (a.acertos / (a.acertos + a.erros || 1)) - (b.acertos / (b.acertos + b.erros || 1))).slice(0, 3).map(r => r.topic_id).filter(t => TOPIC[t]);
@@ -251,7 +303,7 @@ export async function startTreino(kind) {
   } else if (kind === "mix") {
     items = [...randLessonQs(SUBJECTS.flatMap(s => s.unidades.flatMap(u => u.licoes)), 3), ...shuffle(VARIACOES).slice(0, 3).map(fromVar),
       ...await fetchOficiais({ n: 2 })];
-    cfg.title = "Treino misturado";
+    cfg.title = "Treino intercalado";
   } else if (kind.startsWith("unidade-")) {
     const [, eixo, ui] = kind.split("-"); const u = EIXO[eixo]?.unidades[+ui]; if (!u) return navigate("/inicio");
     const tops = u.licoes.map(l => l.topico);
@@ -269,7 +321,8 @@ export async function startTreino(kind) {
     const ofIds = [];
     refs.forEach(r => {
       const m = /^([a-z0-9-]+):(\d+)$/.exec(r);
-      if (m && LESSON[m[1]]?.l.questoes[+m[2]]) items.push(fromLesson(m[1], +m[2]));
+      if (r.startsWith("gen:") && GEN[r.slice(4)]) items.push(fromGen(r.slice(4)));
+      else if (m && LESSON[m[1]]?.l.questoes?.[+m[2]]) items.push(fromLesson(m[1], +m[2]));
       else if (VAR_BY_ID[r]) items.push(fromVar(VAR_BY_ID[r]));
       else if (/^\d+$|^[0-9a-f-]{36}$/.test(r)) ofIds.push(r);
     });
@@ -288,89 +341,161 @@ export async function startTreino(kind) {
 const FALA_OK = ["Mandou bem!", "Isso aí!", "Na mosca!", "Perfeito!", "Show de bola!", "Você está voando!", "Exatamente!", "Brilhou!"];
 const FALA_NO = ["Quase! Olha a resolução.", "Errar faz parte. Bora entender.", "Não foi dessa vez.", "Respira. A próxima é sua.", "Tudo bem, isso também ensina."];
 
+const TEC_TAG = { recall: ["cycle", "Recordação ativa"], inter: ["grid", "Intercalação"], revisao: ["calendar", "Revisão espaçada"], retry: ["pencil", "Nova chance"] };
+const CONF = [["certeza", "Tenho certeza"], ["acho", "Acho que sim"], ["chute", "Chutei"]];
+
 export function runSession(items, cfg) {
   const HEARTS = 5;
-  const S = { i: 0, acertos: 0, hearts: HEARTS, combo: 0, maxCombo: 0, t0: Date.now(), tq: Date.now(), sel: -1, checked: false, hinted: false, xpChain: Promise.resolve(), wrong: [], porTopico: {} };
+  const S = { i: 0, acertos: 0, total: 0, hearts: HEARTS, combo: 0, maxCombo: 0, t0: Date.now(), tq: Date.now(), sel: -1, conf: null, checked: false, hinted: false,
+    xpChain: Promise.resolve(), porTopico: {}, retries: 0, chutes: [], calib: { certeza: [0, 0], acho: [0, 0], chute: [0, 0] }, tecs: new Set() };
+  const scored = () => items.filter(q => q.tipo !== "exemplo" && !q.retry).length;
   const w = h(`<div class="play">
     <div class="play-top"><button class="x" aria-label="Sair">${ic("x")}</button><div class="pbar"><i></i></div>
       <div class="hearts" aria-label="Vidas">${Array.from({ length: HEARTS }, () => HEART_SOLID).join("")}</div></div>
     <div class="combo" aria-live="polite"></div>
     <div class="qwrap"></div>
     <div class="play-foot"><button class="btn hint" id="hint">${ic("bulb")}<span>10</span>${COIN}</button><button class="btn btn-lime go" id="go" disabled>Verificar</button></div>
-    <div class="fb" role="status" aria-live="assertive"><div class="in"><div class="face dm"></div><h3></h3><p class="expl"></p><button class="btn btn-block" id="cont">Continuar</button></div></div>
+    <div class="fb" role="status" aria-live="assertive"><div class="in"><div class="face dm"></div><h3></h3><p class="expl"></p><div class="guia"></div>
+      <div class="fb-acts"><button class="btn" id="refazer" hidden>${ic("pencil")}Refazer comigo</button><button class="btn btn-block" id="cont">Continuar</button></div></div></div>
   </div>`);
   root().replaceChildren(w); window.scrollTo(0, 0);
-  const qwrap = w.querySelector(".qwrap"), go = w.querySelector("#go"), hint = w.querySelector("#hint"), fb = w.querySelector(".fb"), cont = w.querySelector("#cont");
+  const qwrap = w.querySelector(".qwrap"), go = w.querySelector("#go"), hint = w.querySelector("#hint"), fb = w.querySelector(".fb"), cont = w.querySelector("#cont"), refazer = w.querySelector("#refazer");
 
   function drawHearts(lost) {
     w.querySelectorAll(".hearts svg").forEach((s, k) => { s.classList.toggle("off", k >= S.hearts); if (lost && k === S.hearts) { s.classList.remove("popx"); void s.offsetWidth; s.classList.add("popx"); } });
   }
+  const tagHTML = q => {
+    const origem = q.kind === "oficial" ? `<span class="tag oficial">${ic("star")}Oficial ENEM</span><span class="tag">${esc(q.label)}</span>`
+      : q.kind === "var" ? `<span class="tag plat">${ic("sparkle")}Plataforma</span><span class="tag">${esc(q.label.replace(/^Plataforma · /, ""))}</span>`
+      : `<span class="tag plat">${ic("sparkle")}Plataforma</span>`;
+    const t = q.retry ? TEC_TAG.retry : TEC_TAG[q.tec];
+    return (t ? `<span class="tag tec">${ic(t[0])}${t[1]}</span>` : "") + origem;
+  };
+  const numero = () => items.slice(0, S.i + 1).filter(q => q.tipo !== "exemplo").length;
+
   function show() {
     const q = items[S.i];
-    S.sel = -1; S.checked = false; S.hinted = false; S.tq = Date.now();
+    S.sel = -1; S.conf = null; S.checked = false; S.hinted = false; S.tq = Date.now();
     w.querySelector(".pbar i").style.width = (S.i / items.length * 100) + "%";
-    const tag = q.kind === "oficial" ? `<span class="tag oficial">${ic("star")}Oficial ENEM</span><span class="tag">${esc(q.label)}</span>`
-      : q.kind === "var" ? `<span class="tag plat">${ic("sparkle")}Plataforma</span><span class="tag">${esc(q.label.replace(/^Plataforma · /, ""))}</span>`
-      : `<span class="tag plat">${ic("sparkle")}Plataforma</span><span class="tag">Questão da equipe Delta</span>`;
-    qwrap.innerHTML = `<div class="qmeta">${tag}<span class="muted" style="margin-left:auto;font-weight:800;font-size:.85rem">${S.i + 1} de ${items.length}</span></div>
+    fb.classList.remove("show", "ok", "no"); fb.querySelector(".guia").innerHTML = ""; refazer.hidden = true; refazer.innerHTML = `${ic("pencil")}Refazer comigo`;
+    if (q.tipo === "exemplo") return showExemplo(q);
+    if (q.tec) S.tecs.add(q.tec);
+    const fala = q.tec === "recall" ? "Aquecimento: puxe da memória, sem medo. Aqui você não perde vida."
+      : q.tec === "inter" ? "Mudança de assunto! Misturar eixos treina você para a prova de verdade."
+      : q.tec === "revisao" ? "Este assunto estava no ponto de revisar. Lembra dele?"
+      : q.retry ? "Nova chance! Mesmo raciocínio, agora é com você." : "";
+    qwrap.innerHTML = `<div class="qmeta">${tagHTML(q)}<span class="muted" style="margin-left:auto;font-weight:800;font-size:.85rem">${q.retry ? "extra" : `${numero()} de ${scored()}`}</span></div>
+      ${fala ? `<div class="talk mini"><div class="dm dm-live">${deltaSVG({ ...av(), expr: "feliz" })}</div><div class="bubble left">${fala}</div></div>` : ""}
       <div class="qcard"><div class="qtext">${q.stmt}</div><div class="buddy dm dm-live">${deltaSVG({ ...av(), expr: "pensando" })}</div></div>
-      <div class="opts" role="radiogroup" aria-label="Alternativas">${q.opts.map((o, k) => `<button class="opt" role="radio" aria-checked="false" data-k="${k}" style="--i:${k}"><span class="k">${(q.letras || LETRAS)[k]}</span><span>${o}</span></button>`).join("")}</div>`;
-    go.disabled = true; go.textContent = "Verificar"; go.className = "btn btn-lime go";
+      <div class="opts" role="radiogroup" aria-label="Alternativas">${q.opts.map((o, k) => `<button class="opt" role="radio" aria-checked="false" data-k="${k}" style="--i:${k}"><span class="k">${(q.letras || LETRAS)[k]}</span><span>${o}</span></button>`).join("")}</div>
+      <div class="conf" hidden><span>Quão seguro você está?</span>${CONF.map(([k, t]) => `<button data-c="${k}">${t}</button>`).join("")}</div>`;
+    go.disabled = true; go.textContent = "Verificar"; go.className = "btn btn-lime go"; go.hidden = false;
     hint.disabled = false; hint.hidden = q.opts.length < 4;
-    fb.classList.remove("show", "ok", "no");
     qwrap.querySelectorAll(".opt").forEach(b => b.onclick = () => choose(+b.dataset.k));
-    if (S.i === 0 && !seen("play")) setTimeout(() => coach([
+    qwrap.querySelectorAll(".conf button").forEach(b => b.onclick = () => { S.conf = b.dataset.c; sfx.tap(); qwrap.querySelectorAll(".conf button").forEach(x => x.classList.toggle("on", x === b)); S.tecs.add("confianca"); });
+    if (numero() === 1 && !seen("play")) setTimeout(() => coach([
       { el: ".qmeta", text: "Aqui você vê a origem da questão: Oficial ENEM é prova real do INEP. Plataforma é criada pela equipe Delta." },
       { el: "#hint", text: "Travou? A dica custa 10 Deltas e elimina duas alternativas erradas." },
       { el: ".hearts", text: "Você tem 5 vidas por lição. Cada erro custa uma, então leia com calma." }
     ], { av: av(), onDone: () => markSeen("play") }), 500);
   }
+
+  // exemplo guiado: o Delta resolve, passo a passo, antes de você tentar
+  function showExemplo(q) {
+    S.tecs.add("exemplo");
+    const passos = (q.passos && q.passos.length ? q.passos : [q.e]).filter(Boolean);
+    let k = 0;
+    hint.hidden = true; go.hidden = false; go.disabled = false; go.className = "btn btn-teal go";
+    qwrap.innerHTML = `<div class="qmeta"><span class="tag tec">${ic("book")}Exemplo guiado</span><span class="tag plat">${ic("sparkle")}Plataforma</span></div>
+      <div class="talk mini"><div class="dm dm-live" id="exm">${deltaSVG({ ...av(), expr: "feliz" })}</div><div class="bubble left">Antes de você tentar, eu resolvo uma com você. Acompanhe cada passo.</div></div>
+      <div class="qcard"><div class="qtext" style="padding-right:0">${q.stmt}</div></div>
+      <ol class="passos"></ol>
+      <div class="opts ex">${q.opts.map((o, i) => `<div class="opt${i === q.c ? " alvo" : ""}" style="--i:${i}"><span class="k">${LETRAS[i]}</span><span>${o}</span></div>`).join("")}</div>`;
+    const ol = qwrap.querySelector(".passos");
+    const step = () => {
+      if (k < passos.length) {
+        const li = h(`<li><span class="n">${k + 1}</span><span></span></li>`); ol.appendChild(li);
+        typeText(li.lastElementChild, passos[k], 10); sfx.pop && sfx.pop(); k++;
+        go.textContent = k < passos.length ? "Próximo passo" : "Ver a resposta";
+        li.scrollIntoView({ block: "nearest", behavior: reduceMotion() ? "auto" : "smooth" });
+      } else if (k === passos.length) {
+        const alvo = qwrap.querySelector(".opt.alvo"); alvo.classList.add("ok"); sfx.correct(); k++;
+        react(qwrap.querySelector("#exm"), av(), "comemorando", "jump");
+        alvo.scrollIntoView({ block: "center", behavior: reduceMotion() ? "auto" : "smooth" });
+        go.textContent = "Agora é sua vez"; go.className = "btn btn-lime go";
+      } else { go.onclick = check; S.i++; show(); }
+    };
+    go.onclick = step; step();
+  }
+
   function choose(k) {
     if (S.checked) return;
     const b = qwrap.querySelector(`.opt[data-k="${k}"]`); if (!b || b.classList.contains("gone")) return;
     S.sel = k; sfx.select();
     qwrap.querySelectorAll(".opt").forEach(x => { x.classList.toggle("sel", x === b); x.setAttribute("aria-checked", x === b); });
     go.disabled = false;
+    const cf = qwrap.querySelector(".conf"); if (cf && cf.hidden) { cf.hidden = false; cf.animate([{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }], { duration: 250 }); }
   }
   function check() {
-    if (S.sel < 0 || S.checked) return;
+    const q = items[S.i];
+    if (q.tipo === "exemplo" || S.sel < 0 || S.checked) return;
     S.checked = true;
-    const q = items[S.i], ok = S.sel === q.c, tempo = Math.round((Date.now() - S.tq) / 1000);
+    const ok = S.sel === q.c, tempo = Math.round((Date.now() - S.tq) / 1000), livre = q.tec === "recall" || q.retry;
     const optEls = qwrap.querySelectorAll(".opt");
     optEls.forEach(x => { x.disabled = true; x.classList.remove("sel"); });
     optEls[q.c].classList.add("ok");
+    qwrap.querySelectorAll(".conf button").forEach(b => b.disabled = true);
     const buddy = qwrap.querySelector(".buddy");
-    const pt = S.porTopico[q.topico] = S.porTopico[q.topico] || [0, 0]; pt[1]++;
+    if (!q.retry) { const pt = S.porTopico[q.topico] = S.porTopico[q.topico] || [0, 0]; pt[1]++; if (ok) pt[0]++; S.total++; if (ok) S.acertos++; }
+    if (S.conf) { S.calib[S.conf][1]++; if (ok) S.calib[S.conf][0]++; }
     const origem = q.kind === "oficial" ? "enem" : cfg.mode === "licao" ? "licao" : "revisao";
     const letra = i => (q.letras || LETRAS)[i];
     logAttempt({ origem, ref: q.ref, topico: q.topicoOficial || q.topico, correta: ok, resposta: letra(S.sel), correta_resp: letra(q.c), tempo });
     let face = "comemorando", titulo, extra = "";
     if (ok) {
-      S.acertos++; S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo); pt[0]++;
+      S.combo++; S.maxCombo = Math.max(S.maxCombo, S.combo);
       sfx.correct(); react(buddy, av(), "comemorando", "jump");
       titulo = S.combo >= 3 ? `Combo de ${S.combo}! Ninguém te segura.` : pick(FALA_OK);
-      if (cfg.mode !== "licao") S.xpChain = S.xpChain.then(() => addXP(10, q.kind === "oficial" ? "enem" : "acerto", q.ref));
-      const r = optEls[q.c].getBoundingClientRect(); flyText(`+10 XP`, r.right - 90, r.top - 10);
+      if (S.conf === "chute") { S.chutes.push(q.topico); extra = " Acertou no chute? Vou trazer esse assunto de volta na revisão para virar certeza."; face = "pensando"; }
+      if (cfg.mode !== "licao" && !q.retry) S.xpChain = S.xpChain.then(() => addXP(10, q.kind === "oficial" ? "enem" : "acerto", q.ref));
+      const r = optEls[q.c].getBoundingClientRect(); flyText(q.retry ? "Boa!" : `+10 XP`, r.right - 90, r.top - 10);
     } else {
-      S.combo = 0; S.hearts--; S.wrong.push(q);
+      S.combo = 0;
+      if (!livre) { S.hearts--; drawHearts(true); setTimeout(() => sfx.heart(), 180); }
       optEls[S.sel].classList.add("no");
-      sfx.wrong(); setTimeout(() => sfx.heart(), 180); drawHearts(true);
-      react(buddy, av(), "triste", "shake"); face = "triste";
-      titulo = pick(FALA_NO);
+      sfx.wrong(); react(buddy, av(), "triste", "shake"); face = "triste";
+      titulo = S.conf === "certeza" ? "Errar com certeza ensina muito." : pick(FALA_NO);
       logError({ origem, ref: q.ref, enunciado: q.stmt.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(), resposta_aluno: `${letra(S.sel)}) ${q.opts[S.sel].replace(/<[^>]+>/g, "")}`,
         resposta_correta: `${letra(q.c)}) ${q.opts[q.c].replace(/<[^>]+>/g, "")}`, explicacao: q.e, topico: q.topicoOficial || q.topico });
-      if (!seen("erro1")) { extra = " Guardei esta no seu Caderno de erros para você revisar depois."; markSeen("erro1"); }
+      if (!seen("erro1")) { extra = " Guardei esta no seu Caderno de erros."; markSeen("erro1"); }
+      // correção guiada + nova chance no fim da lição
+      if (!q.retry && S.retries < 3 && q.kind !== "oficial") {
+        const nova = q.gen ? fromGen(q.topico) : q.kind === "plat" && /:\d+$/.test(q.ref) ? fromLesson(...q.ref.split(":").map((x, i) => i ? +x : x)) : { ...q, opts: q.opts.slice() };
+        if (nova) { nova.retry = true; items.push(nova); S.retries++; S.tecs.add("correcao"); extra += " Ela volta no fim da lição" + (q.gen ? " com números novos." : "."); }
+      }
+      if ((q.passos || []).length > 1) refazer.hidden = false;
+      if (livre) extra = " Sem perder vida: isto era " + (q.retry ? "uma nova chance." : "aquecimento.") + extra;
     }
     const cb = w.querySelector(".combo");
     cb.innerHTML = S.combo >= 2 ? `${ic("fire")}Combo x${S.combo}` : ""; if (S.combo >= 2) { cb.classList.remove("bump"); void cb.offsetWidth; cb.classList.add("bump"); }
     fb.className = "fb show " + (ok ? "ok" : "no");
     fb.querySelector(".face").innerHTML = deltaSVG({ ...av(), expr: face });
     fb.querySelector("h3").textContent = titulo;
-    fb.querySelector(".expl").textContent = (ok ? "" : `Resposta: ${letra(q.c)}. `) + (q.e || "") + extra;
+    fb.querySelector(".expl").textContent = (ok ? "" : `Resposta: ${letra(q.c)}. `) + (ok || refazer.hidden ? (q.e || "") : "") + extra;
     cont.className = "btn btn-block " + (ok ? "btn-green" : "btn-red");
     hint.disabled = true; go.disabled = true;
-    setTimeout(() => cont.focus({ preventScroll: true }), 50);
+    setTimeout(() => (refazer.hidden ? cont : refazer).focus({ preventScroll: true }), 50);
   }
+  // correção guiada: revela a resolução um passo por vez
+  refazer.onclick = () => {
+    const q = items[S.i], g = fb.querySelector(".guia"), passos = q.passos || [];
+    S.tecs.add("correcao");
+    const feitos = g.children.length;
+    if (feitos < passos.length) {
+      const d = h(`<div class="gp"><span class="n">${feitos + 1}</span><span></span></div>`); g.appendChild(d); typeText(d.lastElementChild, passos[feitos], 10);
+      refazer.innerHTML = feitos + 1 < passos.length ? `${ic("pencil")}Próximo passo` : `${ic("check")}Entendi`;
+    } else { refazer.hidden = true; cont.focus({ preventScroll: true }); }
+  };
   function next() {
     sfx.tap();
     if (S.hearts <= 0) return outOfHearts();
@@ -381,10 +506,10 @@ export function runSession(items, cfg) {
   function outOfHearts() {
     fb.classList.remove("show");
     const m = modal(`<div class="dm dm-live">${deltaSVG({ ...av(), expr: "vida" })}</div><h2>Suas vidas acabaram</h2>
-      <p>Sem problema. Dá uma olhada nos erros e tenta de novo, desta vez com mais calma.</p>
+      <p>Sem problema. Os erros já estão no seu caderno. Tente de novo com calma: as questões geradas voltam com números novos.</p>
       <div class="row2"><button class="btn" id="sair">Sair</button><button class="btn btn-lime" id="de-novo">Tentar de novo</button></div>`, { dismiss: false });
     m.querySelector("#sair").onclick = () => { m.close(); navigate(cfg.exit); };
-    m.querySelector("#de-novo").onclick = () => { m.close(); items.forEach(q => { if (q.kind === "plat") { const n = fromLesson(...q.ref.split(":").map((x, i) => i ? +x : x)); Object.assign(q, n); } }); runSession(shuffle(items), cfg); };
+    m.querySelector("#de-novo").onclick = () => { m.close(); if (cfg.lessonId) viewLicao(cfg.lessonId); else navigate(cfg.exit); };
   }
   async function useHint() {
     if (S.checked || S.hinted) return;
@@ -407,12 +532,13 @@ export function runSession(items, cfg) {
   async function end() {
     document.removeEventListener("keydown", keys);
     const tempo = Math.round((Date.now() - S.t0) / 1000);
-    await finish({ ...cfg, acertos: S.acertos, total: items.length, tempo, maxCombo: S.maxCombo, xpChain: S.xpChain, porTopico: S.porTopico });
+    await finish({ ...cfg, acertos: S.acertos, total: Math.max(1, S.total), tempo, maxCombo: S.maxCombo, xpChain: S.xpChain, porTopico: S.porTopico, chutes: S.chutes, calib: S.calib, tecs: [...S.tecs] });
   }
   function keys(e) {
     if (!document.body.contains(w)) return document.removeEventListener("keydown", keys);
-    if (document.querySelector(".modal, .coach, .sheet")) return;
+    if (document.querySelector(".modal, .coach, .sheet, .cs")) return;
     const q = items[S.i];
+    if (q.tipo === "exemplo") { if (e.key === "Enter") { e.preventDefault(); go.click(); } return; }
     if (!S.checked) {
       const k = "12345".indexOf(e.key) >= 0 ? "12345".indexOf(e.key) : (q.letras || LETRAS).toLowerCase().indexOf(e.key.toLowerCase());
       if (e.key.length === 1 && k >= 0 && k < q.opts.length) { choose(k); return; }
@@ -441,6 +567,8 @@ async function finish(ctx) {
       <div class="stat-tile" style="--c:var(--teal);--d:.4s"><div class="h">Tempo</div><div class="v">${ic("clock")}${fmtT(ctx.tempo)}</div></div>
     </div>
     <div id="goal" style="width:100%"></div>
+    ${(ctx.tecs || []).length ? `<div class="tecs-done">${ctx.tecs.map(t => { const T = { exemplo: ["book", "Exemplo guiado"], recall: ["cycle", "Recordação ativa"], inter: ["grid", "Intercalação"], revisao: ["calendar", "Revisão espaçada"], correcao: ["pencil", "Correção guiada"], confianca: ["target", "Confiança"] }[t]; return T ? `<span class="tag tec">${ic(T[0])}${T[1]}</span>` : ""; }).join("")}</div>` : ""}
+    ${calibHTML(ctx.calib)}
     <button class="btn btn-lime btn-block" id="cont" disabled>Salvando...</button>
   </div>`);
   root().replaceChildren(w); window.scrollTo(0, 0);
@@ -460,6 +588,8 @@ async function finish(ctx) {
       if (ctx.mode === "revisao") await addXP(Math.min(30, 10 + ctx.acertos * 2), "revisao", "rev-" + new Date().toISOString().slice(0, 10));
       for (const [t, [a, n]] of Object.entries(ctx.porTopico)) if (TOPIC[t]) await updateTopic(t, a, n);
     }
+    // acerto no chute não conta como domínio: o assunto volta amanhã
+    for (const t of new Set(ctx.chutes || [])) if (TOPIC[t]) await updateTopic(t, 0, 1);
     streak = await touchStreak();
     ach = await claimAchievements();
     await refreshStats();
@@ -480,10 +610,43 @@ async function finish(ctx) {
     if (streak?.mudou) await csStreak(av(), streak.streak, streak.congelou);
     if (nv1 > nv0) await csLevelUp(av(), nv1, state.shop.filter(i => i.nivel_min > nv0 && i.nivel_min <= nv1));
     for (const a of ach.novos || []) await csConquista(a, av());
+    if (focoPrecisaPausa(ctx.tempo)) await pausaPomodoro();
     navigate(ctx.exit || "/inicio");
   };
 }
 
+
+function calibHTML(c) {
+  if (!c) return "";
+  const rows = [["certeza", "Com certeza"], ["acho", "Achando"], ["chute", "No chute"]].filter(([k]) => c[k][1]);
+  if (!rows.length) return "";
+  return `<div class="calib card"><b>${ic("target")} Sua confiança</b>${rows.map(([k, n]) => `<div class="cr"><span>${n}</span><span class="t"><i style="width:${Math.round(c[k][0] / c[k][1] * 100)}%"></i></span><span>${c[k][0]}/${c[k][1]}</span></div>`).join("")}
+    <small>${c.certeza[1] && c.certeza[0] < c.certeza[1] ? "Você errou algumas que tinha certeza: são as melhores para revisar." : c.chute[0] ? "Os acertos no chute voltam na revisão até virarem certeza." : "Sua confiança está bem calibrada."}</small></div>`;
+}
+
+// ---------- Pomodoro dentro do estudo: 25 min de foco pedem 5 de pausa ----------
+function focoPrecisaPausa(seg) {
+  let f = { acc: 0, last: 0 }; try { f = JSON.parse(localStorage.getItem("delta-foco")) || f; } catch (e) {}
+  const now = Date.now();
+  if (now - f.last > 10 * 60 * 1000 + seg * 1000) f.acc = 0;
+  f.acc += seg; f.last = now;
+  const pausa = f.acc >= 25 * 60;
+  if (pausa) f.acc = 0;
+  try { localStorage.setItem("delta-foco", JSON.stringify(f)); } catch (e) {}
+  return pausa;
+}
+function pausaPomodoro() {
+  return new Promise(res => {
+    let t = 5 * 60, id;
+    const m = modal(`<div class="dm dm-live">${deltaSVG({ ...av(), expr: "dormindo" })}</div><h2>Hora da pausa</h2>
+      <p>Você completou 25 minutos de foco. Uma pausa de 5 minutos ajuda o cérebro a guardar o que aprendeu. Levante, beba água, olhe para longe.</p>
+      <div class="pomo-clock" id="pc">05:00</div><div class="row2"><button class="btn" id="pular">Pular pausa</button><button class="btn btn-lime" id="ok" hidden>Voltar a estudar</button></div>`, { dismiss: false, onClose: () => { clearInterval(id); res(); } });
+    const pc = m.querySelector("#pc");
+    id = setInterval(() => { t--; pc.textContent = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`; if (t <= 0) { clearInterval(id); sfx.achievement(); m.querySelector("#ok").hidden = false; m.querySelector("#pular").hidden = true; } }, 1000);
+    m.querySelector("#pular").onclick = () => m.close();
+    m.querySelector("#ok").onclick = () => m.close();
+  });
+}
 
 // ============================================================
 // BANCO ENEM (somente questões oficiais de Matemática)

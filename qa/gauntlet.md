@@ -45,3 +45,11 @@ Tier: **L** (site completo: landing + plataforma). Modo: Redesign com preservaç
 - Landing: rastro "buraco negro" removido (fica só a seta), nova copy, seção do app com mascote em 3D, botão "Instalar no celular" (PWA com manifest e service worker).
 - Corrigido: `@media(max-width:900px)` sem fechamento na landing, que prendia regras (inclusive reduced-motion) só em telas pequenas.
 - Testes: Playwright com Supabase simulado em iPhone 13 e 1440px (onboarding, tutorial, lição completa, loja, perfil, ranking, missões, simulado, treinos); zero erros de console.
+
+## Rodada 3 · trilha maior e técnicas dentro das atividades
+
+- Trilha: 4 eixos × 4 unidades × 4 lições = 64 lições (eram 24), com baú de desafio por unidade.
+- 40 lições novas usam geradores de questões (`site/app/gen.js`): números novos a cada tentativa, resposta calculada, distratores de erros comuns e resolução em passos. Validação automática: 40 geradores × 500 execuções sem falha.
+- Técnicas aplicadas dentro da lição (a página separada de Técnicas saiu): exemplo guiado, recordação ativa, intercalação, revisão espaçada, correção guiada com nova chance, confiança (metacognição) e pausa Pomodoro depois de 25 min de foco.
+- Corrigido: a classe `.done` da tela de resultado esticava os nós concluídos da trilha (espaços enormes).
+- Migração 008: conquista "Eixo dominado" passa a exigir as 16 lições do eixo.

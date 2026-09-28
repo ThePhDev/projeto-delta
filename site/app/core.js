@@ -39,7 +39,16 @@ export const TOPICO_OFICIAL = {
   "mat-geometria": "Geometria", "geo-pitagoras": "Geometria", "geo-trigonometria": "Geometria",
   "geo-volumes": "Geometria", "geo-solidos": "Geometria", "geo-planificacao": "Geometria",
   "mat-estatistica": "Estatística", "est-graficos": "Estatística", "est-dispersao": "Estatística",
-  "est-contagem": "Probabilidade", "est-combinatoria": "Probabilidade", "mat-probabilidade": "Probabilidade"
+  "est-contagem": "Probabilidade", "est-combinatoria": "Probabilidade", "mat-probabilidade": "Probabilidade",
+  "num-sucessivos": "Porcentagem e juros", "num-compostos": "Porcentagem e juros",
+  "num-fracoes": "Escalas, razão e proporção", "num-escalas": "Escalas, razão e proporção", "num-velocidade": "Escalas, razão e proporção", "num-consumo": "Escalas, razão e proporção",
+  "num-composta": "Escalas, razão e proporção", "num-tempo": "Escalas, razão e proporção", "num-arredonda": "Escalas, razão e proporção", "num-divisao": "Escalas, razão e proporção",
+  "alg-graficos": "Funções", "alg-eq1": "Funções", "alg-sistemas": "Funções", "alg-eq2": "Funções", "alg-ineq": "Funções", "alg-lucro": "Funções", "alg-maxmin": "Funções",
+  "alg-crescimento": "Funções", "alg-expressoes": "Funções", "alg-padroes": "Progressões",
+  "geo-angulos": "Geometria", "geo-capacidade": "Geometria", "geo-circulo": "Geometria", "geo-compostas": "Geometria", "geo-semelhanca": "Geometria", "geo-transform": "Geometria",
+  "geo-distancia": "Geometria", "geo-pontomedio": "Geometria", "geo-reta": "Geometria", "geo-mapa": "Geometria",
+  "est-ponderada": "Estatística", "est-mediana": "Estatística", "est-graficopct": "Estatística", "est-frequencia": "Estatística", "est-pesquisa": "Estatística",
+  "est-condicional": "Probabilidade", "est-complementar": "Probabilidade", "est-independentes": "Probabilidade", "est-permutacao": "Probabilidade", "est-esperado": "Probabilidade"
 };
 export const OFICIAL_EIXO = { "Porcentagem e juros": "num", "Escalas, razão e proporção": "num", "Funções": "alg",
   "Progressões": "alg", "Geometria": "geo", "Estatística": "est", "Probabilidade": "est" };
@@ -220,7 +229,7 @@ const TABS = [
   ["inicio", "Trilha", "home"], ["praticar", "Praticar", "target"], ["loja", "Loja", "bag"],
   ["ranking", "Ranking", "trophy"], ["perfil", "Perfil", "user"]
 ];
-const SIDE_EXTRA = [["missoes", "Missões", "flag"], ["erros", "Caderno de erros", "book"], ["painel", "Painel", "chart"], ["tecnicas", "Técnicas", "bulb"]];
+const SIDE_EXTRA = [["missoes", "Missões", "flag"], ["erros", "Caderno de erros", "book"], ["painel", "Painel", "chart"]];
 
 function topHTML() {
   const s = state.stats, n = nivelDe(s.xp || 0);

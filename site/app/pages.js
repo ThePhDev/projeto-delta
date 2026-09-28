@@ -30,7 +30,7 @@ export function viewPraticar() {
     <div class="hub">
       <a href="#/enem" style="--ib:#2e2506;--ic:#ffe08a"><span class="i">${ic("star")}</span><div><b>Banco ENEM</b><small>Questões oficiais do INEP por ano e assunto</small></div></a>
       <a href="#/simulados" style="--ib:#2a0f2e;--ic:#ff7ef0"><span class="i">${ic("timer")}</span><div><b>Simulado</b><small>Tempo corrido e gabarito no final</small></div></a>
-      <a href="#/treino/mix" style="--ib:#0b2830;--ic:#00f0ff"><span class="i">${ic("grid")}</span><div><b>Treino misturado</b><small>Intercala todos os eixos, como a prova</small></div></a>
+      <a href="#/treino/mix" style="--ib:#0b2830;--ic:#00f0ff"><span class="i">${ic("grid")}</span><div><b>Treino intercalado</b><small>Mistura os quatro eixos, como na prova</small></div></a>
       <a href="#/treino/erros" style="--ib:#3a1220;--ic:#ff8fa3"><span class="i">${ic("cycle")}</span><div><b>Refazer erros</b><small>Questões do seu caderno de erros</small></div></a>
     </div>
     <h2 class="sec">Acompanhar</h2>
@@ -38,7 +38,6 @@ export function viewPraticar() {
       <a href="#/missoes" style="--ib:#2e2506;--ic:var(--gold)"><span class="i">${ic("flag")}</span><div><b>Missões</b><small>Metas diárias e semanais com recompensa</small></div></a>
       <a href="#/erros" style="--ib:#1f1238;--ic:#c4b5fd"><span class="i">${ic("book")}</span><div><b>Caderno de erros</b><small>Anote o motivo e marque o que dominou</small></div></a>
       <a href="#/painel" style="--ib:#0f1a36;--ic:#7fb0ff"><span class="i">${ic("chart")}</span><div><b>Painel</b><small>Seu desempenho por eixo e por dia</small></div></a>
-      <a href="#/tecnicas" style="--ib:#0e3322;--ic:#6ee7a8"><span class="i">${ic("bulb")}</span><div><b>Técnicas de estudo</b><small>Pomodoro, Feynman e outras, na prática</small></div></a>
     </div>`);
   if (!seen("praticar")) setTimeout(() => document.body.contains(v) && coach([
     { el: ".revcard", text: "Aqui entra a revisão espaçada: eu te lembro do assunto no dia certo, antes de você esquecer." },
@@ -166,7 +165,7 @@ export function viewPerfil() {
       <div class="stat" style="--ib:#2e2506;--ic:var(--gold)"><span class="i">${ic("bolt")}</span><div><div class="v" data-c="${s.xp || 0}">0</div><div class="l">XP total</div></div></div>
       <div class="stat" style="--ib:#3a1a06;--ic:var(--orange)"><span class="i">${ic("fire")}</span><div><div class="v">${s.streak_atual || 0}</div><div class="l">Sequência · recorde ${s.melhor_streak || 0}</div></div></div>
       <div class="stat" style="--ib:#0b2830;--ic:#00f0ff"><span class="i">${COIN}</span><div><div class="v" data-c="${s.deltas || 0}">0</div><div class="l">Deltas</div></div></div>
-      <div class="stat" style="--ib:#1f1238;--ic:#c4b5fd"><span class="i">${ic("check")}</span><div><div class="v">${licoes}/24</div><div class="l">Lições concluídas</div></div></div>
+      <div class="stat" style="--ib:#1f1238;--ic:#c4b5fd"><span class="i">${ic("check")}</span><div><div class="v">${licoes}/${Object.keys(LESSON).length}</div><div class="l">Lições concluídas</div></div></div>
     </div>
     <h2 class="sec">Conquistas · ${state.myAch.size}/${state.ach.length}</h2>
     <div class="card pad"><div class="medals">${state.ach.map(a => `<button class="medal-c ${state.myAch.has(a.code) ? "" : "off"}" data-a="${a.code}">${medalSVG(a.icone, state.myAch.has(a.code))}${esc(a.titulo)}</button>`).join("")}</div></div>
@@ -371,46 +370,6 @@ export async function viewPainel() {
 }
 
 // ============================================================
-// TÉCNICAS (interativas)
-// ============================================================
-let pomo = { t: 25 * 60, mode: "Foco", run: false, id: 0, ciclos: 0 };
-export function viewTecnicas() {
-  const v = shell("tecnicas", `${page("Técnicas de estudo", "Métodos com evidência científica, prontos para usar aqui.")}
-    <div class="card pomo"><div class="mode" id="pm">${pomo.mode}</div><div class="clock" id="pc">${fmt(pomo.t)}</div>
-      <div class="row2"><button class="btn btn-lime" id="ps">${pomo.run ? "Pausar" : "Iniciar"}</button><button class="btn" id="pr">Zerar</button></div>
-      <p class="muted" style="font-weight:700;margin-top:.8rem">Pomodoro: 25 min de foco, 5 de pausa. Ciclos hoje: <b id="pn">${pomo.ciclos}</b></p></div>
-    <div class="card tech"><h3>${ic("cycle")}Revisão espaçada</h3><p>Revisar em 1, 3, 7, 14 e 30 dias vence a curva do esquecimento.</p>
-      <div class="how">Eu já agendo isso para você. Hoje: ${revisoesHoje().length} assunto(s) no ponto de revisar.</div><a class="btn btn-sm btn-teal" style="margin-top:.6rem" href="#/treino/revisao">Fazer a revisão</a></div>
-    <div class="card tech"><h3>${ic("pencil")}Técnica Feynman</h3><p>Explique o assunto com palavras simples. Onde travar, está a lacuna.</p>
-      <select id="fy" class="input" style="width:100%;margin-top:.6rem;padding:.6rem">${SUBJECTS.flatMap(s => s.unidades.flatMap(u => u.licoes)).map(l => `<option value="${l.id}">${esc(l.titulo)}</option>`).join("")}</select>
-      <textarea id="fx" rows="4" maxlength="1200" placeholder="Explique como se fosse para um amigo de 12 anos..." style="width:100%;margin-top:.5rem;border-radius:14px;border:2px solid var(--line);background:var(--card);padding:.7rem;font-weight:600"></textarea>
-      <button class="btn btn-sm" id="fb" style="margin-top:.5rem">Conferir minha explicação</button><div id="fo"></div></div>
-    <div class="card tech"><h3>${ic("grid")}Prática intercalada</h3><p>Misturar assuntos treina o cérebro a escolher a estratégia, como na prova.</p><a class="btn btn-sm btn-teal" style="margin-top:.6rem" href="#/treino/mix">Treino misturado</a></div>
-    <div class="card tech"><h3>${ic("bulb")}Recordação ativa</h3><p>Responder de memória fixa mais que reler. Cada questão da trilha já é recordação ativa.</p><a class="btn btn-sm btn-teal" style="margin-top:.6rem" href="#/inicio">Ir para a trilha</a></div>
-    <div class="card tech"><h3>${ic("target")}Meta diária</h3><p>Metas pequenas e diárias sustentam o hábito. A sua é de ${state.profile.meta_diaria} XP.</p><div class="how">Hoje: ${state.xpHoje} XP. Troque a meta em Perfil, Ajustes.</div></div>`);
-  const pc = v.querySelector("#pc"), pm = v.querySelector("#pm"), ps = v.querySelector("#ps");
-  function tick() {
-    if (!pomo.run) return;
-    pomo.t--;
-    if (pomo.t <= 0) { const foco = pomo.mode === "Foco"; if (foco) pomo.ciclos++; pomo.mode = foco ? "Pausa" : "Foco"; pomo.t = foco ? 5 * 60 : 25 * 60; sfx.achievement(); toast(foco ? "Pausa! Levante e beba água." : "Bora focar de novo."); }
-    if (document.body.contains(pc)) { pc.textContent = fmt(pomo.t); pm.textContent = pomo.mode; v.querySelector("#pn").textContent = pomo.ciclos; }
-  }
-  ps.onclick = () => { pomo.run = !pomo.run; ps.textContent = pomo.run ? "Pausar" : "Iniciar"; sfx.tap(); clearInterval(pomo.id); if (pomo.run) pomo.id = setInterval(tick, 1000); };
-  v.querySelector("#pr").onclick = () => { pomo.run = false; clearInterval(pomo.id); pomo.t = 25 * 60; pomo.mode = "Foco"; pc.textContent = fmt(pomo.t); pm.textContent = "Foco"; ps.textContent = "Iniciar"; };
-  v.querySelector("#fb").onclick = () => {
-    const txt = v.querySelector("#fx").value.trim(), L = LESSON[v.querySelector("#fy").value];
-    const words = txt.split(/\s+/).filter(Boolean).length;
-    const keys = (L.l.questoes.map(q => q.e).join(" ").toLowerCase().match(/[a-zà-ú]{6,}/g) || []);
-    const hits = [...new Set(keys)].filter(k => txt.toLowerCase().includes(k)).length;
-    const msg = words < 25 ? "Está curtinho. Tente explicar com exemplo: um número, uma situação do dia a dia." : hits < 2 ? "Boa! Agora tente usar os termos do assunto e dar um exemplo com conta." : "Muito bom! Se consegue explicar assim, você entendeu. Teste na lição para confirmar.";
-    v.querySelector("#fo").innerHTML = `<div class="talk" style="margin-top:.7rem"><div class="dm dm-live" style="width:64px">${deltaSVG({ ...av(), expr: words < 25 ? "pensando" : "comemorando" })}</div><div class="bubble left">${msg}</div></div>`;
-    sfx.talk();
-  };
-}
-const primeiroNomeP = () => (state.profile?.nome || "").trim().split(/\s+/)[0];
-const fmt = s => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-
-// ============================================================
 // ADMIN
 // ============================================================
 export async function viewAdmin() {
@@ -431,3 +390,4 @@ export async function viewAdmin() {
   };
   load();
 }
+const primeiroNomeP = () => (state.profile?.nome || "").trim().split(/\s+/)[0];

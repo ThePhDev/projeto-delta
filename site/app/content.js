@@ -36,7 +36,8 @@ export const SUBJECTS = [
             { q: "Uma TV de R$ 1.500 tem 10% de desconto para pagamento à vista. O preço à vista é:", o: ["R$ 1.350", "R$ 1.400", "R$ 1.450", "R$ 1.490"], c: 0, e: "10% de 1500 = 150. Logo, 1500 − 150 = R$ 1.350." },
             { q: "R$ 2.000 aplicados a juros simples de 3% ao mês, por 4 meses, resultam em um montante de:", o: ["R$ 2.060", "R$ 2.120", "R$ 2.240", "R$ 2.400"], c: 2, e: "J = 2000 × 0,03 × 4 = 240. M = 2000 + 240 = R$ 2.240." },
             { q: "Um produto teve dois aumentos sucessivos de 10%. O aumento total foi de:", o: ["20%", "21%", "22%", "11%"], c: 1, e: "1,10 × 1,10 = 1,21 → aumento total de 21%, não 20%." }
-          ]}
+          ]},
+          { id: "num-u1-l4", titulo: "Aumentos e descontos sucessivos", topico: "num-sucessivos", gen: true }
         ]
       },
       {
@@ -62,7 +63,26 @@ export const SUBJECTS = [
             { q: "Dois ônibus saem juntos do terminal. Um parte a cada 12 min e o outro a cada 18 min. Eles voltam a sair juntos após:", o: ["30 min", "36 min", "54 min", "216 min"], c: 1, e: "Encontro simultâneo = MMC(12, 18) = 36 minutos." },
             { q: "Quantos divisores positivos tem o número 12?", o: ["4", "5", "6", "8"], c: 2, e: "Divisores de 12: 1, 2, 3, 4, 6 e 12, seis ao todo." },
             { q: "Fitas de 24 cm e 36 cm serão cortadas em pedaços iguais, do maior tamanho possível, sem sobras. Cada pedaço terá:", o: ["6 cm", "8 cm", "12 cm", "18 cm"], c: 2, e: "Maior pedaço que divide as duas medidas = MDC(24, 36) = 12 cm." }
-          ]}
+          ]},
+          { id: "num-u2-l4", titulo: "Frações e decimais", topico: "num-fracoes", gen: true }
+        ]
+      },
+      {
+        id: "num-u3", titulo: "Razões do cotidiano",
+        licoes: [
+          { id: "num-u3-l1", titulo: "Escalas e mapas", topico: "num-escalas", gen: true },
+          { id: "num-u3-l2", titulo: "Velocidade e taxas", topico: "num-velocidade", gen: true },
+          { id: "num-u3-l3", titulo: "Consumo e gastos", topico: "num-consumo", gen: true },
+          { id: "num-u3-l4", titulo: "Regra de três composta", topico: "num-composta", gen: true }
+        ]
+      },
+      {
+        id: "num-u4", titulo: "Tempo, estimativa e dinheiro",
+        licoes: [
+          { id: "num-u4-l1", titulo: "Horas e durações", topico: "num-tempo", gen: true },
+          { id: "num-u4-l2", titulo: "Arredondamento e ordem de grandeza", topico: "num-arredonda", gen: true },
+          { id: "num-u4-l3", titulo: "Juros compostos e parcelas", topico: "num-compostos", gen: true },
+          { id: "num-u4-l4", titulo: "Divisão proporcional", topico: "num-divisao", gen: true }
         ]
       }
     ]
@@ -95,7 +115,8 @@ export const SUBJECTS = [
             { q: "Um carro de R$ 50.000 desvaloriza 10% ao ano. Após 2 anos, ele vale:", o: ["R$ 40.000", "R$ 40.500", "R$ 41.000", "R$ 45.000"], c: 1, e: "50.000 × 0,9² = 50.000 × 0,81 = R$ 40.500." },
             { q: "Se f(x) = 3ˣ, então f(2) vale:", o: ["5", "6", "8", "9"], c: 3, e: "f(2) = 3² = 9." },
             { q: "A função f(x) = (1/2)ˣ é:", o: ["crescente", "decrescente", "constante", "do 1º grau"], c: 1, e: "Base entre 0 e 1: a exponencial é decrescente." }
-          ]}
+          ]},
+          { id: "alg-u1-l4", titulo: "Leitura de gráficos de funções", topico: "alg-graficos", gen: true }
         ]
       },
       {
@@ -121,7 +142,26 @@ export const SUBJECTS = [
             { q: "log₃ 1 é igual a:", o: ["0", "1", "3", "−1"], c: 0, e: "Qualquer base elevada a 0 vale 1: log₃ 1 = 0." },
             { q: "Sabendo que log 2 ≈ 0,3, o valor aproximado de log 4 é:", o: ["0,09", "0,6", "0,9", "1,2"], c: 1, e: "log 4 = log 2² = 2 × log 2 ≈ 0,6." },
             { q: "Na escala Richter, cada ponto a mais multiplica a amplitude das ondas por 10. Um tremor de magnitude 6, comparado a um de magnitude 4, tem amplitude:", o: ["2 vezes maior", "20 vezes maior", "100 vezes maior", "1.000 vezes maior"], c: 2, e: "Diferença de 2 pontos: 10² = 100 vezes." }
-          ]}
+          ]},
+          { id: "alg-u2-l4", titulo: "Sequências e padrões", topico: "alg-padroes", gen: true }
+        ]
+      },
+      {
+        id: "alg-u3", titulo: "Equações",
+        licoes: [
+          { id: "alg-u3-l1", titulo: "Equação do 1º grau", topico: "alg-eq1", gen: true },
+          { id: "alg-u3-l2", titulo: "Sistemas lineares", topico: "alg-sistemas", gen: true },
+          { id: "alg-u3-l3", titulo: "Equação do 2º grau", topico: "alg-eq2", gen: true },
+          { id: "alg-u3-l4", titulo: "Inequações", topico: "alg-ineq", gen: true }
+        ]
+      },
+      {
+        id: "alg-u4", titulo: "Modelagem",
+        licoes: [
+          { id: "alg-u4-l1", titulo: "Custo, receita e lucro", topico: "alg-lucro", gen: true },
+          { id: "alg-u4-l2", titulo: "Máximo e mínimo", topico: "alg-maxmin", gen: true },
+          { id: "alg-u4-l3", titulo: "Crescimento e decaimento", topico: "alg-crescimento", gen: true },
+          { id: "alg-u4-l4", titulo: "Expressões e produtos notáveis", topico: "alg-expressoes", gen: true }
         ]
       }
     ]
@@ -154,7 +194,8 @@ export const SUBJECTS = [
             { q: "Num triângulo retângulo, o cateto oposto a um ângulo mede 3 e a hipotenusa mede 5. O seno desse ângulo é:", o: ["3/4", "3/5", "4/5", "5/3"], c: 1, e: "sen = cateto oposto / hipotenusa = 3/5." },
             { q: "O valor de tg 45° é:", o: ["0", "1/2", "1", "√3"], c: 2, e: "Em 45°, os catetos são iguais: tg 45° = 1." },
             { q: "Uma pessoa a 20 m de um prédio vê o topo sob um ângulo de 45° (despreze a altura dos olhos). A altura do prédio é:", o: ["10 m", "20 m", "20√2 m", "40 m"], c: 1, e: "tg 45° = h/20 = 1 → h = 20 m." }
-          ]}
+          ]},
+          { id: "geo-u1-l4", titulo: "Ângulos e polígonos", topico: "geo-angulos", gen: true }
         ]
       },
       {
@@ -180,7 +221,26 @@ export const SUBJECTS = [
             { q: "A planificação de um cilindro reto resulta em:", o: ["dois círculos e um retângulo", "um círculo e um triângulo", "três retângulos", "dois retângulos"], c: 0, e: "As bases são círculos e a lateral desenrolada vira um retângulo." },
             { q: "A vista superior de um cone reto apoiado pela base é:", o: ["um triângulo", "um círculo", "um quadrado", "um trapézio"], c: 1, e: "De cima, vê-se o contorno circular da base (com o vértice no centro)." },
             { q: "Quantas faces tem um prisma de base triangular?", o: ["3", "5", "6", "9"], c: 1, e: "2 bases triangulares + 3 faces laterais retangulares = 5 faces." }
-          ]}
+          ]},
+          { id: "geo-u2-l4", titulo: "Capacidade e litros", topico: "geo-capacidade", gen: true }
+        ]
+      },
+      {
+        id: "geo-u3", titulo: "Plano e medidas",
+        licoes: [
+          { id: "geo-u3-l1", titulo: "Círculo e circunferência", topico: "geo-circulo", gen: true },
+          { id: "geo-u3-l2", titulo: "Áreas compostas", topico: "geo-compostas", gen: true },
+          { id: "geo-u3-l3", titulo: "Semelhança no cotidiano", topico: "geo-semelhanca", gen: true },
+          { id: "geo-u3-l4", titulo: "Simetria e transformações", topico: "geo-transform", gen: true }
+        ]
+      },
+      {
+        id: "geo-u4", titulo: "Geometria analítica",
+        licoes: [
+          { id: "geo-u4-l1", titulo: "Distância entre pontos", topico: "geo-distancia", gen: true },
+          { id: "geo-u4-l2", titulo: "Ponto médio", topico: "geo-pontomedio", gen: true },
+          { id: "geo-u4-l3", titulo: "Equação da reta", topico: "geo-reta", gen: true },
+          { id: "geo-u4-l4", titulo: "Mapas e coordenadas", topico: "geo-mapa", gen: true }
         ]
       }
     ]
@@ -213,7 +273,8 @@ export const SUBJECTS = [
             { q: "A variância do conjunto {2, 4, 6} é:", o: ["2", "8/3", "4", "8"], c: 1, e: "Média 4; desvios ao quadrado: 4, 0, 4. Variância = 8/3." },
             { q: "O desvio padrão é a raiz quadrada da:", o: ["média", "mediana", "variância", "amplitude"], c: 2, e: "Desvio padrão = √variância." },
             { q: "Somar 5 a todos os valores de um conjunto altera:", o: ["a média e o desvio padrão", "apenas a média", "apenas o desvio padrão", "nenhum dos dois"], c: 1, e: "Todos os valores se deslocam igualmente: a média sobe 5 e a dispersão não muda." }
-          ]}
+          ]},
+          { id: "est-u1-l4", titulo: "Média ponderada", topico: "est-ponderada", gen: true }
         ]
       },
       {
@@ -239,7 +300,26 @@ export const SUBJECTS = [
             { q: "A probabilidade de sair cara duas vezes seguidas ao lançar uma moeda é:", o: ["1/2", "1/3", "1/4", "1/8"], c: 2, e: "1/2 × 1/2 = 1/4." },
             { q: "Num grupo de 5 meninas e 3 meninos, sorteando 1 pessoa, a chance de ser menino é:", o: ["3/8", "3/5", "5/8", "1/3"], c: 0, e: "3 meninos em 8 pessoas = 3/8." },
             { q: "Ao lançar um dado, a probabilidade de sair número maior que 4 é:", o: ["1/6", "1/3", "1/2", "2/3"], c: 1, e: "Maiores que 4: {5,6} → 2/6 = 1/3." }
-          ]}
+          ]},
+          { id: "est-u2-l4", titulo: "Probabilidade condicional", topico: "est-condicional", gen: true }
+        ]
+      },
+      {
+        id: "est-u3", titulo: "Análise de dados",
+        licoes: [
+          { id: "est-u3-l1", titulo: "Mediana e moda", topico: "est-mediana", gen: true },
+          { id: "est-u3-l2", titulo: "Porcentagem em gráficos", topico: "est-graficopct", gen: true },
+          { id: "est-u3-l3", titulo: "Tabelas de frequência", topico: "est-frequencia", gen: true },
+          { id: "est-u3-l4", titulo: "Leitura de pesquisas", topico: "est-pesquisa", gen: true }
+        ]
+      },
+      {
+        id: "est-u4", titulo: "Chance e decisão",
+        licoes: [
+          { id: "est-u4-l1", titulo: "Eventos complementares", topico: "est-complementar", gen: true },
+          { id: "est-u4-l2", titulo: "Eventos independentes", topico: "est-independentes", gen: true },
+          { id: "est-u4-l3", titulo: "Permutações", topico: "est-permutacao", gen: true },
+          { id: "est-u4-l4", titulo: "Valor esperado", topico: "est-esperado", gen: true }
         ]
       }
     ]
@@ -271,5 +351,45 @@ export const OBJETIVOS = {
   "est-u1-l3": ["Calcular amplitude", "Calcular variância", "Comparar regularidade"],
   "est-u2-l1": ["Usar o princípio multiplicativo", "Contar anagramas", "Contar senhas e placas"],
   "est-u2-l2": ["Diferenciar arranjo e combinação", "Calcular combinações", "Contar jogos e comissões"],
-  "mat-u2-l3": ["Calcular probabilidades simples", "Multiplicar eventos independentes", "Trabalhar com urnas e dados"]
+  "mat-u2-l3": ["Calcular probabilidades simples", "Multiplicar eventos independentes", "Trabalhar com urnas e dados"],
+  "num-u1-l4": ["Encadear aumentos e descontos", "Multiplicar fatores percentuais", "Evitar somar porcentagens seguidas"],
+  "num-u2-l4": ["Calcular fração de uma quantidade", "Converter fração em porcentagem", "Comparar frações e decimais"],
+  "alg-u1-l4": ["Ler coeficientes no gráfico", "Calcular taxa de variação", "Prever valores de uma função afim"],
+  "alg-u2-l4": ["Reconhecer padrões em figuras", "Escrever o termo geral", "Diferenciar crescimento linear e quadrático"],
+  "geo-u1-l4": ["Somar ângulos internos", "Calcular ângulos de polígonos regulares", "Contar diagonais"],
+  "geo-u2-l4": ["Converter cm³ em litros", "Converter m³ em litros", "Calcular capacidade de recipientes"],
+  "est-u1-l4": ["Calcular média com pesos", "Comparar média simples e ponderada", "Aplicar em notas e índices"],
+  "est-u2-l4": ["Restringir o espaço amostral", "Ler tabelas de dupla entrada", "Calcular probabilidade condicional"],
+  "num-u3-l1": ["Ler escalas numéricas", "Converter cm do mapa em km", "Achar a medida no mapa"],
+  "num-u3-l2": ["Calcular velocidade média", "Converter horas em minutos", "Resolver problemas de viagem"],
+  "num-u3-l3": ["Calcular consumo de combustível", "Estimar gastos de viagem", "Usar taxas por unidade"],
+  "num-u3-l4": ["Montar regra de três com 3 grandezas", "Identificar grandezas diretas e inversas", "Calcular produção e trabalho"],
+  "num-u4-l1": ["Somar horas e minutos", "Converter minutos em horas", "Evitar erros de base 60"],
+  "num-u4-l2": ["Arredondar decimais", "Estimar ordem de grandeza", "Comparar com √10"],
+  "num-u4-l3": ["Calcular juros compostos", "Comparar à vista e parcelado", "Entender o custo das parcelas"],
+  "num-u4-l4": ["Dividir em partes proporcionais", "Usar razões em sociedades", "Conferir se as partes somam o total"],
+  "alg-u3-l1": ["Isolar a incógnita", "Traduzir frases em equações", "Conferir a solução"],
+  "alg-u3-l2": ["Resolver sistemas por adição", "Modelar problemas com duas incógnitas", "Interpretar a solução"],
+  "alg-u3-l3": ["Usar soma e produto das raízes", "Fatorar trinômios", "Identificar a maior raiz"],
+  "alg-u3-l4": ["Resolver inequações do 1º grau", "Encontrar o maior ou menor inteiro", "Aplicar em planos e tarifas"],
+  "alg-u4-l1": ["Montar funções de custo e receita", "Achar o ponto de equilíbrio", "Calcular lucro"],
+  "alg-u4-l2": ["Localizar o vértice da parábola", "Calcular valor máximo", "Aplicar em lançamentos"],
+  "alg-u4-l3": ["Modelar crescimento que dobra", "Calcular meia-vida", "Comparar linear e exponencial"],
+  "alg-u4-l4": ["Usar diferença de quadrados", "Expandir quadrado da soma", "Calcular de cabeça com produtos notáveis"],
+  "geo-u3-l1": ["Calcular área do círculo", "Calcular comprimento da circunferência", "Usar diâmetro e raio"],
+  "geo-u3-l2": ["Somar e subtrair áreas", "Dividir figuras em partes", "Calcular áreas úteis"],
+  "geo-u3-l3": ["Resolver problemas de sombra", "Usar razão de semelhança", "Relacionar escala e área"],
+  "geo-u3-l4": ["Refletir pontos em eixos", "Transladar figuras", "Ler coordenadas após transformações"],
+  "geo-u4-l1": ["Calcular distância entre pontos", "Usar Pitágoras no plano", "Reconhecer ternos pitagóricos"],
+  "geo-u4-l2": ["Calcular ponto médio", "Usar médias de coordenadas", "Achar centros de segmentos"],
+  "geo-u4-l3": ["Montar a equação da reta", "Ler coeficientes angular e linear", "Calcular pontos da reta"],
+  "geo-u4-l4": ["Contar deslocamentos em grade", "Comparar caminho e distância reta", "Ler mapas quadriculados"],
+  "est-u3-l1": ["Ordenar dados", "Encontrar a mediana", "Encontrar a moda"],
+  "est-u3-l2": ["Converter porcentagem em ângulo", "Calcular quantidades a partir de gráficos", "Ler gráficos de setores"],
+  "est-u3-l3": ["Ler tabelas de frequência", "Calcular média com frequências", "Contar observações"],
+  "est-u3-l4": ["Diferenciar pontos percentuais e porcentagem", "Interpretar resultados de pesquisa", "Calcular complementos"],
+  "est-u4-l1": ["Usar o evento complementar", "Calcular pelo menos um", "Somar probabilidades para 100%"],
+  "est-u4-l2": ["Reconhecer eventos independentes", "Multiplicar probabilidades", "Simplificar frações de chance"],
+  "est-u4-l3": ["Calcular fatorial", "Contar anagramas", "Fixar posições"],
+  "est-u4-l4": ["Calcular valor esperado", "Avaliar jogos e rifas", "Decidir com base na média"]
 };
