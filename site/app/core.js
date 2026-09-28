@@ -293,12 +293,13 @@ export function shell(tab, inner, { rail = true } = {}) {
     + `<div class="sep"></div>` + SIDE_EXTRA.map(([r, n, i]) => `<a href="#/${r}" class="${tab === r ? "on" : ""}">${ic(i)}${n}</a>`).join("")
     + (isAdmin() ? `<a href="#/admin" class="${tab === "admin" ? "on" : ""}">${ic("admin")}Administração</a>` : "");
   const v = h(`<div class="shell">
-    <nav class="side" aria-label="Navegação principal"><a class="brand" href="#/inicio" aria-label="Início">${logoSVG({ word: true })}</a>${side}</nav>
+    <nav class="side" aria-label="Navegação principal"><a class="brand" href="#/inicio" aria-label="Início">${logoSVG({ word: true })}</a>${side}<button type="button" class="side-out" id="side-out">${ic("logout")}Sair da conta</button></nav>
     <div class="center">${topHTML()}<main class="main" id="view">${inner}</main></div>
     ${rail ? railHTML() : "<aside class=\"rail\"></aside>"}
     <nav class="tabs" aria-label="Navegação">${TABS.map(([r, n, i]) => `<a href="#/${r}" data-tab="${r}" class="${tab === r ? "on" : ""}" ${tab === r ? 'aria-current="page"' : ""}>${ic(i)}<span>${n}</span></a>`).join("")}</nav>
   </div>`);
   v.querySelectorAll(".tabs a, .side a").forEach(a => a.addEventListener("click", () => sfx.tap()));
+  v.querySelector("#side-out").onclick = () => { sfx.tap(); sb.auth.signOut(); };
   root().replaceChildren(v);
   if (rail) fillRail(v);
   return v;

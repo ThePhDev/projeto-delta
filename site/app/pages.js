@@ -178,7 +178,9 @@ export function viewPerfil() {
     <h2 class="sec">Conquistas · ${state.myAch.size}/${state.ach.length}</h2>
     <div class="card pad"><div class="medals">${state.ach.map(a => `<button class="medal-c ${state.myAch.has(a.code) ? "" : "off"}" data-a="${a.code}">${medalSVG(a.icone, state.myAch.has(a.code))}${esc(a.titulo)}</button>`).join("")}</div></div>
     <h2 class="sec">Acerto por eixo</h2>
-    <div class="card radar">${radarSVG(eixoStats())}</div>`);
+    <div class="card radar">${radarSVG(eixoStats())}</div>
+    <button class="btn btn-block btn-red" id="sair-conta" style="margin-top:1.4rem">${ic("logout")} Sair da conta</button>`);
+  v.querySelector("#sair-conta").onclick = async () => { sfx.tap(); await sb.auth.signOut(); };
   v.querySelectorAll("[data-c]").forEach(el => countUp(el, +el.dataset.c));
   v.querySelector("#edit").onclick = guardaRoupa;
   v.querySelector("#cfg").onclick = ajustes;

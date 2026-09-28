@@ -719,3 +719,6 @@ canvas.confetti{position:fixed;inset:0;z-index:250;pointer-events:none}
 .node.cur{margin-top:2.8rem}
 
 .captcha{display:flex;justify-content:center;min-height:65px;margin:0 0 1rem}
+
+.side-out{display:none}
+@media (min-width:1024px){.side-out{display:flex;align-items:center;gap:.8rem;margin-top:auto;padding:.7rem .9rem;border-radius:14px;font:inherit;font-weight:900;color:var(--ink-2);background:none;border:2px solid transparent;cursor:pointer;text-align:left}.side-out:hover{background:var(--card-2);color:var(--red)}}
