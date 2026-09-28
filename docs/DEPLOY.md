@@ -15,13 +15,20 @@ Ambos usam o mesmo projeto Supabase (`xsoxsxqgscmlvwggidmq`). **Cuidado:** dados
 2. O ambiente de teste é atualizado a partir dessa branch e validado.
 3. Depois de aprovado, a produção é atualizada com o mesmo conteúdo de `site/`.
 
-Deploy manual pela CLI (a partir da pasta `site/`):
+Deploy pela CLI (a partir da pasta `site/`, com `VERCEL_TOKEN` definido no seu terminal):
 
 ```bash
 cd site
-npx -y vercel@latest deploy            # preview
-npx -y vercel@latest deploy --prod     # produção — só depois de validar no teste
+# 1) Ambiente de teste → https://projeto-delta-teste.vercel.app
+npx -y vercel@latest link --yes --project projeto-delta-teste --token "$VERCEL_TOKEN"
+npx -y vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
+
+# 2) Oficial → https://projetodelta.vercel.app (só depois de validar no teste)
+npx -y vercel@latest link --yes --project projeto-delta --token "$VERCEL_TOKEN"
+npx -y vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN"
 ```
+
+O `link` grava em `site/.vercel/` qual projeto recebe o deploy — confira antes de rodar o `deploy --prod`. Essa pasta está no `.gitignore`.
 
 Use `vercel login` ou um token guardado em variável de ambiente local. **Nunca** coloque tokens neste repositório nem dentro de `site/` (tudo em `site/` é publicado).
 
