@@ -4,7 +4,8 @@
 import { sb, state, root, navigate, loadUserData, initTheme } from "./core.js";
 import { viewLogin, viewCadastro, viewConfirmar, viewEsqueci, viewRedefinir, viewOnboarding } from "./auth.js";
 import { viewInicio, viewLicao, startTreino, viewEnem, viewSimulados } from "./learn.js";
-import { viewPraticar, viewLoja, viewPerfil, viewRanking, viewMissoes, viewErros, viewPainel, viewAdmin } from "./pages.js";
+import { viewPraticar, viewLoja, viewPerfil, viewRanking, viewMissoes, viewErros, viewPainel } from "./pages.js";
+import { viewAdmin } from "./admin.js";
 import { viewCronograma, viewDiagnostico } from "./plan.js";
 import { deltaSVG } from "./mascot.js";
 import { h, reduceMotion } from "./ui.js";
@@ -15,7 +16,7 @@ const ROUTES = {
   "/inicio": () => viewInicio(), "/licao": p => viewLicao(p[1]), "/treino": p => startTreino(p[1] || "mix"),
   "/praticar": () => viewPraticar(), "/enem": () => viewEnem(), "/simulados": () => viewSimulados(),
   "/loja": () => viewLoja(), "/perfil": () => viewPerfil(), "/ranking": () => viewRanking(), "/missoes": () => viewMissoes(),
-  "/erros": () => viewErros(), "/cronograma": () => viewCronograma(), "/diagnostico": () => viewDiagnostico(), "/painel": () => viewPainel(), "/tecnicas": () => navigate("/praticar"), "/admin": () => viewAdmin(),
+  "/erros": () => viewErros(), "/cronograma": () => viewCronograma(), "/diagnostico": () => viewDiagnostico(), "/painel": () => viewPainel(), "/tecnicas": () => navigate("/praticar"), "/admin": p => viewAdmin(p),
   // rotas antigas
   "/materias": () => navigate("/inicio"), "/trilha": () => navigate("/inicio"), "/revisao": () => navigate("/erros"), "/desempenho": () => navigate("/painel")
 };

@@ -386,28 +386,4 @@ export async function viewPainel() {
 // ============================================================
 // ADMIN
 // ============================================================
-export async function viewAdmin() {
-  if (!isAdmin()) return navigate("/inicio");
-  const v = shell("admin", `${page("Domínios autorizados", "Só e-mails com estes sufixos conseguem criar conta. A regra vale no banco, não só na tela.")}
-    <h2 class="sec">Feedback dos estudantes</h2><div id="fbl"><div class="spin"></div></div>
-    <h2 class="sec">Adicionar domínio</h2>
-    <div class="card pad"><div class="input"><input id="nd" placeholder="ex.: escola.pr.gov.br" aria-label="Novo domínio" /></div><button class="btn btn-lime btn-block" id="add" style="margin-top:.6rem">Adicionar domínio</button></div><div id="dl"></div>`);
-  async function load() {
-    const { data } = await sb.from("allowed_email_domains").select("*").order("domain");
-    v.querySelector("#dl").innerHTML = (data || []).map(d => `<div class="dom-row"><span>@${esc(d.domain)}</span><button class="btn btn-sm" data-id="${esc(d.id)}" aria-label="Remover">${ic("x")}</button></div>`).join("") || `<div class="empty" style="margin-top:1rem">Nenhum domínio cadastrado.</div>`;
-    v.querySelectorAll("[data-id]").forEach(b => b.onclick = async () => { const { error } = await sb.from("allowed_email_domains").delete().eq("id", b.dataset.id); if (error) toast("Não deu para remover."); load(); });
-  }
-  sb.from("feedback").select("*").order("created_at", { ascending: false }).limit(100).then(({ data }) => {
-    const l = data || [], med = l.length ? (l.reduce((a, f) => a + f.nota, 0) / l.length).toFixed(1).replace(".", ",") : "-";
-    v.querySelector("#fbl").innerHTML = `<div class="card pad"><b>${l.length} respostas · nota média ${med} de 5</b>${l.slice(0, 30).map(f => `<div class="hist" style="flex-wrap:wrap"><b>${"★".repeat(f.nota)}${"☆".repeat(5 - f.nota)}</b><span class="muted">${new Date(f.created_at).toLocaleDateString("pt-BR")} · ${esc((f.categorias || []).join(", ") || "geral")}</span>${f.texto ? `<p style="flex-basis:100%;font-weight:700">${esc(f.texto)}</p>` : ""}</div>`).join("")}</div>`;
-  });
-  v.querySelector("#add").onclick = async () => {
-    const dom = v.querySelector("#nd").value.trim().toLowerCase().replace(/^@/, "");
-    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/.test(dom)) return toast("Domínio inválido.");
-    const { error } = await sb.from("allowed_email_domains").insert({ domain: dom });
-    if (error) return toast("Não deu para adicionar.");
-    v.querySelector("#nd").value = ""; load();
-  };
-  load();
-}
 const primeiroNomeP = () => (state.profile?.nome || "").trim().split(/\s+/)[0];
