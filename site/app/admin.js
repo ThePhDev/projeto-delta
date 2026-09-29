@@ -6,6 +6,7 @@ import { sb, state, navigate, shell, page, isAdmin, LESSON } from "./core.js";
 import { ic } from "./icons.js";
 import { esc, toast, modal, sheet, countUp } from "./ui.js";
 import { sfx } from "./sfx.js";
+import { areaChart, barChart, donut, heatmap, funnel, gauge, sparkline, CAT } from "./charts.js";
 
 const nf = n => Number(n || 0).toLocaleString("pt-BR");
 const pct = (a, b) => (b ? Math.round(a / b * 100) : 0);
@@ -19,19 +20,25 @@ const lic = id => LESSON[id]?.l?.titulo || id;
 const kpi = (rot, val, sub = "", cor = "var(--teal)") =>
   `<div class="adm-kpi"><div class="l">${rot}</div><div class="v" style="color:${cor}" ${typeof val === "number" ? `data-c="${val}"` : ""}>${typeof val === "number" ? nf(val) : esc(val)}</div>${sub ? `<div class="s">${sub}</div>` : ""}</div>`;
 
-function bars(rows, key, { fmt = nf, cor = "var(--teal)", label = r => dia(r.dia), h2 = null } = {}) {
-  const max = Math.max(1, ...rows.map(r => r[key] || 0));
-  const step = Math.ceil(rows.length / 8);
-  return `<div class="adm-bars" role="img" aria-label="Gráfico de barras por dia">${rows.map((r, i) => {
-    const v = r[key] || 0, tip = `${label(r)}: ${fmt(v)}`;
-    return `<div class="c" title="${esc(tip)}"><i style="height:${Math.max(v ? 4 : 1, Math.round(v / max * 100))}%;background:${cor}"></i><span>${i % step === 0 || i === rows.length - 1 ? esc(label(r)) : ""}</span></div>`;
-  }).join("")}</div>`;
-}
-const hbars = (rows, nome, val, txt, cor = "var(--teal)") => {
+// Barras horizontais animadas (ranking): uma cor, valor sempre em texto
+const hbars = (rows, nome, val, txt, cor = "var(--c1)") => {
   const max = Math.max(1, ...rows.map(r => r[val] || 0));
-  return rows.length ? rows.map(r => `<div class="adm-hb"><span class="n">${esc(nome(r))}</span><span class="t"><i style="width:${Math.round((r[val] || 0) / max * 100)}%;background:${cor}"></i></span><span class="p">${txt(r)}</span></div>`).join("")
-    : `<p class="muted" style="font-weight:700">Sem dados ainda.</p>`;
+  return rows.length ? `<div class="hbl">${rows.map((r, i) => `<div class="adm-hb" style="--i:${i}"><span class="n" title="${esc(nome(r))}">${esc(nome(r))}</span><span class="t"><i style="--w:${Math.round((r[val] || 0) / max * 100)}%;background:${cor}"></i></span><span class="p">${txt(r)}</span></div>`).join("")}</div>`
+    : `<p class="muted adm-empty">Sem dados ainda.</p>`;
 };
+const tile = (i, titulo, corpo, { cls = "", sub = "", acts = "" } = {}) =>
+  `<section class="tile ${cls}" style="--i:${i}"><header><div><h3>${titulo}</h3>${sub ? `<p>${sub}</p>` : ""}</div>${acts}</header>${corpo}</section>`;
+function delta(cur, prev, { pp = false } = {}) {
+  if (prev == null) return "";
+  const d = pp ? cur - prev : prev ? (cur - prev) / prev * 100 : (cur ? 100 : 0);
+  if (!isFinite(d)) return "";
+  const r = Math.round(d * 10) / 10, up = r > 0, zero = r === 0;
+  const txt = `${up ? "+" : ""}${r.toLocaleString("pt-BR")}${pp ? " p.p." : "%"}`;
+  return `<span class="dl ${zero ? "eq" : up ? "up" : "dn"}" title="Comparado ao período anterior"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="${zero ? "M2 6h8" : up ? "M6 10V2M2.5 5.5 6 2l3.5 3.5" : "M6 2v8M2.5 6.5 6 10l3.5-3.5"}"/></svg>${txt}<em class="sr">em relação ao período anterior</em></span>`;
+}
+const card = (i, { icone, rot, val, fmtv, sub = "", dl = "", spark = "", cor }) =>
+  `<article class="kc" style="--i:${i};--kc:${cor}"><div class="kc-top"><span class="kc-ic">${ic(icone)}</span><span class="kc-l">${rot}</span>${dl}</div>
+   <div class="kc-v" ${typeof val === "number" && !fmtv ? `data-c="${val}"` : ""}>${fmtv || nf(val)}</div><div class="kc-s">${sub}</div>${spark}</article>`;
 
 export async function viewAdmin(parts) {
   if (!isAdmin()) return navigate("/inicio");
@@ -59,58 +66,92 @@ async function overview(days = 30) {
 }
 
 // ---------------- visão geral ----------------
+const METRICAS = [
+  ["tentativas", "Questões", "var(--c1)"], ["ativos", "Estudantes ativos", "var(--c4)"],
+  ["xp", "XP ganho", "var(--c2)"], ["cadastros", "Cadastros", "var(--c3)"]
+];
 async function geral(box) {
-  let days = 30;
-  async function draw() {
-    const o = await overview(days), t = o.totais, s = o.serie;
-    const soma = k => s.reduce((a, r) => a + (r[k] || 0), 0);
+  let days = 30, metrica = "tentativas", vivo = false, timer = null, carregando = false;
+  const stop = () => { clearInterval(timer); timer = null; };
+  addEventListener("hashchange", stop, { once: true });
+  async function draw(quiet = false) {
+    if (carregando) return; carregando = true;
+    let o; try { o = await overview(days); } finally { carregando = false; }
+    const t = o.totais, all = o.serie, cur = all.slice(-days), prev = all.slice(0, all.length - days);
+    const soma = (rows, k) => rows.reduce((a, r) => a + (r[k] || 0), 0);
+    const acc = rows => { const tt = soma(rows, "tentativas"); return tt ? soma(rows, "acertos") / tt * 100 : 0; };
+    const med = (rows, k) => rows.length ? soma(rows, k) / rows.length : 0;
+    const lab = cur.map(r => dia(r.dia));
+    const accSerie = cur.map(r => r.tentativas ? r.acertos / r.tentativas * 100 : 0);
+    const estudaram = t.usuarios - o.engajamento.nunca_estudaram;
+    box.classList.toggle("quiet", quiet);
     box.innerHTML = `
-      <div class="adm-head"><span class="muted">Atualizado ${quando(o.gerado_em)}</span>
-        <div class="segs adm-seg" style="margin:0">${[7, 30, 90].map(n => `<button data-d="${n}" class="${n === days ? "on" : ""}">${n} dias</button>`).join("")}</div>
-        <button class="btn btn-sm" id="rf">${ic("cycle")} Atualizar</button></div>
-      <div class="adm-kpis">
-        ${kpi("Usuários", t.usuarios, `${nf(t.alunos)} alunos · ${nf(t.professores)} prof. · ${nf(t.admins)} admin`)}
-        ${kpi("Ativos hoje", t.ativos_hoje, `${nf(t.ativos_7d)} em 7 dias · ${nf(t.ativos_30d)} em 30`, "var(--green)")}
-        ${kpi("Novos (7 dias)", t.novos_7d, `${pct(t.onboarding_ok, t.usuarios)}% concluíram o onboarding`, "var(--gold)")}
-        ${kpi("Questões respondidas", t.tentativas, `${pct(t.acertos, t.tentativas)}% de acerto geral`)}
-        ${kpi("Lições concluídas", t.licoes_concluidas, `${nf(t.simulados)} simulados feitos`, "#c4b5fd")}
-        ${kpi("XP total", t.xp_total, `${nf(t.deltas_total)} Deltas em circulação`, "var(--gold)")}
-        ${kpi("Sequência média", Number(t.sequencia_media).toLocaleString("pt-BR", { minimumFractionDigits: 1 }), `${nf(t.conquistas)} conquistas · ${nf(t.itens_comprados)} itens comprados`, "var(--magenta, #ff00e5)")}
-        ${kpi("Cadernos de erro abertos", t.erros_abertos, `${nf(t.com_cronograma)} usuários com cronograma`, "var(--red)")}
+      <div class="adm-bar">
+        <div class="segs adm-seg" role="group" aria-label="Período">${[7, 30, 90].map(n => `<button data-d="${n}" class="${n === days ? "on" : ""}" aria-pressed="${n === days}">${n} dias</button>`).join("")}</div>
+        <button class="live ${vivo ? "on" : ""}" id="live" aria-pressed="${vivo}"><i></i>${vivo ? "Ao vivo" : "Ao vivo desligado"}</button>
+        <span class="upd">Atualizado às ${new Date(o.gerado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+        <button class="btn btn-sm" id="rf">${ic("cycle")} Atualizar</button>
       </div>
-      <h2 class="sec">Estudantes ativos por dia <small class="muted">· ${nf(soma("ativos"))} acessos-dia</small></h2>
-      <div class="card pad">${bars(s, "ativos", { cor: "var(--green)" })}</div>
-      <div class="adm-2">
-        <div><h2 class="sec">Novos cadastros <small class="muted">· ${nf(soma("cadastros"))}</small></h2><div class="card pad">${bars(s, "cadastros", { cor: "var(--gold)" })}</div></div>
-        <div><h2 class="sec">Questões por dia <small class="muted">· ${nf(soma("tentativas"))}</small></h2><div class="card pad">${bars(s, "tentativas", { cor: "var(--teal)" })}</div></div>
+      <div class="kcs">
+        ${card(0, { icone: "user", rot: "Presença média por dia", val: 0, fmtv: med(cur, "ativos").toLocaleString("pt-BR", { maximumFractionDigits: 1 }), sub: `${nf(t.ativos_hoje)} estudando hoje`, dl: delta(med(cur, "ativos"), med(prev, "ativos")), spark: sparkline(cur.map(r => r.ativos), "var(--c4)"), cor: "var(--c4)" })}
+        ${card(1, { icone: "question", rot: "Questões respondidas", val: soma(cur, "tentativas"), sub: `nos últimos ${days} dias`, dl: delta(soma(cur, "tentativas"), soma(prev, "tentativas")), spark: sparkline(cur.map(r => r.tentativas), "var(--c1)"), cor: "var(--c1)" })}
+        ${card(2, { icone: "target", rot: "Taxa de acerto", val: 0, fmtv: Math.round(acc(cur)) + "%", sub: `${nf(soma(cur, "acertos"))} acertos no período`, dl: delta(acc(cur), acc(prev), { pp: true }), spark: sparkline(accSerie, "var(--c5)"), cor: "var(--c5)" })}
+        ${card(3, { icone: "school", rot: "Novos cadastros", val: soma(cur, "cadastros"), sub: `${nf(t.usuarios)} contas no total`, dl: delta(soma(cur, "cadastros"), soma(prev, "cadastros")), spark: sparkline(cur.map(r => r.cadastros), "var(--c3)"), cor: "var(--c3)" })}
       </div>
-      <h2 class="sec">XP ganho por dia <small class="muted">· ${nf(soma("xp"))}</small></h2>
-      <div class="card pad">${bars(s, "xp", { cor: "#c4b5fd" })}</div>
-      <div class="adm-2">
-        <div><h2 class="sec">Onde está o esforço</h2><div class="card pad">${hbars(o.xp_fontes, r => FONTE[r.source] || r.source, "xp", r => `${nf(r.xp)} XP`, "var(--gold)")}</div></div>
-        <div><h2 class="sec">Acerto por origem</h2><div class="card pad">${hbars(o.origens, r => ORIGEM[r.origem] || r.origem, "total", r => `${r.acerto}% · ${nf(r.total)}`)}</div></div>
+      <div class="dash">
+        ${tile(4, "Atividade da plataforma", "", { cls: "t-wide", sub: `Linha tracejada: os ${days} dias anteriores`, acts: `<div class="chips" role="group" aria-label="Métrica">${METRICAS.map(([k, n, c]) => `<button data-m="${k}" class="${k === metrica ? "on" : ""}" style="--cc:${c}" aria-pressed="${k === metrica}"><i></i>${n}</button>`).join("")}</div>` })}
+        ${tile(5, "Saúde da turma", `<div class="gauges">
+            <div>${gauge(pct(t.acertos, t.tentativas), { color: "var(--c5)", label: "Acerto geral" })}<span>Acerto geral</span></div>
+            <div>${gauge(pct(t.onboarding_ok, t.usuarios), { color: "var(--c4)", label: "Concluíram o primeiro acesso" })}<span>Primeiro acesso concluído</span></div>
+            <div>${gauge(pct(t.ativos_7d, t.usuarios), { color: "var(--c1)", label: "Ativos na semana" })}<span>Ativos na semana</span></div>
+          </div>
+          <dl class="mini">
+            <div><dt>Usuários</dt><dd data-c="${t.usuarios}">${nf(t.usuarios)}</dd></div><div><dt>Lições concluídas</dt><dd data-c="${t.licoes_concluidas}">${nf(t.licoes_concluidas)}</dd></div>
+            <div><dt>Simulados</dt><dd data-c="${t.simulados}">${nf(t.simulados)}</dd></div><div><dt>Sequência média</dt><dd>${Number(t.sequencia_media).toLocaleString("pt-BR", { minimumFractionDigits: 1 })} dias</dd></div>
+            <div><dt>Erros a revisar</dt><dd data-c="${t.erros_abertos}">${nf(t.erros_abertos)}</dd></div><div><dt>Deltas em circulação</dt><dd data-c="${t.deltas_total}">${nf(t.deltas_total)}</dd></div>
+          </dl>`, { sub: `${nf(t.alunos)} alunos · ${nf(t.professores)} professores · ${nf(t.admins)} admin${t.suspensos ? ` · ${nf(t.suspensos)} suspensa(s)` : ""}` })}
+        ${tile(6, "Jornada do estudante", "", { sub: "Quantos avançam em cada etapa", cls: "t-fun" })}
+        ${tile(7, "Volume por origem", "", { sub: "Onde as questões são respondidas e quanto acertam", cls: "t-don" })}
+        ${tile(8, "Quando a turma estuda", "", { cls: "t-wide t-hm", sub: `Questões por dia da semana e hora, últimos ${days} dias` })}
+        ${tile(9, "De onde vem o XP", hbars(o.xp_fontes, r => FONTE[r.source] || r.source, "xp", r => `${nf(r.xp)} XP`, "var(--c2)"), { sub: "Soma de todo o histórico" })}
+        ${tile(10, "Escolas", hbars(o.escolas, r => r.escola, "n", r => `${nf(r.n)} aluno${r.n === 1 ? "" : "s"}`, "var(--c4)"), { sub: "Cadastros por escola informada", cls: "t-full" })}
       </div>
-      <div class="adm-2">
-        <div><h2 class="sec">Horário de estudo <small class="muted">· últimos 30 dias</small></h2><div class="card pad">${horas(o.horas)}</div></div>
-        <div><h2 class="sec">Engajamento</h2><div class="card pad">
-          ${hbars([
-            { n: "Nunca estudaram", v: o.engajamento.nunca_estudaram, c: "var(--red)" },
-            { n: "Sem sequência agora", v: o.engajamento.sem_streak, c: "var(--gold)" },
-            { n: "Sequência de 3+ dias", v: o.engajamento.streak_3_mais, c: "var(--green)" },
-            { n: "Sequência de 7+ dias", v: o.engajamento.streak_7_mais, c: "var(--teal)" }
-          ], r => r.n, "v", r => nf(r.v), "var(--teal)")}</div></div>
-      </div>
-      <h2 class="sec">Escolas</h2><div class="card pad">${hbars(o.escolas, r => r.escola, "n", r => nf(r.n), "var(--gold)")}</div>
-      <p class="muted" style="margin-top:1rem;font-weight:700">Feedback: ${nf(o.feedback.total)} respostas · nota média ${String(o.feedback.media).replace(".", ",")} de 5${t.suspensos ? ` · ${nf(t.suspensos)} conta(s) suspensa(s)` : ""}</p>`;
-    box.querySelectorAll("[data-c]").forEach(el => countUp(el, +el.dataset.c));
-    box.querySelectorAll("[data-d]").forEach(b => b.onclick = async () => { days = +b.dataset.d; sfx.tap(); await draw(); });
-    box.querySelector("#rf").onclick = async () => { sfx.tap(); await draw(); toast("Dados atualizados."); };
+      <p class="adm-foot">Feedback: ${nf(o.feedback.total)} respostas, nota média ${Number(o.feedback.media).toLocaleString("pt-BR")} de 5. Veja na aba Feedback.</p>`;
+    const [tAt, , tFn, tDn, tHm] = box.querySelectorAll(".tile");
+    const drawArea = () => {
+      const [k, n, c] = METRICAS.find(m => m[0] === metrica);
+      tAt.querySelector(".ch")?.remove();
+      const host = document.createElement("div"); tAt.appendChild(host);
+      areaChart(host, { labels: lab, series: [{ name: n, color: c, values: cur.map(r => r[k] || 0) }], prev: prev.length === cur.length ? prev.map(r => r[k] || 0) : null });
+    };
+    drawArea();
+    const fnHost = document.createElement("div"); tFn.appendChild(fnHost);
+    funnel(fnHost, [
+      { label: "Criaram conta", value: t.usuarios }, { label: "Concluíram o primeiro acesso", value: t.onboarding_ok },
+      { label: "Já estudaram", value: estudaram }, { label: "Sequência de 3+ dias", value: o.engajamento.streak_3_mais },
+      { label: "Sequência de 7+ dias", value: o.engajamento.streak_7_mais }
+    ]);
+    const dnHost = document.createElement("div"); tDn.appendChild(dnHost);
+    const origens = ["licao", "enem", "revisao", "simulado"].map((k, i) => { const r = o.origens.find(x => x.origem === k); return r ? { label: ORIGEM[k], value: r.total, extra: `${String(r.acerto).replace(".", ",")}% de acerto`, color: CAT[i] } : null; }).filter(Boolean);
+    if (origens.length) donut(dnHost, { items: origens, center: "questões" }); else dnHost.innerHTML = `<p class="muted adm-empty">Sem questões respondidas ainda.</p>`;
+    const hmHost = document.createElement("div"); tHm.appendChild(hmHost);
+    heatmap(hmHost, o.heatmap || []);
+    if (!quiet) box.querySelectorAll("[data-c]").forEach(el => { el.dataset.v = "0"; countUp(el, +el.dataset.c, 1100); });
+    box.querySelectorAll("[data-d]").forEach(b => b.onclick = () => { days = +b.dataset.d; sfx.tap(); draw(); });
+    box.querySelectorAll("[data-m]").forEach(b => b.onclick = () => {
+      metrica = b.dataset.m; sfx.tap();
+      box.querySelectorAll("[data-m]").forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
+      drawArea();
+    });
+    box.querySelector("#rf").onclick = async () => { sfx.tap(); await draw(true); toast("Dados atualizados."); };
+    box.querySelector("#live").onclick = () => {
+      vivo = !vivo; sfx.tap(); stop();
+      if (vivo) timer = setInterval(() => { if (document.visibilityState === "visible" && location.hash.startsWith("#/admin")) draw(true); }, 30000);
+      const b = box.querySelector("#live"); b.classList.toggle("on", vivo); b.setAttribute("aria-pressed", vivo); b.lastChild.textContent = vivo ? "Ao vivo" : "Ao vivo desligado";
+      if (vivo) toast("Atualizando a cada 30 segundos.");
+    };
   }
   await draw();
-}
-function horas(rows) {
-  const m = Object.fromEntries(rows.map(r => [r.h, r.n])), max = Math.max(1, ...rows.map(r => r.n));
-  return `<div class="adm-bars adm-h" role="img" aria-label="Questões por hora do dia">${Array.from({ length: 24 }, (_, h) => `<div class="c" title="${h}h: ${nf(m[h] || 0)} questões"><i style="height:${Math.max(m[h] ? 4 : 1, Math.round((m[h] || 0) / max * 100))}%;background:var(--teal)"></i><span>${h % 3 === 0 ? h + "h" : ""}</span></div>`).join("")}</div>`;
 }
 
 // ---------------- usuários ----------------
@@ -175,8 +216,8 @@ async function detalhe(uid, refresh) {
       ${kpi("XP", s.xp || 0)}${kpi("Deltas", s.deltas || 0, "", "var(--gold)")}${kpi("Sequência", s.streak_atual || 0, `melhor: ${s.melhor_streak || 0}`, "var(--green)")}
       ${kpi("Questões", tot, `${pct(ac, tot)}% de acerto`)}${kpi("Lições", d.licoes.length, "", "#c4b5fd")}${kpi("Erros abertos", d.contagens.erros_abertos, "", "var(--red)")}
     </div>
-    <h3 class="adm-h3">Últimos 14 dias</h3><div class="card pad">${bars(d.serie, "tentativas", { cor: "var(--teal)" })}</div>
-    <h3 class="adm-h3">Por tópico</h3><div class="card pad">${hbars(d.topicos, r => r.topico, "total", r => `${pct(r.acertos, r.total)}% · ${r.total}`)}</div>
+    <h3 class="adm-h3">Questões nos últimos 14 dias</h3><div class="card pad"><div id="dsr"></div></div>
+    <h3 class="adm-h3">Por tópico</h3><div class="card pad">${hbars(d.topicos, r => r.topico, "total", r => `${pct(r.acertos, r.total)}% de acerto · ${r.total}`)}</div>
     <h3 class="adm-h3">Lições concluídas</h3><div class="card pad">${d.licoes.length ? d.licoes.slice(0, 12).map(l => `<div class="adm-hb"><span class="n">${esc(lic(l.lesson_id))}</span><span class="p">${"★".repeat(l.estrelas || 0)}${"☆".repeat(3 - (l.estrelas || 0))} · ${l.tentativas}x</span></div>`).join("") : `<p class="muted" style="font-weight:700">Nenhuma ainda.</p>`}</div>
     <h3 class="adm-h3">Atividade recente</h3><div class="card pad">${d.recentes.map(r => `<div class="adm-hb"><span class="n">${esc(r.topico || "—")} <em class="muted">· ${esc(ORIGEM[r.origem] || r.origem)}</em></span><span class="p" style="color:${r.correta ? "var(--green)" : "var(--red)"}">${r.correta ? "acertou" : "errou"} · ${quando(r.created_at)}</span></div>`).join("") || `<p class="muted" style="font-weight:700">Sem atividade.</p>`}</div>
     ${d.feedback.length ? `<h3 class="adm-h3">Feedback enviado</h3><div class="card pad">${d.feedback.map(f => `<p style="font-weight:700"><b>${"★".repeat(f.nota)}</b> ${esc(f.texto || "")}</p>`).join("")}</div>` : ""}
@@ -188,6 +229,7 @@ async function detalhe(uid, refresh) {
       ${eu ? `<p class="muted" style="font-weight:700">Esta é a sua conta: papel e suspensão ficam travados.</p>` : ""}
     </div></div>`);
   sh.querySelectorAll("[data-c]").forEach(el => countUp(el, +el.dataset.c, 600));
+  requestAnimationFrame(() => barChart(sh.querySelector("#dsr"), { labels: d.serie.map(r => dia(r.dia)), values: d.serie.map(r => r.tentativas), name: "Questões", height: 170 }));
   const papel = sh.querySelector("#papel");
   papel.onchange = () => {
     const novo = papel.value;
@@ -214,15 +256,16 @@ async function detalhe(uid, refresh) {
 // ---------------- conteúdo ----------------
 async function conteudo(box) {
   const o = await overview(30);
-  box.innerHTML = `
-    <div class="adm-2">
-      <div><h2 class="sec">Tópicos mais praticados</h2><div class="card pad">${hbars(o.topicos, r => r.topico, "total", r => `${r.acerto}% · ${nf(r.total)}`)}<p class="muted" style="font-weight:700;margin-top:.7rem">A porcentagem é o acerto geral no tópico. Tópicos com acerto baixo pedem reforço em sala.</p></div></div>
-      <div><h2 class="sec">Tópicos com menor acerto <small class="muted">· 10+ respostas</small></h2><div class="card pad">${hbars(o.topicos.filter(t => t.total >= 10).sort((a, b) => a.acerto - b.acerto).slice(0, 10), r => r.topico, "total", r => `${r.acerto}% · ${nf(r.total)}`, "var(--red)")}</div></div>
-    </div>
-    <div class="adm-2">
-      <div><h2 class="sec">Lições mais concluídas</h2><div class="card pad">${hbars(o.lic_top, r => lic(r.lesson_id), "n", r => `${nf(r.n)} · ${String(r.estrelas).replace(".", ",")}★`, "#c4b5fd")}</div></div>
-      <div><h2 class="sec">Itens mais comprados na loja</h2><div class="card pad">${hbars(o.loja_top, r => r.nome || r.item_id, "n", r => nf(r.n), "var(--gold)")}</div></div>
-    </div>`;
+  const fracos = o.topicos.filter(t => t.total >= 10).sort((a, b) => a.acerto - b.acerto).slice(0, 8);
+  const tabela = rows => rows.length ? `<table class="tb"><thead><tr><th>Tópico</th><th class="nm">Respostas</th><th>Acerto</th></tr></thead><tbody>${rows.map((r, i) => `
+      <tr style="--i:${i}"><td>${esc(r.topico)}</td><td class="nm">${nf(r.total)}</td>
+      <td><span class="acb"><i style="--w:${r.acerto}%"></i></span><b class="nm">${String(r.acerto).replace(".", ",")}%</b>${r.acerto < 50 && r.total >= 10 ? `<span class="warn" title="Acerto abaixo de 50%">${ic("bolt")}reforçar</span>` : ""}</td></tr>`).join("")}</tbody></table>` : `<p class="muted adm-empty">Sem dados ainda.</p>`;
+  box.innerHTML = `<div class="dash">
+    ${tile(0, "Tópicos mais praticados", tabela(o.topicos.slice(0, 12)), { cls: "t-wide", sub: "Volume de respostas e taxa de acerto por tópico" })}
+    ${tile(1, "Onde a turma mais erra", hbars(fracos.map(r => ({ ...r, erro: Math.round((100 - r.acerto) * 10) / 10 })), r => r.topico, "erro", r => `${String(r.erro).replace(".", ",")}% de erro`, "var(--c3)"), { sub: "Tópicos com 10+ respostas e maior taxa de erro. Bons candidatos para revisar em sala." })}
+    ${tile(2, "Lições mais concluídas", hbars(o.lic_top, r => lic(r.lesson_id), "n", r => `${nf(r.n)} · média ${String(r.estrelas).replace(".", ",")} estrelas`, "var(--c1)"), { cls: "t-half" })}
+    ${tile(3, "Itens mais comprados", hbars(o.loja_top, r => r.nome || r.item_id, "n", r => `${nf(r.n)} compra${r.n === 1 ? "" : "s"}`, "var(--c2)"), { sub: "Itens iniciais gratuitos ficam de fora", cls: "t-half" })}
+  </div>`;
 }
 
 // ---------------- feedback ----------------
@@ -230,11 +273,16 @@ async function feedback(box) {
   const { data } = await sb.from("feedback").select("*").order("created_at", { ascending: false }).limit(200);
   const l = data || [], med = l.length ? (l.reduce((a, f) => a + f.nota, 0) / l.length) : 0;
   const dist = [5, 4, 3, 2, 1].map(n => ({ n, c: l.filter(f => f.nota === n).length }));
-  box.innerHTML = `<div class="adm-2">
-      <div class="card pad"><div class="adm-kpi" style="border:0;padding:0"><div class="l">Nota média</div><div class="v" style="color:var(--gold)">${l.length ? med.toFixed(1).replace(".", ",") : "—"}<small class="muted"> de 5</small></div><div class="s">${nf(l.length)} respostas</div></div></div>
-      <div class="card pad">${hbars(dist, r => "★".repeat(r.n), "c", r => nf(r.c), "var(--gold)")}</div></div>
-    <h2 class="sec">Respostas recentes</h2>
-    ${l.map(f => `<div class="hist" style="flex-wrap:wrap"><b>${"★".repeat(f.nota)}${"☆".repeat(5 - f.nota)}</b><span class="muted">${quando(f.created_at)} · ${esc((f.categorias || []).join(", ") || "geral")}${f.pagina ? " · " + esc(f.pagina) : ""}</span>${f.texto ? `<p style="flex-basis:100%;font-weight:700;margin:0">${esc(f.texto)}</p>` : ""}</div>`).join("") || `<div class="empty">Nenhum feedback ainda.</div>`}`;
+  const cats = {}; l.forEach(f => (f.categorias || []).forEach(c => { cats[c] = (cats[c] || 0) + 1; }));
+  const catRows = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([c, n]) => ({ c, n }));
+  box.innerHTML = `<div class="dash">
+    ${tile(0, "Satisfação", `<div class="fb-score">${l.length ? `<div class="big">${med.toLocaleString("pt-BR", { maximumFractionDigits: 1, minimumFractionDigits: 1 })}<small> de 5</small></div>` : `<div class="big none">Sem notas</div>`}
+        <div class="stars" aria-hidden="true">${[1, 2, 3, 4, 5].map(k => `<i class="${med >= k - .25 ? "on" : med >= k - .75 ? "half" : ""}"></i>`).join("")}</div><p>${nf(l.length)} respostas</p></div>`)}
+    ${tile(1, "Distribuição das notas", hbars(dist, r => `${r.n} estrela${r.n === 1 ? "" : "s"}`, "c", r => nf(r.c), "var(--c2)"))}
+    ${tile(2, "Assuntos citados", hbars(catRows, r => r.c, "n", r => nf(r.n), "var(--c1)"), { sub: "Categorias marcadas pelos estudantes" })}
+    ${tile(3, "Respostas recentes", `<div class="fb-list">${l.map((f, i) => `<article style="--i:${Math.min(i, 12)}"><header><span class="st" aria-label="${f.nota} de 5">${"★".repeat(f.nota)}<s>${"★".repeat(5 - f.nota)}</s></span><time>${quando(f.created_at)}</time></header>
+        <div class="tg">${(f.categorias || []).map(c => `<span>${esc(c)}</span>`).join("") || "<span>geral</span>"}${f.pagina ? `<span class="pg">${esc(f.pagina)}</span>` : ""}</div>${f.texto ? `<p>${esc(f.texto)}</p>` : ""}</article>`).join("") || `<p class="muted adm-empty">Nenhum feedback ainda.</p>`}</div>`, { cls: "t-full" })}
+  </div>`;
 }
 
 // ---------------- acesso (domínios) ----------------

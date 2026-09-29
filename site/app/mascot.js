@@ -315,4 +315,4 @@ export function logoSVG(o = {}) {
 }
 
 // Moeda Δ (vetorial, independe da fonte)
-export const COIN = `<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2 L21.2 19.4 H2.8 Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/></svg>`;
+export const COIN = `<svg class="coin" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.4 22 20H2Z" fill="url(#dg-coin)" stroke="#bafcff" stroke-opacity=".7" stroke-width=".8" stroke-linejoin="round"/><path d="M12 9.2 16.2 16.6H7.8Z" fill="url(#dg-coin-in)"/><path d="M12 4.6 4.6 17.6" stroke="#fff" stroke-opacity=".55" stroke-width="1.1" stroke-linecap="round"/></svg>`;
