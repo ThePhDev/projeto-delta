@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Projeto Delta · Matemática do ENEM em forma de jogo</title>
+<meta name="description" content="Aprenda a Matemática do 2º dia do ENEM jogando: trilhas por eixo, questões oficiais do INEP, revisão espaçada e simulados. Grátis, no celular e no PC. Projeto de extensão da Engenharia da Computação da USF Campinas." />
+<meta name="theme-color" content="#0b0b0f" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Delta" />
+<meta name="color-scheme" content="dark" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Projeto Delta · Matemática do ENEM em forma de jogo" />
+<meta property="og:description" content="Plataforma gratuita de Matemática para o 2º dia do ENEM, criada por estudantes de Engenharia da Computação da USF para alunos da rede pública." />
+<meta property="og:image" content="brand/og-delta.png" />
+<link rel="preload" href="fonts/orbitron-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="frames/f000.webp" as="image" type="image/webp" fetchpriority="high" />
+<link rel="stylesheet" href="fonts/fonts.css?v=3" />
+<link rel="icon" type="image/png" sizes="32x32" href="brand/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="brand/app-512.png" />
+<link rel="apple-touch-icon" href="brand/apple-touch-icon.png" />
+<style>
+:root{
+  --ink:#0d0e12;
+  --paper:#e9eaee;
+  --line:rgba(13,14,18,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) #05060a;background:#05060a}
+body{background:#05060a;color:#fff;font-family:'Inter',system-ui,sans-serif;font-weight:400;font-size:17px;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.serif{font-family:'Orbitron','Inter',sans-serif;font-style:normal;font-weight:400}
+.serif em,.serif i{font-style:italic}
+.hchip{display:inline-flex;align-items:center;justify-content:center;height:.52em;width:.9em;margin:0 .02em;border-radius:999px;vertical-align:.02em;background:rgba(255,255,255,.08);box-shadow:inset 0 1px 1px rgba(255,255,255,.25),inset 0 0 0 1px rgba(255,255,255,.14)}
+.hchip img,.hchip svg{height:62%;width:auto;animation:hspin 9s linear infinite}
+@keyframes hspin{to{transform:rotateY(360deg)}}
+#ch-hero h1 .w:has(.hchip){margin-right:.14em}
+#heroTitle .sans{font-family:'Inter',sans-serif;font-weight:600;font-size:.84em;letter-spacing:-.04em}
+#progress{position:fixed;top:0;left:0;height:2px;width:100%;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(90deg,#8b5cf6,#22d3ee,#2bf5c8);z-index:130;pointer-events:none}
+#curtain{position:fixed;inset:0;background:#05060a;z-index:300;opacity:0;pointer-events:none;transition:opacity .45s cubic-bezier(.22,.65,.35,1)}
+body.leaving #curtain{opacity:1;pointer-events:auto}
+:focus-visible{outline:2px solid #9db4ff;outline-offset:3px}
+::selection{background:#c4b5fd;color:#0b0c10}
+
+/* ---------- liquid glass ---------- */
+.liquid-glass{background:rgba(255,255,255,0.01);background-blend-mode:luminosity;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:none;box-shadow:inset 0 1px 1px rgba(255,255,255,0.1);position:relative;overflow:hidden}
+.liquid-glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.4px;background:linear-gradient(180deg,rgba(255,255,255,0.45) 0%,rgba(255,255,255,0.15) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,0.15) 80%,rgba(255,255,255,0.45) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.liquid-glass-strong{background:rgba(255,255,255,0.01);background-blend-mode:luminosity;backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);border:none;box-shadow:4px 4px 4px rgba(0,0,0,0.05),inset 0 1px 1px rgba(255,255,255,0.15);position:relative;overflow:hidden}
+.liquid-glass-strong::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.4px;background:linear-gradient(180deg,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.2) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,0.2) 80%,rgba(255,255,255,0.5) 100%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+
+
+/* ---------- typography interactions ----------
+   (fix: nunca usar text-fill transparente — com spans/filters filhos o
+   background-clip:text falha e o texto some. Glow luminoso é seguro.) */
+.holo-ink{transition:text-shadow .35s ease}
+.ch{display:inline-block;transition:transform .5s var(--ease),color .4s;transition-delay:calc(var(--i)*16ms)}
+#overlay .links a:hover .ch{transform:translateY(-.13em) rotate(-2deg)}
+nav .menu a:hover .ch{transform:translateY(-2.5px)}
+
+/* ---------- loader ---------- */
+#loader{position:fixed;inset:0;z-index:200;background:#05060a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6rem;transition:opacity .8s ease,visibility .8s}
+#loader.done{opacity:0;visibility:hidden;pointer-events:none}
+#loader .tri{width:54px;height:54px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:1;transform:scale(1)}}
+#loader .pct{font-size:.8rem;letter-spacing:.35em;color:rgba(255,255,255,.75);text-transform:uppercase}
+#loader .bar{width:180px;height:1px;background:rgba(255,255,255,.12);overflow:hidden;border-radius:999px}
+#loader .bar i{display:block;height:100%;width:0%;background:#fff;transition:width .25s ease}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:1rem;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;transition:opacity .5s ease, transform .5s ease}
+nav.hidden-nav{opacity:0;transform:translateY(-12px);pointer-events:none}
+nav .logo{width:48px;height:48px;border-radius:9999px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+nav .logo img{width:30px;height:auto;display:block;filter:drop-shadow(0 0 8px rgba(120,140,255,.35))}
+nav .menu{display:flex;align-items:center;gap:.25rem;border-radius:9999px;padding:.375rem}
+nav .menu a{padding:.5rem .75rem;font-size:.875rem;font-weight:500;color:rgba(255,255,255,.9);text-decoration:none;border-radius:9999px;transition:background .3s}
+nav .menu a:hover,nav .menu a:focus-visible{background:rgba(255,255,255,.1);outline:none}
+nav .menu a.cta{background:#fff;color:#0b0c10;display:flex;align-items:center;gap:.35rem;white-space:nowrap;padding:.5rem .9rem}
+nav .menu a.cta:hover{background:rgba(255,255,255,.85)}
+nav .spacer{width:48px;height:48px;visibility:hidden}
+nav.on-light .logo{color:var(--ink)}
+nav.on-light .menu a{color:var(--ink)}
+nav.on-light .menu a:hover{background:rgba(13,14,18,.07)}
+nav.on-light .menu a.cta{background:var(--ink);color:#fff}
+nav.on-light .liquid-glass{box-shadow:inset 0 1px 1px rgba(255,255,255,.5), 0 1px 12px rgba(13,14,18,.06)}
+@media(max-width:820px){nav .menu a:not(.cta){display:none} nav .menu{padding:.3rem} nav{padding:0 1.1rem}}
+@media(min-width:821px){nav{padding:0 4rem}}
+
+/* ---------- journey / canvas ---------- */
+#journey{height:900vh;position:relative}
+#stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+#film{position:absolute;inset:0;width:100%;height:100%;display:block}
+#grain{position:fixed;inset:-100%;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1.2s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-2%)}100%{transform:translate(3%,3%)}}
+
+/* ---------- chapters (overlays) ---------- */
+.chapter{position:absolute;inset:0;display:flex;pointer-events:none;opacity:0;padding:0 2rem;z-index:20}
+.chapter .inner{pointer-events:auto;max-width:1200px;width:100%;margin:0 auto;position:relative}
+/* scrim for legibility over the film */
+.chapter::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.9;
+  background:radial-gradient(120% 90% at 50% 55%,rgba(0,0,0,.62) 0%,rgba(0,0,0,.34) 42%,rgba(0,0,0,0) 72%)}
+#ch-travessia::before,#ch-chegada::before{background:radial-gradient(120% 90% at 50% 55%,rgba(233,234,238,.75) 0%,rgba(233,234,238,.4) 42%,rgba(233,234,238,0) 72%)}
+.chapter h1,.chapter h2{text-shadow:0 2px 30px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.4)}
+#ch-travessia h2,#ch-chegada h2{text-shadow:0 2px 24px rgba(233,234,238,.8),0 1px 2px rgba(255,255,255,.6)}
+.chapter .sub,.chapter p{text-shadow:0 1px 16px rgba(0,0,0,.55)}
+#ch-travessia p,#ch-chegada p{text-shadow:0 1px 12px rgba(233,234,238,.85)}
+
+/* hero */
+#ch-hero{align-items:center;justify-content:center;text-align:center}
+#ch-hero .badge{display:inline-flex;align-items:center;gap:.6rem;border-radius:9999px;padding:.3rem;padding-right:.9rem;margin-bottom:1.6rem}
+#ch-hero .badge b{background:#fff;color:#0b0c10;border-radius:9999px;padding:.25rem .75rem;font-size:.72rem;font-weight:600;letter-spacing:.02em}
+#ch-hero .badge span{font-size:.85rem;color:rgba(255,255,255,.9)}
+#ch-hero h1{font-size:clamp(2.9rem,8.5vw,5.6rem);line-height:.88;letter-spacing:-3px;color:#fff;max-width:15ch;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:center;row-gap:.08em}
+#ch-hero h1 .w{display:inline-block;margin-right:.28em;opacity:0;filter:blur(10px);transform:translateY(50px)}
+#ch-hero.armed h1 .w{animation:blurin .7s cubic-bezier(.22,.65,.35,1) forwards;animation-delay:var(--d)}
+@keyframes blurin{0%{opacity:0;filter:blur(10px);transform:translateY(50px)}50%{opacity:.5;filter:blur(5px);transform:translateY(-5px)}100%{opacity:1;filter:blur(0);transform:translateY(0)}}
+#ch-hero .sub{margin:1.3rem auto 0;font-size:clamp(1.06rem,1.6vw,1.25rem);line-height:1.55;color:#fff;max-width:52ch;font-weight:400}
+#ch-hero .ctas{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-top:1.7rem;flex-wrap:wrap}
+.btn-glass{border-radius:9999px;padding:.78rem 1.5rem;font-size:.95rem;font-weight:700;color:#0b0b0f;background:#fff;box-shadow:0 8px 24px -12px rgba(0,0,0,.6);text-decoration:none;display:inline-flex;align-items:center;gap:.45rem;transition:transform .25s ease}
+.btn-glass:hover{transform:translateY(-2px)}
+.btn-glass:active{transform:translateY(0) scale(.98)}
+.link-plain{color:#fff;text-decoration:none;font-size:.9rem;font-weight:500;display:inline-flex;align-items:center;gap:.4rem;border-bottom:1px solid rgba(255,255,255,.35);padding-bottom:2px;transition:border-color .25s}
+.link-plain:hover{border-color:#fff}
+@media(max-height:760px){#ch-hero .scrollhint{display:none}}
+@media(max-width:480px){#ch-hero .badge{flex-direction:row;padding-right:.75rem}#ch-hero .badge b{white-space:nowrap}#ch-hero .badge span{font-size:.72rem;line-height:1.25;text-align:left}}
+#ch-hero .scrollhint .line{width:1px;height:38px;background:linear-gradient(#fff,transparent);animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* problema — left aligned, asymmetric */
+#ch-problema{align-items:center}
+#ch-problema .inner{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:2rem;align-items:end}
+#ch-problema h2{font-size:clamp(2.4rem,6vw,4.4rem);line-height:.92;letter-spacing:-2px;color:#fff;margin-top:1rem;max-width:14ch}
+#ch-problema p{font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.5;color:#fff;max-width:44ch}
+#ch-problema .datum{border-radius:1.25rem;padding:1.3rem 1.4rem;margin-top:1.1rem}
+#ch-problema .datum .n{font-family:'Orbitron',sans-serif;font-size:2.2rem;letter-spacing:-.5px;line-height:1}
+#ch-problema .datum .l{font-size:.95rem;color:#fff;margin-top:.5rem;line-height:1.5}
+@media(max-width:820px){#ch-problema .inner{grid-template-columns:1fr;align-items:start;gap:1.2rem}}
+
+/* plataforma — right aligned */
+#ch-plataforma{align-items:center;justify-content:flex-end}
+#ch-plataforma .inner{display:flex;flex-direction:column;align-items:flex-end;text-align:right}
+#ch-plataforma h2{font-size:clamp(2.4rem,6vw,4.4rem);line-height:.92;letter-spacing:-2px;margin-top:1rem;max-width:13ch}
+#ch-plataforma p{font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.5;color:#fff;max-width:46ch;margin-top:1rem}
+#ch-plataforma .tags{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.5rem;margin-top:1.4rem;max-width:34rem}
+#ch-plataforma .tags span{border-radius:9999px;padding:.46rem 1.05rem;font-size:.88rem;color:#fff;white-space:nowrap}
+
+/* travessia — dark ink over light frames, anchored left */
+#ch-travessia{align-items:center}
+#ch-travessia .inner{max-width:1200px}
+#ch-travessia h2{font-size:clamp(2.6rem,6.5vw,4.8rem);line-height:.9;letter-spacing:-2.5px;color:var(--ink);margin-top:.8rem;max-width:13ch}
+#ch-travessia p{margin-top:1.1rem;font-size:clamp(1rem,1.45vw,1.18rem);color:rgba(13,14,18,.92);max-width:40ch;line-height:1.5;font-weight:400}
+
+/* chegada — dark text over light frames, anchored right */
+#ch-chegada{align-items:center;justify-content:flex-end}
+#ch-chegada .inner{display:flex;flex-direction:column;align-items:flex-end;text-align:right;max-width:1200px}
+#ch-chegada h2{font-size:clamp(2.6rem,6.5vw,4.8rem);line-height:.9;letter-spacing:-2.5px;color:var(--ink);margin-top:.8rem;max-width:13ch}
+#ch-chegada p{margin-top:1.1rem;font-size:clamp(1rem,1.45vw,1.18rem);color:rgba(13,14,18,.92);max-width:42ch;line-height:1.5;font-weight:400}
+@media(max-width:820px){
+  #ch-travessia,#ch-chegada{align-items:flex-end}
+  #ch-travessia .inner{padding-bottom:14vh}
+  #ch-chegada .inner{padding-bottom:14vh}
+}
+
+/* ---------- light world ---------- */
+#light{background:var(--paper);color:var(--ink);position:relative;z-index:30}
+#light section{padding:7rem 2rem}
+#light .wrap{max-width:1200px;margin:0 auto}
+.reveal{opacity:0;transform:translateY(28px);filter:blur(6px);transition:opacity .9s ease,transform .9s ease,filter .9s ease}
+.reveal.in{opacity:1;transform:none;filter:none}
+
+/* missão */
+#missao .grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:4rem;align-items:start}
+#missao h2{font-size:clamp(2.6rem,6vw,4.8rem);line-height:.94;letter-spacing:-2.5px;margin-top:1.2rem}
+#missao .lead{font-size:1.1rem;line-height:1.65;margin-top:1.6rem;max-width:56ch;color:#1a1c24}
+#missao .ods{border-left:1px solid var(--line);padding-left:2rem;display:flex;flex-direction:column;gap:2.2rem;margin-top:1.2rem}
+#missao .ods .num{font-family:'Orbitron',sans-serif;font-size:3.4rem;line-height:1;letter-spacing:-1.5px}
+#missao .ods h3{font-size:1rem;font-weight:700;margin-top:.4rem}
+#missao .ods p{font-size:1rem;line-height:1.55;color:#2b2e38;margin-top:.4rem;max-width:34ch}
+@media(max-width:820px){#missao .grid{grid-template-columns:1fr;gap:2.5rem}}
+
+/* metodologia */
+#metodologia{border-top:1px solid var(--line)}
+#metodologia h2{font-size:clamp(2.4rem,5vw,4rem);letter-spacing:-2px;line-height:.95;margin-top:1.2rem;max-width:16ch}
+#metodologia .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:3.5rem;border-top:1px solid var(--line)}
+#metodologia .step{padding:2.2rem 2rem 2.2rem 0;border-right:1px solid var(--line)}
+#metodologia .step:last-child{border-right:none}
+#metodologia .step:nth-child(2){padding-left:2rem}
+#metodologia .step:nth-child(3){padding-left:2rem;padding-right:0}
+#metodologia .step .n{font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem;letter-spacing:.08em;color:#4b4f5c}
+#metodologia .step h3{font-family:'Orbitron',sans-serif;font-weight:400;font-size:2rem;letter-spacing:-.5px;margin-top:.9rem}
+#metodologia .step p{font-size:1rem;line-height:1.6;color:#2b2e38;margin-top:.7rem;max-width:34ch}
+#metodologia .stack{margin-top:3rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+#metodologia .stack{flex-direction:column;align-items:flex-start;gap:1.1rem}
+#metodologia .stack .row{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+#metodologia .stack em{font-family:'Inter',sans-serif;font-size:.95rem;font-style:normal;font-weight:700;color:#3b3f4b;min-width:7.5rem}
+#metodologia .stack span{border:1px solid rgba(13,14,18,.18);border-radius:9999px;padding:.45rem 1rem;font-size:.9rem;background:rgba(255,255,255,.7);color:#14161d;transition:transform .3s var(--ease),background .3s}
+#metodologia .stack span:hover{transform:translateY(-2px);background:#fff}
+@media(max-width:820px){#metodologia .steps{grid-template-columns:1fr}#metodologia .step{border-right:none;border-bottom:1px solid var(--line);padding:1.8rem 0}#metodologia .step:nth-child(2),#metodologia .step:nth-child(3){padding-left:0}}
+
+/* equipe */
+#equipe{border-top:1px solid var(--line);text-align:center}
+#equipe h2{font-size:clamp(2.2rem,5vw,3.6rem);letter-spacing:-2px;margin-top:1.2rem}
+#equipe .names{display:flex;flex-wrap:wrap;justify-content:center;column-gap:2.6rem;row-gap:1.2rem;margin-top:3rem;max-width:900px;margin-left:auto;margin-right:auto}
+#equipe .names span{font-family:'Orbitron',sans-serif;font-size:clamp(1.35rem,2.6vw,1.85rem);letter-spacing:-.3px;white-space:nowrap;transition:opacity .3s,transform .4s var(--ease)}
+#equipe .names span:hover{transform:translateY(-3px)}
+@media(max-width:520px){#equipe .names span{white-space:normal}}
+#equipe .names:hover span{opacity:.55}
+#equipe .names span:hover{opacity:1}
+#equipe .inst{margin-top:3rem;font-size:.95rem;line-height:1.65;color:#3b3f4b;max-width:52ch;margin-left:auto;margin-right:auto}
+
+/* footer cta */
+#fim{background:#05060a;color:#fff;position:relative;z-index:30;text-align:center;padding:8rem 2rem 3rem}
+#fim h2{font-size:clamp(2.6rem,7vw,5rem);letter-spacing:-2.5px;line-height:.9}
+#fim p{margin:1.4rem auto 0;max-width:46ch;color:rgba(255,255,255,.9);font-size:1.08rem;line-height:1.6}
+#fim .ctas{display:flex;justify-content:center;gap:1.5rem;margin-top:2.2rem;flex-wrap:wrap}
+#fim .meta{margin-top:6rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.12);padding-top:1.6rem;font-size:.85rem;color:rgba(255,255,255,.72);max-width:1200px;margin-left:auto;margin-right:auto;text-align:left}
+#fim .meta .serif{font-size:1.05rem;color:#fff}
+
+/* ---------- blur-text (word-by-word reveal) ---------- */
+.blur-text{display:inline-flex;flex-wrap:wrap}
+.blur-text .w{display:inline-block;margin-right:.26em;opacity:0;filter:blur(12px);transform:translateY(14px);transition:opacity .9s var(--ease),filter .9s var(--ease),transform .9s var(--ease)}
+.blur-text.in .w{opacity:1;filter:blur(0);transform:none}
+:root{--ease:cubic-bezier(.22,.65,.35,1)}
+#missao .blur-text,#equipe .blur-text{justify-content:inherit}
+#equipe .blur-text{justify-content:center}
+
+/* ---------- cursor: seta da marca + efeitos ao redor ---------- */
+body.cursor-on, body.cursor-on a, body.cursor-on button, body.cursor-on .delta-stage{cursor:none}
+#cursor{position:fixed;left:0;top:0;z-index:500;pointer-events:none;opacity:0;transition:opacity .25s}
+body.cursor-on #cursor{opacity:1}
+#cursor .c-arrow{position:absolute;left:0;top:0;width:26px;height:30px;transform-origin:3px 2px;will-change:transform;filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+#cursor .c-arrow path.body{stroke-dasharray:80;stroke-dashoffset:80;animation:cdraw .7s .1s cubic-bezier(.22,.65,.35,1) forwards}
+@keyframes cdraw{to{stroke-dashoffset:0}}
+#cursor .c-arrow .spark{transform-origin:21px 22px;transform:scale(0);transition:transform .25s cubic-bezier(.22,.65,.35,1)}
+#cursor.act .c-arrow .spark{transform:scale(1);animation:cspin 2.4s linear infinite}
+@keyframes cspin{to{transform:rotate(360deg)}}
+#cursor .c-label{position:absolute;left:0;top:0;padding:.28rem .6rem;border-radius:999px;background:#fff;color:#0b0c10;font:600 .78rem/1 'Inter',sans-serif;letter-spacing:.01em;white-space:nowrap;opacity:0;transform:translate(22px,24px) scale(.85);transition:opacity .18s,transform .22s cubic-bezier(.22,.65,.35,1)}
+#cursor.act .c-label{opacity:1;transform:translate(22px,24px) scale(1)}
+#cursor .c-ripple{position:absolute;left:0;top:0;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:1.5px solid rgba(196,181,253,.9);opacity:0;transform:scale(.3)}
+#cursor .c-ripple.go{animation:cripple .5s cubic-bezier(.22,.65,.35,1)}
+@keyframes cripple{0%{opacity:.9;transform:scale(.3)}100%{opacity:0;transform:scale(1.4)}}
+@media (hover:none),(pointer:coarse){#cursor{display:none}}
+
+/* ---------- questão de exemplo por eixo ---------- */
+.demo{margin-top:3.5rem;border-radius:1.5rem;padding:clamp(1.25rem,3vw,2rem);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 30px 80px -40px hsl(var(--h,258) 90% 55% / .6);position:relative;overflow:hidden;transition:box-shadow .5s}
+.demo::before{content:"";position:absolute;right:-10%;top:-40%;width:55%;height:120%;background:radial-gradient(closest-side,hsl(var(--h,258) 90% 60% / .22),transparent);pointer-events:none;transition:background .5s}
+.demo .dh{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.demo .dh .sym{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font:600 1.05rem 'Inter',sans-serif;background:linear-gradient(135deg,hsl(var(--h) 85% 58%),hsl(calc(var(--h) + 40) 80% 50%))}
+.demo .dh b{font:600 1rem 'Inter',sans-serif}
+.demo .dh small{font-size:.9rem;color:rgba(255,255,255,.75)}
+.demo .dh .again{margin-left:auto;font:600 .9rem 'Inter',sans-serif;color:#fff;background:rgba(255,255,255,.08);border:0;border-radius:999px;padding:.5rem .9rem;cursor:pointer;transition:background .2s,transform .15s}
+.demo .dh .again:hover{background:rgba(255,255,255,.14)}
+.demo .dh .again:active{transform:scale(.96)}
+.demo .dq{font-size:clamp(1.1rem,1.8vw,1.3rem);line-height:1.55;margin-top:1.1rem;max-width:62ch;color:#fff}
+.demo .dopts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin-top:1.2rem}
+.demo .dopt{display:flex;align-items:center;gap:.75rem;text-align:left;padding:.85rem 1rem;min-height:48px;border-radius:.9rem;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.03);color:#fff;font:inherit;font-size:1rem;cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+.demo .dopt:hover{background:rgba(255,255,255,.08)}
+.demo .dopt:active{transform:scale(.97)}
+.demo .dopt .k{flex:0 0 auto;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font:600 .85rem 'Inter',sans-serif;background:rgba(255,255,255,.1)}
+.demo .dopt.ok{border-color:#2bf5c8;background:rgba(43,245,200,.12)}
+.demo .dopt.ok .k{background:#2bf5c8;color:#0b0c10}
+.demo .dopt.no{border-color:#ff7a9a;background:rgba(255,122,154,.12)}
+.demo .dopt[disabled]{cursor:default}
+.demo .dfb{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.22,.65,.35,1)}
+.demo .dfb>div{overflow:hidden}
+.demo .dfb.show{grid-template-rows:1fr}
+.demo .dfb p{margin-top:1rem;font-size:1rem;line-height:1.6;color:rgba(255,255,255,.9);filter:blur(4px);opacity:0;transition:filter .35s,opacity .35s}
+.demo .dfb.show p{filter:none;opacity:1}
+.demo .dfb .go{display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;color:#fff;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:2px}
+.demo .dq.swap,.demo .dopts.swap{animation:dswap .45s cubic-bezier(.22,.65,.35,1) both}
+.demo .dopts.swap{animation-delay:.06s}
+@keyframes dswap{from{opacity:0;transform:translateY(10px);filter:blur(4px)}}
+@media(max-width:600px){.demo .dopts{grid-template-columns:1fr}}
+
+/* ---------- lavagem de cor entre as faixas ---------- */
+#eixos::before,#eixos::after{content:"";position:absolute;left:0;right:0;height:180px;pointer-events:none;z-index:0}
+#eixos::before{top:0;background:linear-gradient(var(--paper),rgba(233,234,238,0))}
+#eixos::after{bottom:0;background:linear-gradient(rgba(233,234,238,0),var(--paper))}
+#eixos .wrap{position:relative;z-index:1}
+#light section#eixos{padding-top:12rem;padding-bottom:12rem}
+
+/* ---------- fullscreen menu (awwwards) ---------- */
+.burger{width:48px;height:48px;border-radius:9999px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;cursor:pointer;border:none}
+.burger span{display:block;width:19px;height:1.5px;background:#fff;transition:transform .4s var(--ease),opacity .3s}
+nav.on-light .burger span{background:var(--ink)}
+.burger:hover span:first-child{transform:translateX(2px)}
+#overlay{position:fixed;inset:0;z-index:150;background:#050608;display:flex;flex-direction:column;justify-content:center;padding:2rem 2rem 2rem;opacity:0;visibility:hidden;transition:opacity .6s var(--ease),visibility .6s;cursor:auto}
+#overlay.open{opacity:1;visibility:visible}
+#overlay::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 60% at 80% 20%,rgba(255,255,255,.05),transparent 70%)}
+#overlay .close{position:absolute;top:1.4rem;right:1.6rem;width:52px;height:52px;border-radius:9999px;border:1px solid rgba(255,255,255,.2);color:#fff;font-size:1.2rem;display:grid;place-items:center;background:none}
+#overlay .close:hover{background:rgba(255,255,255,.08)}
+#overlay .links{max-width:1200px;margin:0 auto;width:100%}
+#overlay .links a{display:flex;align-items:baseline;gap:1.2rem;color:#fff;text-decoration:none;font-family:'Orbitron',sans-serif;font-size:clamp(2.6rem,9vw,6rem);line-height:1.02;letter-spacing:-2px;padding:.4rem 0;opacity:0;transform:translateY(30px);filter:blur(8px);transition:color .3s}
+#overlay.open .links a{animation:menuin .7s var(--ease) forwards;animation-delay:var(--d)}
+@keyframes menuin{to{opacity:1;transform:none;filter:blur(0)}}
+#overlay .links a .no{font-family:'Inter',sans-serif;font-style:normal;font-size:.9rem;letter-spacing:.1em;color:rgba(255,255,255,.65);font-weight:500;transform:translateY(-1.4em)}
+#overlay .links a:hover{color:#9db4ff}
+#overlay .links a:hover .no{color:#9db4ff}
+#overlay .foot{max-width:1200px;margin:2.5rem auto 0;width:100%;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;color:rgba(255,255,255,.72);font-size:.85rem;border-top:1px solid rgba(255,255,255,.12);padding-top:1.4rem}
+#overlay .foot .serif{color:#fff;font-size:1rem}
+@media(max-width:520px){#overlay .links a .no{display:none}}
+
+/* ---------- skip link ---------- */
+.skip{position:fixed;left:1rem;top:-3rem;z-index:400;background:#fff;color:#000;padding:.6rem 1rem;border-radius:9999px;font-weight:600;text-decoration:none;transition:top .25s}
+.skip:focus{top:1rem}
+
+/* ---------- eixos (3D) ---------- */
+#eixos{position:relative;overflow:hidden;color:#fff;background:radial-gradient(60% 55% at 72% 45%,rgba(139,92,246,.22),transparent 70%),radial-gradient(45% 45% at 15% 85%,rgba(34,211,238,.12),transparent 70%),#05060a}
+#eixos .eixos-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:3rem;align-items:center}
+#eixos h2{font-size:clamp(2.5rem,5.6vw,4.4rem);line-height:.98;letter-spacing:-1.5px;margin-top:1.1rem}
+#eixos .lead{font-size:1.1rem;line-height:1.65;margin-top:1.3rem;max-width:44ch;color:rgba(255,255,255,.9)}
+.eixo-list{display:grid;gap:.6rem;margin-top:2rem}
+.eixo{display:flex;align-items:center;gap:1rem;width:100%;text-align:left;padding:.9rem 1rem;border-radius:1rem;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:#fff;font:inherit;cursor:pointer;transition:transform .35s var(--ease),background .35s,border-color .35s,box-shadow .35s}
+.eixo:hover,.eixo.on{background:rgba(255,255,255,.07);border-color:hsl(var(--h) 90% 70% / .7);transform:translateX(6px);box-shadow:0 10px 40px -18px hsl(var(--h) 90% 60%)}
+.eixo .sym{flex:0 0 auto;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-family:'Inter',sans-serif;font-weight:600;font-size:1.25rem;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 85% 58%),hsl(calc(var(--h) + 40) 80% 50%))}
+.eixo b{display:block;font-family:'Inter',sans-serif;font-weight:600;font-size:1.02rem;letter-spacing:-.01em}
+.eixo small{display:block;font-size:.92rem;color:rgba(255,255,255,.78);margin-top:.15rem;line-height:1.4}
+.delta-stage{position:relative;aspect-ratio:1/1;width:100%;max-width:620px;margin:0 auto;touch-action:pan-y;cursor:grab}
+.delta-stage:active{cursor:grabbing}
+#delta3d{position:absolute;inset:0;width:100%;height:100%;display:block}
+.delta-stage .hint{position:absolute;left:0;right:0;bottom:.4rem;text-align:center;font-size:.9rem;color:rgba(255,255,255,.7);pointer-events:none}
+@media(max-width:900px){#eixos .eixos-grid{grid-template-columns:1fr;gap:1.5rem}.delta-stage{max-width:440px;order:-1}}
+/* ---------- magnetic buttons ---------- */
+.magnetic{will-change:transform;transition:transform .35s var(--ease)}
+
+@media (prefers-reduced-motion: reduce){
+  #grain{animation:none}
+  .blur-text .w{opacity:1 !important;filter:none !important;transform:none !important}
+  .hchip img,.hchip svg{animation:none}
+  #overlay .links a{animation:none;opacity:1;transform:none;filter:none}
+  #ch-hero h1 .w{opacity:1 !important;filter:none !important;transform:none !important;animation:none !important}
+  .reveal{opacity:1;transform:none;filter:none;transition:none}
+  #loader .tri{animation:none}
+}
+
+/* ============ identidade Delta: Orbitron nos títulos, Inter no texto ============ */
+.serif{font-weight:700;letter-spacing:0 !important}
+.serif em,.serif i{font-style:normal;color:var(--em,#00f0ff)}
+#ch-travessia,#ch-chegada,#light{--em:#6d28d9}
+#eixos,#app{--em:#00f0ff}
+@media(max-width:480px){#ch-hero .inner{padding-top:3.2rem}}
+#ch-hero h1{font-size:clamp(2rem,6vw,4.1rem);line-height:1.04;max-width:16ch;row-gap:.12em}
+#ch-hero h1 .w{margin-right:.22em}
+#heroTitle .sans{font-family:'Orbitron',sans-serif;font-weight:800;font-size:1em;letter-spacing:0}
+#ch-problema h2,#ch-plataforma h2{font-size:clamp(1.75rem,4.4vw,3.2rem);line-height:1.08;max-width:17ch}
+#ch-travessia h2,#ch-chegada h2{font-size:clamp(1.85rem,4.6vw,3.4rem);line-height:1.06;max-width:16ch}
+#missao h2,#fim h2{font-size:clamp(1.9rem,4.6vw,3.5rem);line-height:1.08}
+#metodologia h2,#eixos h2,#app h2{font-size:clamp(1.8rem,4vw,3rem);line-height:1.1;max-width:20ch}
+#equipe h2{font-size:clamp(1.7rem,3.8vw,2.7rem);line-height:1.1}
+#ch-problema .datum .n{font-size:1.7rem}
+#missao .ods .num{font-size:2.4rem}
+#metodologia .step h3{font-size:1.35rem;font-weight:700;letter-spacing:.01em}
+#equipe .names span{font-family:'Inter',sans-serif;font-weight:600;font-size:clamp(1.1rem,2.1vw,1.45rem);letter-spacing:-.01em}
+#overlay .links a{font-size:clamp(1.7rem,6.4vw,3.8rem);letter-spacing:0;font-weight:700}
+nav .logo{width:auto;padding:0 .9rem 0 .7rem}
+nav .logo svg{height:30px;width:auto;display:block;color:#fff}
+#loader .tri path{stroke:url(#ldg)}
+
+/* ---------- seção do app ---------- */
+#app{position:relative;background:#0b0b0f;color:#fff;padding:clamp(5rem,10vw,8rem) 1.5rem;overflow:hidden}
+#app::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 80% 10%,rgba(75,0,130,.55),transparent 70%),radial-gradient(50% 40% at 10% 90%,rgba(41,121,255,.25),transparent 70%);pointer-events:none}
+#app .wrap{position:relative;max-width:1200px;margin:0 auto;display:grid;gap:3rem;align-items:center}
+@media(min-width:900px){#app .wrap{grid-template-columns:1fr 1.1fr}}
+#app .lead{font-size:1.1rem;line-height:1.65;margin-top:1.2rem;max-width:46ch;color:rgba(255,255,255,.9)}
+#app .stagebox{position:relative;border-radius:32px;aspect-ratio:1;max-width:460px;width:100%;margin:0 auto;overflow:hidden;box-shadow:0 0 0 1px rgba(139,92,246,.35),0 40px 90px -40px rgba(217,18,217,.55);perspective:800px}
+#app .stagebox .dm-bg{position:absolute;inset:0;width:100%;height:100%}
+#app .stagebox .dm{position:absolute;left:50%;bottom:-2%;width:62%;transform:translateX(-50%);transition:transform .25s ease-out;transform-style:preserve-3d}
+#app .stagebox .say{position:absolute;left:6%;top:7%;max-width:62%;background:#15141e;border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:.75rem .95rem;font-weight:700;font-size:.98rem;line-height:1.4;box-shadow:0 20px 40px -20px rgba(0,0,0,.8);min-height:3.2em}
+#app .stagebox .say::after{content:"";position:absolute;bottom:-9px;right:26%;border:9px solid transparent;border-top-color:#15141e;border-bottom:0}
+#app .feats{display:grid;gap:.9rem;margin-top:2rem}
+@media(min-width:560px){#app .feats{grid-template-columns:1fr 1fr}}
+#app .feat{border-radius:20px;padding:1.1rem;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+#app .feat .mini{height:92px;border-radius:14px;background:#0b0b0f;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.6rem;margin-bottom:.4rem;overflow:hidden}
+#app .f-origem .mini{flex-direction:column;align-items:flex-start;justify-content:center;padding:.8rem 1rem}
+#app .f-origem .mini small{color:rgba(255,255,255,.7);font-size:.82rem;margin-top:.4rem}
+#app .mini .nd{width:34px;height:31px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:0 4px 0 var(--s)}
+#app .mini .nd svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+#app .mini .ln{width:16px;height:2px;background:repeating-linear-gradient(90deg,#4b4f5c 0 3px,transparent 3px 6px)}
+#app .mini .av{width:62px;height:72px;border-radius:12px;overflow:hidden;position:relative;display:grid;place-items:end center;transition:transform .3s}
+#app .mini .av:hover{transform:translateY(-3px) rotate(-3deg)}
+#app .mini .av .dm-bg{position:absolute;inset:0;width:100%;height:100%}
+#app .mini .av .dm{position:relative;width:88%;margin-bottom:-6%}
+#app .mini .wk{display:flex;gap:6px}
+#app .mini .wk span{width:26px;text-align:center;font-size:.7rem;font-weight:700;color:rgba(255,255,255,.7)}
+#app .mini .wk i{display:block;width:26px;height:26px;border-radius:8px;margin-top:4px;background:#1c1a29}
+#app .mini .wk i.on{background:linear-gradient(140deg,#2979ff,#8b5cf6)}
+#app .mini .wk i.rv{background:linear-gradient(140deg,#00f0ff,#2979ff)}
+#app .feat h3{font-family:'Orbitron',sans-serif;font-size:.98rem;font-weight:700;margin-top:.6rem;letter-spacing:.01em}
+#app .feat p{font-size:.95rem;line-height:1.55;color:rgba(255,255,255,.82);margin-top:.35rem}
+#app .origin{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+#app .origin span{font-size:.8rem;font-weight:700;border-radius:9px;padding:.25rem .55rem}
+#app .origin .of{background:#2e2506;color:#ffe08a;box-shadow:inset 0 0 0 1px #7a6212}
+#app .origin .pl{background:#0b2830;color:#8ef3fb;box-shadow:inset 0 0 0 1px #135c68}
+
+/* ---------- instalar no celular ---------- */
+.btn-install{display:none;align-items:center;gap:.5rem;border-radius:9999px;padding:.72rem 1.3rem;font:700 .9rem 'Inter',sans-serif;color:#fff;border:0;cursor:pointer;background:linear-gradient(100deg,#2979ff,#7c3aed 55%,#d912d9);box-shadow:0 10px 30px -10px rgba(217,18,217,.6)}
+.btn-install svg{width:18px;height:18px}
+.can-install .btn-install{display:inline-flex}
+#overlay .links a.install-link{display:none}
+.can-install #overlay .links a.install-link{display:flex}
+.isheet{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,6,10,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.isheet .p{width:min(520px,100%);background:#15141e;color:#fff;border-radius:28px 28px 0 0;padding:1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom));box-shadow:0 -20px 60px -20px rgba(0,0,0,.8);animation:isUp .35s cubic-bezier(.22,.65,.35,1) both}
+@media(min-width:640px){.isheet{align-items:center}.isheet .p{border-radius:28px}}
+@keyframes isUp{from{transform:translateY(100%)}}
+.isheet h3{font-family:'Orbitron',sans-serif;font-size:1.15rem;font-weight:700}
+.isheet ol{margin:1rem 0 1.2rem 1.2rem;display:grid;gap:.7rem;font-size:1rem;line-height:1.5}
+.isheet ol b{color:#00f0ff}
+.isheet .x{width:100%;min-height:50px;border-radius:14px;border:0;font:700 1rem 'Inter',sans-serif;color:#fff;background:linear-gradient(100deg,#2979ff,#7c3aed 55%,#d912d9);cursor:pointer}
+
+/* ---------- conteúdo do seminário 2026.2 ---------- */
+.proposta{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:3.5rem;border-top:1px solid var(--line);padding-top:2rem}
+.proposta li{font-size:1rem;line-height:1.55;color:#2b2e38}
+.proposta b{display:block;font-family:'Orbitron',sans-serif;font-size:1rem;color:#6d28d9;margin-bottom:.4rem}
+@media(max-width:820px){.proposta{grid-template-columns:1fr 1fr}}@media(max-width:520px){.proposta{grid-template-columns:1fr}}
+#objetivos,#dados,#cronograma,#referencial{border-top:1px solid var(--line)}
+#objetivos .lead,#dados .lead,#cronograma .lead{font-size:1.1rem;line-height:1.65;margin-top:1.2rem;max-width:62ch;color:#1a1c24}
+.obj-wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:4rem;align-items:start}
+.obj-head{position:sticky;top:7rem}
+@media(max-width:900px){.obj-wrap{grid-template-columns:1fr;gap:2rem}.obj-head{position:static}}
+.obj-list{display:flex;flex-direction:column}
+.obj{display:grid;grid-template-columns:44px 1fr;column-gap:1.1rem;padding:1.5rem 0;border-bottom:1px solid var(--line)}
+.obj:last-child{border-bottom:0}
+.obj svg{grid-row:span 2;width:44px;height:44px;padding:10px;border-radius:14px;background:#0b0b0f;stroke:#00f0ff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.obj:hover svg{transform:rotate(-6deg) scale(1.06)}
+.obj svg{background:radial-gradient(120% 120% at 30% 20%,#12324a,#0b0b0f 70%);box-shadow:inset 0 0 0 1px rgba(0,240,255,.25),0 10px 22px -14px rgba(0,240,255,.6)}
+.obj svg .du{fill:#00f0ff;stroke:none;opacity:.18;transition:opacity .3s}
+.obj:hover svg .du{opacity:.32}
+.obj h3{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.01em;align-self:end}
+.obj p{font-size:1rem;line-height:1.55;color:#2b2e38;margin-top:.3rem;max-width:52ch}
+.dados-grid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:1.2rem;margin-top:3rem;align-items:stretch}
+.dados-grid .dado:last-child{background:#15141e;display:flex;flex-direction:column;justify-content:flex-end}
+@media(max-width:820px){.dados-grid{grid-template-columns:1fr}}
+.dado{background:#0b0b0f;color:#fff;border-radius:26px;padding:1.8rem;--em:#00f0ff}
+.dado .frase{font-size:clamp(1.15rem,2vw,1.35rem);line-height:1.45;font-weight:500;color:#fff;margin:0}
+.dado .frase b{font-family:'Orbitron',sans-serif;font-weight:800;color:#ff7ef0}.dado .frase b.pb{color:#00f0ff}
+.dado p{margin-top:.6rem;line-height:1.5;color:rgba(255,255,255,.88)}
+.dado small{display:block;margin-top:.6rem;color:rgba(255,255,255,.65);font-size:.8rem}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:1.2rem;max-width:320px}
+.dots i{aspect-ratio:1;border-radius:50%;background:#4b4f5c}
+.dots i.p{background:linear-gradient(135deg,#8b5cf6,#ff00e5)}.dots i.pb{background:#00f0ff}
+.bars2{margin-top:1.4rem;display:grid;gap:.8rem}
+.bars2 div{display:grid;grid-template-columns:5rem 1fr 4rem;align-items:center;gap:.6rem;font-weight:700;font-size:.9rem}
+.bars2 i{display:block;height:14px;border-radius:9px;width:calc((var(--v) - 400) / 250 * 100%);background:linear-gradient(90deg,#8b5cf6,#ff00e5)}
+.bars2 i.pb{background:#00f0ff}
+.tabela{margin-top:1.4rem;overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.2rem}
+.tabela table{width:100%;border-collapse:collapse;font-size:.95rem;min-width:520px}
+.tabela caption{text-align:left;font-family:'Orbitron',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:.8rem}
+.tabela th,.tabela td{padding:.55rem .7rem;text-align:left}
+.tabela tbody tr:nth-child(odd) td{background:#f6f5fa}.tabela tbody td:first-of-type{border-radius:8px 0 0 8px}.tabela tbody td:last-child{border-radius:0 8px 8px 0}
+.tabela thead th{font-size:.85rem;font-weight:600;color:#4b4f5c;border-bottom:1px solid var(--line)}
+.tabela tbody th{font-weight:700;vertical-align:top}
+.tabela td.neg{color:#be123c;font-weight:700}
+.tabela small{display:block;margin-top:.8rem;color:#4b4f5c}
+.carater{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
+.carater span{border:1px solid var(--line);border-radius:14px;padding:.6rem .9rem;background:#fff;font-size:.95rem}
+.carater b{font-weight:700;color:#6d28d9}
+.fases{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:.8rem;margin-top:3rem;counter-reset:f}
+@media(max-width:1000px){.fases{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.fases{grid-template-columns:1fr}}
+.fases li{position:relative;padding:0 .4rem 0 0}
+.fases li::before{content:"";position:absolute;left:52px;right:-.8rem;top:26px;height:2px;background:linear-gradient(90deg,hsl(var(--h) 70% 55%),transparent)}
+.fases li:last-child::before{display:none}
+.fases .fi{position:relative;width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);box-shadow:0 10px 24px -16px hsl(var(--h) 70% 40%)}
+.fases .fi svg{width:26px;height:26px;fill:none;stroke:hsl(var(--h) 65% 42%);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fases .fi{background:linear-gradient(160deg,#fff,hsl(var(--h) 80% 96%))}
+.fases .fi svg .du{fill:hsl(var(--h) 65% 42%);stroke:none;opacity:.16}
+@media(max-width:1000px){.fases li::before{display:none}}
+.fases h3{font-family:'Orbitron',sans-serif;font-size:.92rem;font-weight:700;margin-top:.8rem;line-height:1.3}
+.fases p{font-size:.92rem;line-height:1.5;color:#2b2e38;margin-top:.4rem}
+.objetivo{margin-top:1.6rem;padding:1rem 1.2rem;border:1px dashed rgba(13,14,18,.3);border-radius:16px;line-height:1.55;color:#1a1c24;max-width:80ch}
+.objetivo b{color:#6d28d9}
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:3rem}
+@media(max-width:820px){.quotes{grid-template-columns:1fr}}
+.quotes figure{background:#fff;border:1px solid var(--line);border-radius:22px;padding:1.6rem;position:relative}
+.quotes figure::before{content:"“";position:absolute;top:.2rem;left:1rem;font-family:'Orbitron',sans-serif;font-size:3rem;color:#8b5cf6;opacity:.35}
+.quotes blockquote{font-size:1.02rem;line-height:1.6;color:#1a1c24;margin-top:1rem}
+.quotes figcaption{margin-top:.8rem;font-weight:700;font-size:.9rem;color:#6d28d9}
+.refs{margin-top:1.2rem;color:#4b4f5c;font-size:.9rem}
+#equipe .names .lead-role{display:inline}
+#equipe .names .lead-role small{font-size:.62em;font-weight:600;color:#6d28d9;margin-left:.15em}
+.agradece{font-style:normal;opacity:.85}
+.chip-s{background:rgba(11,11,15,.55);border:1px solid rgba(255,255,255,.2)}
+#ch-problema .datum{background:rgba(11,11,15,.62);border:1px solid rgba(255,255,255,.14)}
+</style>
+</head>
+<body>
+<div id="progress" aria-hidden="true"></div>
+<div id="curtain" aria-hidden="true"></div>
+<a class="skip" href="#light">Pular a animação</a>
+
+<div id="loader" role="status" aria-label="Carregando">
+  <svg class="tri" viewBox="0 0 100 100" fill="none"><defs><linearGradient id="ldg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff00e5"/><stop offset=".5" stop-color="#00f0ff"/><stop offset="1" stop-color="#2979ff"/></linearGradient></defs><path d="M50 12 L92 84 H8 Z" stroke="white" stroke-width="7"/></svg>
+  <div class="bar"><i id="loadbar"></i></div>
+  <div class="pct" id="loadpct">0%</div>
+</div>
+
+<nav id="nav" aria-label="Navegação principal">
+  <a class="logo liquid-glass" href="#topo" aria-label="Projeto Delta, início"><svg viewBox="0 0 316 92" role="img" aria-label="Projeto Delta"><defs><linearGradient id="lgnav" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff00e5"/><stop offset=".3" stop-color="#8b5cf6"/><stop offset=".55" stop-color="#00f0ff"/><stop offset=".8" stop-color="#2979ff"/><stop offset="1" stop-color="#ff00e5"/></linearGradient></defs><path d="M50 8 L94 84 L8 84 Z" fill="none" stroke="url(#lgnav)" stroke-width="12"/><text x="118" y="38" font-family="Orbitron,sans-serif" font-weight="500" font-size="17" textLength="150" lengthAdjust="spacing" fill="currentColor">PROJETO</text><text x="116" y="82" font-family="Orbitron,sans-serif" font-weight="800" font-size="40" textLength="150" lengthAdjust="spacing" fill="currentColor">DELT</text><path d="M276 82 L292 45 L308 82" fill="none" stroke="currentColor" stroke-width="7.5"/></svg></a>
+  <div class="menu liquid-glass">
+    <a href="#problema">O problema</a>
+    <a href="#app">O app</a>
+    <a href="#eixos">Os eixos</a>
+    <a href="#metodologia">Metodologia</a>
+    <a href="#equipe">Equipe</a>
+    <a class="cta" href="app/">Entrar
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+    </a>
+  </div>
+  <button class="burger liquid-glass" id="burger" aria-label="Abrir menu"><span></span><span></span></button>
+</nav>
+
+<div id="overlay" aria-hidden="true">
+  <button class="close" id="closeMenu" aria-label="Fechar menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="links">
+    <a href="#missao" data-d=".08s">A missão</a>
+    <a href="#app" data-d=".14s">O app</a>
+    <a href="#eixos" data-d=".20s">Os eixos</a>
+    <a href="#objetivos" data-d=".23s">Objetivos</a>
+    <a href="#metodologia" data-d=".26s">Metodologia</a>
+    <a href="#equipe" data-d=".32s">A tripulação</a>
+    <a href="app/" data-d=".38s">Entrar na plataforma</a>
+    <a href="#instalar" class="install-link" data-install data-d=".44s">Instalar no celular</a>
+  </div>
+  <div class="foot">
+    <span class="serif">Projeto Delta</span>
+    <span>Universidade São Francisco, Campinas. Semestre 2026.2</span>
+  </div>
+</div>
+
+<div id="cursor" aria-hidden="true">
+  <span class="c-ripple"></span>
+  <svg class="c-arrow" viewBox="0 0 26 30" width="26" height="30">
+    <defs><linearGradient id="cgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00f0ff"/><stop offset=".5" stop-color="#2979ff"/><stop offset="1" stop-color="#ff00e5"/></linearGradient></defs>
+    <path class="body" d="M3 2 L3 22.5 L8.3 17.6 L11.9 25.6 C12.2 26.3 13 26.6 13.7 26.3 L15.4 25.5 C16.1 25.2 16.4 24.4 16.1 23.7 L12.6 16 L19.8 15.8 Z" fill="url(#cgrad)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+    <path class="spark" d="M21 18.5 L21.9 21.1 L24.5 22 L21.9 22.9 L21 25.5 L20.1 22.9 L17.5 22 L20.1 21.1 Z" fill="#fff"/>
+  </svg>
+  <span class="c-label">Abrir</span>
+</div>
+
+<div id="grain" aria-hidden="true"></div>
+
+<a id="topo"></a>
+<div id="journey" aria-label="A travessia: narrativa em vídeo controlada pela rolagem">
+  <div id="stage">
+    <canvas id="film" aria-hidden="true"></canvas>
+
+    <!-- CAP 0 · HERO · frames 0–18 -->
+    <section class="chapter" id="ch-hero" data-in="-0.1" data-hold="-0.05" data-out="0.14">
+      <div class="inner">
+        <h1 class="serif" id="heroTitle">A Matemática do <span class="hchip" aria-hidden="true"><svg viewBox="0 0 100 92" width="40" height="37"><defs><linearGradient id="hcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff00e5"/><stop offset=".5" stop-color="#00f0ff"/><stop offset="1" stop-color="#2979ff"/></linearGradient></defs><path d="M50 8 L94 84 L8 84 Z" fill="none" stroke="url(#hcg)" stroke-width="13"/></svg></span> <span class="sans">ENEM</span> não precisa ser um <em>abismo.</em></h1>
+        <p class="sub">São 45 questões de Matemática no 2º dia, e quase tudo que ajuda a acertá-las custa caro: cursinho, método, acompanhamento. O <strong>Projeto Delta</strong> entrega isso de graça, em forma de jogo, direto no seu celular.</p>
+        <div class="ctas">
+          <a class="btn-glass" href="app/">Começar grátis
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+          </a>
+          <button class="btn-install" type="button" data-install><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Instalar no celular</button>
+          <a class="link-plain" href="#app">Ver como funciona</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAP 1 · PROBLEMA · escuridão / buraco negro -->
+    <section class="chapter" id="ch-problema" data-in="0.20" data-hold="0.30" data-out="0.38">
+      <div class="inner">
+        <div>
+          <h2 class="serif">A lacuna é real. E não é falta de <em>talento.</em></h2>
+        </div>
+        <div>
+          <p>Muitos formandos da rede pública, como os da escola <strong>CEMEP</strong>, em Paulínia (SP), chegam ao 3º ano sem cronograma, sem material organizado e sem ninguém para dizer o que revisar. É exatamente isso que os cursinhos vendem.</p>
+          <div class="datum">
+            <div class="n serif">45 <em>questões</em></div>
+            <div class="l">Matemática e suas Tecnologias ocupa metade do 2º dia do ENEM. É onde a falta de base mais derruba a nota.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAP 2 · PLATAFORMA -->
+    <section class="chapter" id="ch-plataforma" data-in="0.44" data-hold="0.54" data-out="0.62">
+      <div class="inner">
+        <h2 class="serif">Método de cursinho, <em>custo zero.</em></h2>
+        <p>Lições curtas, questões oficiais do INEP e revisão no dia certo. Você estuda dez minutos e o Delta cuida do resto: o que revisar, quando revisar e por onde continuar.</p>
+        <div class="tags">
+          <span class="chip-s">Banco por tema e dificuldade</span>
+          <span class="chip-s">Cronograma personalizável</span>
+          <span class="chip-s">Revisão espaçada e adaptativa</span>
+          <span class="chip-s">Questões oficiais do INEP</span>
+          <span class="chip-s">Questões inspiradas no ENEM</span>
+          <span class="chip-s">Simulados cronometrados</span>
+          <span class="chip-s">Grátis, no celular e no PC</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAP 3 · TRAVESSIA · emergindo na luz -->
+    <section class="chapter" id="ch-travessia" data-in="0.73" data-hold="0.79" data-out="0.86">
+      <div class="inner">
+        <h2 class="serif">Pouco por dia, todo dia, vira <em>aprovação.</em></h2>
+        <p>Sequência de dias, meta diária e missões transformam estudo em hábito. Errou? A questão volta no momento certo, até virar acerto.</p>
+      </div>
+    </section>
+
+    <!-- CAP 4 · CHEGADA · luz -->
+    <section class="chapter" id="ch-chegada" data-in="0.90" data-hold="0.95" data-out="1.03">
+      <div class="inner">
+        <h2 class="serif">Do outro lado, a <em>aprovação.</em></h2>
+        <p>Delta (Δ) é o símbolo da variação. A nossa é a distância entre quem começa a trilha e quem chega ao dia da prova preparado.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="light">
+  <section id="missao"><a id="problema" style="position:absolute"></a>
+    <div class="wrap">
+      <div class="grid">
+        <div class="reveal">
+          <h2 class="serif blur-text">Feito para quem os cursinhos costumam esquecer.</h2>
+          <p class="lead">Somos estudantes de Engenharia da Computação da Universidade São Francisco, em Campinas. Este projeto de extensão usa o que aprendemos na faculdade para abrir um tipo de estudo que hoje fica atrás de mensalidades. Começamos pelos formandos da escola pública CEMEP, nossa parceira.</p>
+        </div>
+        <div class="ods reveal">
+          <div>
+            <div class="num serif">ODS 4</div>
+            <h3>Educação de qualidade</h3>
+            <p>Apoio gratuito para alunos de escolas públicas se prepararem para o ENEM.</p>
+          </div>
+          <div>
+            <div class="num serif">ODS 10</div>
+            <h3>Redução das desigualdades</h3>
+            <p>Mais oportunidades para quem não pode pagar por um curso preparatório.</p>
+          </div>
+        </div>
+      </div>
+      <ul class="proposta reveal" aria-label="Proposta de solução">
+        <li><b>Oferecer</b> materiais gratuitos para o ENEM, ampliando o acesso à educação de qualidade.</li>
+        <li><b>Apoiar</b> alunos de escolas públicas, ajudando a reduzir as desigualdades na preparação.</li>
+        <li><b>Apresentar</b> métodos de estudo que ajudem cada aluno a aprender melhor e organizar a rotina.</li>
+        <li><b>Reunir</b> questões e acompanhar o progresso dos alunos numa plataforma gratuita e fácil de usar.</li>
+      </ul>
+    </div>
+  </section>
+
+
+  <section id="objetivos" aria-labelledby="objTitle">
+    <div class="wrap obj-wrap">
+      <div class="reveal obj-head">
+        <h2 class="serif" id="objTitle">O que o projeto se propõe a <em>fazer.</em></h2>
+        <p class="lead">Desenvolver e implementar um site gratuito de apoio aos estudos de Matemática do 2º dia do ENEM, voltado para os alunos do ensino médio da escola pública CEMEP.</p>
+      </div>
+      <div class="obj-list">
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><circle cx="11" cy="11" r="7"/></g><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><h3>Diagnosticar dificuldades</h3><p>Questionários e conversas com os alunos do CEMEP, e um diagnóstico dentro da plataforma.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><rect x="3" y="4" width="13" height="10" rx="2"/><rect x="15" y="9" width="6" height="11" rx="1.5"/></g><rect x="3" y="4" width="13" height="10" rx="2"/><rect x="15" y="9" width="6" height="11" rx="1.5"/><path d="M7 18h6"/></svg><h3>Interface responsiva</h3><p>Funciona no celular e no computador, e pode ser instalada como app.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/></g><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M8 7h7M8 11h5"/></svg><h3>Banco de questões</h3><p>Questões oficiais do ENEM organizadas por tema, ano e dificuldade.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><path d="M5 5h14a2 2 0 0 1 2 2v3H3V7a2 2 0 0 1 2-2Z"/></g><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><h3>Cronograma personalizável</h3><p>O aluno escolhe o que estudar em cada dia, com sugestões pelo desempenho.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><circle cx="12" cy="12" r="5"/></g><path d="M20 12a8 8 0 0 1-14 5.3M4 12A8 8 0 0 1 18 6.7"/><path d="M18 2v5h-5M6 22v-5h5"/></svg><h3>Revisão de questões</h3><p>Revisão espaçada e adaptativa, com caderno de erros.</p></div>
+        <div class="obj reveal"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0Z"/></g><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4 4 0 0 1 7 0"/></svg><h3>Testes e capacitação</h3><p>Testes com os estudantes no CEMEP e guia de uso da plataforma.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dados" aria-labelledby="dadosTitle">
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="serif" id="dadosTitle">A diferença que o Delta quer <em>diminuir.</em></h2>
+        <p class="lead">Quem estuda em escola pública chega ao ENEM em desvantagem. Os números apresentados pela equipe mostram o tamanho da distância.</p>
+      </div>
+      <div class="dados-grid">
+        <div class="dado reveal"><p class="frase"><b>467</b> das 500 maiores notas do ENEM são de alunos de escolas particulares. Só <b class="pb">29</b> vêm de escolas públicas.</p>
+          <div class="dots" aria-hidden="true"><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="pb"></i><i class="pb"></i><i class="pb"></i></div><small>Cada ponto representa 10 das 500 maiores notas.</small></div>
+        <div class="dado reveal"><p class="frase">A média das escolas públicas fica <b class="pb">92,61 pontos</b> abaixo da média das privadas.</p>
+          <div class="bars2"><div><span>Privada</span><i style="--v:598.24"></i><b>598,24</b></div><div><span>Pública</span><i style="--v:505.63" class="pb"></i><b>505,63</b></div></div></div>
+      </div>
+      <div class="tabela reveal">
+        <table>
+          <caption>Comparativo por característica: tipo de escola, sexo e classe socioeconômica</caption>
+          <thead><tr><th scope="col">Característica</th><th scope="col">Nível</th><th scope="col">Alunos</th><th scope="col">Nota média</th><th scope="col">Diferença</th></tr></thead>
+          <tbody>
+            <tr><th rowspan="2" scope="rowgroup">Escola</th><td>Privada</td><td>70.944</td><td>598,24</td><td>Referência</td></tr>
+            <tr><td>Pública</td><td>446.169</td><td>505,63</td><td class="neg">−92,61</td></tr>
+            <tr><th rowspan="2" scope="rowgroup">Sexo</th><td>Feminino</td><td>298.801</td><td>512,18</td><td>Referência</td></tr>
+            <tr><td>Masculino</td><td>218.312</td><td>526,76</td><td>+14,58</td></tr>
+            <tr><th rowspan="4" scope="rowgroup">Classe socioeconômica</th><td>A</td><td>14.736</td><td>631,08</td><td>Referência</td></tr>
+            <tr><td>B</td><td>127.904</td><td>553,61</td><td class="neg">−77,47</td></tr>
+            <tr><td>C</td><td>293.003</td><td>507,09</td><td class="neg">−123,99</td></tr>
+            <tr><td>D</td><td>81.470</td><td>483,01</td><td class="neg">−148,07</td></tr>
+          </tbody>
+        </table>
+        <small>Dados do ENEM apresentados pela equipe no seminário de 2026.2.</small>
+      </div>
+    </div>
+  </section>
+
+  <section id="app" aria-labelledby="appTitle">
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="serif" id="appTitle">Estudar com um parceiro é <em>outra coisa.</em></h2>
+        <p class="lead">O Delta é o micro astronauta que acompanha a sua trilha: comemora cada acerto, explica cada erro e lembra você de voltar amanhã.</p>
+        <div class="feats">
+          <div class="feat f-trilha"><div class="mini" data-mini="trilha" aria-hidden="true"></div><h3>Trilha em forma de jogo</h3><p>Lições de 8 questões com vidas, combos e estrelas. Cada acerto rende XP e Deltas.</p></div>
+          <div class="feat f-origem"><div class="mini" aria-hidden="true"><div class="origin"><span class="of">Oficial ENEM</span><span class="pl">Plataforma</span></div><small>ENEM 2023, questão 144</small></div><h3>Origem sempre clara</h3><p>Toda questão mostra se é prova real do INEP ou criada pela equipe.</p></div>
+          <div class="feat f-loja"><div class="mini" data-mini="loja" aria-hidden="true"></div><h3>Seu astronauta, seu estilo</h3><p>Troque Deltas por capacetes, trajes e fundos. Suba de nível para liberar itens raros.</p></div>
+          <div class="feat f-rev"><div class="mini" data-mini="semana" aria-hidden="true"></div><h3>Revisão e cronograma</h3><p>O Delta traz cada assunto de volta no dia certo e monta sua semana de estudo.</p></div>
+        </div>
+        <div class="ctas" style="justify-content:flex-start;margin-top:2rem">
+          <a class="btn-glass" href="app/">Criar meu astronauta
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+          </a>
+          <button class="btn-install" type="button" data-install><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Instalar no celular</button>
+        </div>
+      </div>
+      <div class="stagebox reveal" id="appStage" aria-label="O mascote Delta, um micro astronauta de capacete preto com olhos em forma de triângulo">
+        <p class="say" id="appSay">Oi! Eu sou o Delta.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="eixos" aria-labelledby="eixosTitle">
+    <div class="wrap">
+      <div class="eixos-grid">
+        <div class="eixos-copy reveal">
+          <h2 class="serif blur-text" id="eixosTitle">Quatro eixos. Um só Δ.</h2>
+          <p class="lead">As 45 questões de Matemática do 2º dia cabem em quatro eixos. Gire o delta, escolha uma face e responda uma questão da plataforma aqui mesmo.</p>
+          <div class="eixo-list">
+            <button class="eixo" data-i="0" style="--h:258"><span class="sym" aria-hidden="true">%</span><span><b>Números e Grandezas</b><small>Porcentagem, proporção, finanças e medidas</small></span></button>
+            <button class="eixo" data-i="1" style="--h:195"><span class="sym" aria-hidden="true">ƒ</span><span><b>Álgebra e Funções</b><small>Funções, progressões e logaritmos</small></span></button>
+            <button class="eixo" data-i="2" style="--h:165"><span class="sym" aria-hidden="true">△</span><span><b>Geometria</b><small>Áreas, volumes, Pitágoras e trigonometria</small></span></button>
+            <button class="eixo" data-i="3" style="--h:330"><span class="sym" aria-hidden="true">σ</span><span><b>Estatística e Probabilidade</b><small>Gráficos, médias, contagem e chance</small></span></button>
+          </div>
+        </div>
+        <div class="delta-stage reveal">
+          <canvas id="delta3d" role="img" aria-label="Tetraedro 3D interativo: cada face representa um eixo da Matemática do ENEM"></canvas>
+          <p class="hint">Arraste o Δ para girar</p>
+        </div>
+      </div>
+      <div class="demo reveal" id="demo" aria-live="polite"></div>
+    </div>
+  </section>
+  <section id="metodologia"><a id="plataforma" style="position:absolute"></a>
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="serif blur-text">Ouvir primeiro, construir depois, medir sempre.</h2>
+        <div class="carater"><span><b>Caráter:</b> qualitativo e exploratório</span><span><b>Abordagem:</b> pesquisa-ação</span><span><b>Território:</b> CEMEP, Paulínia (SP)</span></div>
+        <p class="lead" style="margin-top:1.4rem;max-width:62ch">Estudantes de escola pública têm dificuldade em exatas e acesso limitado a materiais de qualidade. Como a maioria usa celular ou computador todos os dias, o projeto intervém com um guia de estudos digital: cronograma personalizável e revisão espaçada adaptada a cada aluno, testado diretamente com os estudantes.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <h3>Diagnóstico</h3>
+          <p>Questionários e conversas com os alunos do CEMEP mapeiam as lacunas reais em Matemática e o acesso à tecnologia. Nada é construído no achismo.</p>
+        </div>
+        <div class="step reveal">
+          <h3>Construção</h3>
+          <p>Trilhas por eixo, questões oficiais do ENEM e questões autorais da plataforma, gamificação e revisão espaçada que se adapta aos seus erros.</p>
+        </div>
+        <div class="step reveal">
+          <h3>Testes e ajustes</h3>
+          <p>O protótipo é aplicado no CEMEP, os alunos avaliam dentro da própria plataforma e cada ciclo de feedback vira melhoria.</p>
+        </div>
+      </div>
+      <div class="stack reveal" aria-label="Tecnologias utilizadas">
+        <div class="row"><em>Front-end</em><span>HTML5</span><span>CSS3</span><span>JavaScript (ES Modules)</span><span>Canvas 2D &amp; 3D</span><span>SVG animado</span><span>Web Audio API</span><span>View Transitions API</span><span>PWA</span></div>
+        <div class="row"><em>Back-end</em><span>Supabase</span><span>PostgreSQL</span><span>PL/pgSQL</span><span>Supabase Auth</span><span>Row Level Security</span></div>
+        <div class="row"><em>Infra</em><span>Vercel (CDN)</span><span>Git &amp; GitHub</span><span>Headers de segurança (CSP/HSTS)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cronograma" aria-labelledby="cronoTitle">
+    <div class="wrap">
+      <div class="reveal"><h2 class="serif" id="cronoTitle">Cronograma do <em>projeto.</em></h2>
+        <p class="lead">Da primeira conversa no CEMEP até a versão final, em seis etapas.</p></div>
+      <ol class="fases">
+        <li class="reveal" style="--h:215"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><circle cx="11" cy="11" r="7"/></g><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span><h3>Diagnóstico inicial</h3><p>Levantamento das dificuldades dos alunos, do acesso à tecnologia e do uso de ferramentas digitais, por meio de questionários e conversas.</p></li>
+        <li class="reveal" style="--h:140"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><rect x="3" y="4" width="18" height="13" rx="2"/></g><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M7 9h6M7 12h10M9 21h6M12 17v4"/></svg></span><h3>Planejamento do site</h3><p>Definição da estrutura do site, conteúdos, funcionalidades, recursos e estratégias de participação dos estudantes.</p></li>
+        <li class="reveal" style="--h:30"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><rect x="3" y="5" width="18" height="12" rx="2"/></g><rect x="3" y="5" width="18" height="12" rx="2"/><path d="m9 9-2 2 2 2M15 9l2 2-2 2M2 20h20"/></svg></span><h3>Desenvolvimento do protótipo</h3><p>Criação do protótipo do site com conteúdos de exatas, exercícios, explicações e ferramentas interativas.</p></li>
+        <li class="reveal" style="--h:265"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0Z"/></g><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4 4 0 0 1 7 0"/></svg></span><h3>Testes com os estudantes</h3><p>Aplicação do protótipo no CEMEP Osmar Passarelli Silveira para testes com os estudantes.</p></li>
+        <li class="reveal" style="--h:335"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><path d="M4 5h16v11H9l-5 4V5Z"/></g><path d="M4 5h16v11H9l-5 4V5Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg></span><h3>Ajustes com base no feedback</h3><p>Coleta de feedback dos alunos para melhorar conteúdo, layout e funcionalidades.</p></li>
+        <li class="reveal" style="--h:185"><span class="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="du"><path d="M5 4h14a2 2 0 0 1 2 2v2H3V6a2 2 0 0 1 2-2Z"/></g><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8h18"/><path d="m9 14 2 2 4-4"/></svg></span><h3>Versão final do site</h3><p>Implementação da versão final e disponibilização para uso contínuo pelos estudantes.</p></li>
+      </ol>
+      <p class="objetivo reveal"><b>Objetivo:</b> oferecer um site acessível, interativo e de qualidade para apoiar os estudantes de escolas públicas na preparação para o ENEM, com foco na melhoria do desempenho em exatas.</p>
+    </div>
+  </section>
+
+  <section id="referencial" aria-labelledby="refTitle">
+    <div class="wrap">
+      <div class="reveal"><h2 class="serif" id="refTitle">Em que o projeto se <em>apoia.</em></h2></div>
+      <div class="quotes">
+        <figure class="reveal"><blockquote>A tecnologia pode se adaptar e potencializar o ambiente educacional, gerando inovação e transformando espaços tradicionais. As TIC representam novas possibilidades de acesso às informações e podem ser usadas como ferramentas para que os alunos, de forma individual ou cooperativa, construam seus próprios conhecimentos.</blockquote><figcaption>Lucas Goulart Collares, p. 10</figcaption></figure>
+        <figure class="reveal"><blockquote>A falta de interesse pode estar relacionada ao não interesse da matéria, ou simplesmente aos estudantes que não estão conseguindo aprender. Ambos os motivos podem ser combatidos através da utilização de estratégias adequadas de estudo.</blockquote><figcaption>Felipe Omena, 2023, p. 3</figcaption></figure>
+        <figure class="reveal"><blockquote>A qualidade do seu pensamento depende da qualidade dos seus modelos mentais. Aprender a pensar melhor é uma das habilidades mais valiosas que você pode desenvolver.</blockquote><figcaption>Shane Parrish, 2020, p. 1 e 2</figcaption></figure>
+        <figure class="reveal"><blockquote>Deverão estar habilitados a responder de forma ágil e eficaz às demandas crescentes por formação profissional, difusão de conhecimentos científicos e tecnológicos e de suporte aos arranjos produtivos em seus locais.</blockquote><figcaption>Távora, 2008, p. 2</figcaption></figure>
+      </div>
+      <p class="refs reveal">Também citados no seminário: Lorena Simone Nascimento Barros (2016) e Enrique Leff (2012).</p>
+    </div>
+  </section>
+
+  <section id="equipe">
+    <div class="wrap">
+      <div class="reveal">
+        <h2 class="serif blur-text">Dez estudantes, uma travessia.</h2>
+      </div>
+      <div class="names reveal">
+        <span class="lead-role">Matheus Pires Canada <small>líder</small></span>
+        <span class="lead-role">Beatriz Bassi <small>vice-líder</small></span>
+        <span>Paulo Henrique de Oliveira</span>
+        <span>Evelyn Guimarães dos Reis</span>
+        <span>Murilo Polycarpo de Abreu dos Santos</span>
+        <span>Valnei Vitor Mendes de Oliveira</span>
+        <span>Heitor Margosian Bueno de Oliveira</span>
+        <span>Felipe Nonato Gomes</span>
+        <span>Gabriel Roberto Silva</span>
+        <span>Danilo Augusto do Nascimento Fortes</span>
+      </div>
+      <p class="inst reveal">Alunos da graduação em Engenharia da Computação da Universidade São Francisco, campus Sagrado Coração de Jesus, em Campinas. Projeto extensionista do semestre 2026.2. Território parceiro: CEMEP, Centro Municipal de Ensino Profissionalizante Osmar Passarelli Silveira, em Paulínia (SP).</p>
+    </div>
+  </section>
+</div>
+
+<section id="fim">
+  <div class="reveal">
+    <h2 class="serif blur-text" style="margin-top:1rem">A travessia começa agora.</h2>
+    <p class="agradece">Agradecemos ao CEMEP, aos estudantes e à USF Sagrado Coração de Jesus pela parceria, pelo território e pelo diálogo que tornaram este projeto possível.</p>
+    <p>É grátis, funciona no celular e leva um minuto para começar. Crie seu astronauta e faça a primeira lição hoje. Quer levar o Projeto Delta para a sua escola? Fale com a gente.</p>
+    <div class="ctas">
+      <a class="btn-glass" href="app/">Começar grátis
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+      </a>
+      <button class="btn-install" type="button" data-install><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Instalar no celular</button>
+      <a class="link-plain" href="mailto:matheuspirescanada@gmail.com?subject=Projeto%20Delta">Falar com a equipe
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg>
+      </a>
+      <a class="link-plain" href="#topo">Refazer a travessia</a>
+    </div>
+  </div>
+  <div class="meta">
+    <span class="serif">Projeto Delta</span>
+    <span>Universidade São Francisco, Campinas. Semestre 2026.2</span>
+    <span>ODS 4: Educação de Qualidade. ODS 10: Redução das Desigualdades</span>
+  </div>
+</section>
+
+<script src="vendor/lenis-1.1.14.min.js" defer></script>
+<script src="app.js" defer></script>
+<script src="delta3d.js" defer></script>
+<script type="module" src="eixos-demo.js"></script>
+<script type="module" src="landing-app.js"></script>
+<script src="install.js" defer></script>
+</body>
+</html>

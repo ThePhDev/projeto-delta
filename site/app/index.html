@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0b0f" />
+<meta name="color-scheme" content="dark light" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<title>Projeto Delta · Matemática para o ENEM</title>
+<meta name="description" content="Aprenda a Matemática do ENEM jogando: trilhas por eixo, questões oficiais do INEP e questões da plataforma, revisão espaçada, simulados e um astronauta que torce por você." />
+<link rel="manifest" href="../manifest.webmanifest" />
+<link rel="icon" type="image/png" sizes="32x32" href="../brand/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="../brand/app-512.png" />
+<link rel="apple-touch-icon" href="../brand/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Delta" />
+<link rel="preload" href="../fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="../fonts/orbitron-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="modulepreload" href="app.js" />
+<link rel="modulepreload" href="core.js" />
+<link rel="modulepreload" href="learn.js" />
+<link rel="modulepreload" href="pages.js" />
+<link rel="modulepreload" href="auth.js" />
+<link rel="modulepreload" href="mascot.js" />
+<link rel="modulepreload" href="cutscene.js" />
+<link rel="modulepreload" href="content.js" />
+<link rel="modulepreload" href="bank.js" />
+<link rel="modulepreload" href="gen.js" />
+<link rel="modulepreload" href="plan.js" />
+<link rel="modulepreload" href="icons.js" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <div id="root">
+    <div class="boot" role="status" aria-label="Carregando"><div class="spin"></div></div>
+  </div>
+  <noscript><p style="padding:2rem;text-align:center">Ative o JavaScript para usar o Projeto Delta.</p></noscript>
+  <script src="../vendor/supabase-2.117.2.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
